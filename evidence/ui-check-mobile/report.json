@@ -1,12 +1,10 @@
 {
   "os": "EduFlow",
-  "status": "fail",
+  "status": "pass",
   "viewport": "mobile",
-  "passed": 949,
-  "failed": 1,
-  "failures": [
-    "batches: 8 text element(s) in the faint grey (ink-4 is for disabled only) ['Sun', 'Sun', 'Mon', 'Tue', 'Wed']"
-  ],
+  "passed": 950,
+  "failed": 0,
+  "failures": [],
   "warnings": [
     "leads: U1b 3 tap target(s) under 32px on a phone [('Unassigned \u00b7 Assign', 112, 18), ('Unassigned \u00b7 Assign', 112, 18), ('Unassigned \u00b7 Assign', 112, 18)]",
     "students \u203a add_student: U6 8 fields in one form \u2014 split into sections or steps of 7 or fewer"
