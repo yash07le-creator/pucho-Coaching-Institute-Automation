@@ -96,7 +96,7 @@ id: Fee_ID (FE-…) · status: Status ['Upcoming', 'Due', 'Overdue', 'Partial', 
 | Date | timestamptz |
 | Batch | text |
 | Student_ID | text |
-| Student_Name | text |
+| Name | text |
 | Course | text |
 | Parent_Name | text |
 | Parent_Phone | text |
@@ -119,14 +119,13 @@ id: Att_ID (AT-…) · status: Status ['Present', 'Absent']
 | Test_Date | timestamptz |
 | Test_Name | text |
 | Student_ID | text |
-| Student_Name | text |
+| Name | text |
 | Course | text |
 | Batch | text |
 | Subject | text |
 | Marks | numeric |
 | Max_Marks | numeric |
 | Score_Pct | numeric |
-| Entered_By | text |
 
 id: Score_ID (TS-…) · status: — 
 

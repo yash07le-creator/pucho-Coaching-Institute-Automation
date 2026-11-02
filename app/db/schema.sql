@@ -176,7 +176,7 @@ CREATE TABLE IF NOT EXISTS "attendance" (
   "date" timestamptz,
   "batch" text,
   "student_id" text,
-  "student_name" text,
+  "name" text,
   "course" text,
   "parent_name" text,
   "parent_phone" text,
@@ -200,14 +200,13 @@ CREATE TABLE IF NOT EXISTS "tests" (
   "test_date" timestamptz,
   "test_name" text,
   "student_id" text,
-  "student_name" text,
+  "name" text,
   "course" text,
   "batch" text,
   "subject" text,
   "marks" numeric,
   "max_marks" numeric,
   "score_pct" numeric,
-  "entered_by" text,
   _seq bigserial
 );
 CREATE UNIQUE INDEX IF NOT EXISTS "tests_test_name_student_id_subject_uq" ON "tests" ("test_name", "student_id", "subject");
@@ -337,10 +336,10 @@ DO $$ DECLARE r record; BEGIN
     ALTER TABLE "leads" ADD CONSTRAINT "leads_source_v49_61f89f06" CHECK (("source" IN ('Instagram', 'WhatsApp', 'Google Ads', 'Referral', 'Website', 'Walk-in') OR "source" = '')) NOT VALID; END IF;
 END $$;
 DO $$ DECLARE r record; BEGIN
-  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"leads"'::regclass AND left(conname, 16) = 'leads_grade_v49_' AND conname <> 'leads_grade_v49_727f1e00' LOOP
+  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"leads"'::regclass AND left(conname, 16) = 'leads_grade_v49_' AND conname <> 'leads_grade_v49_4f96aecd' LOOP
     EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'leads', r.conname); END LOOP;
-  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"leads"'::regclass AND conname = 'leads_grade_v49_727f1e00') THEN
-    ALTER TABLE "leads" ADD CONSTRAINT "leads_grade_v49_727f1e00" CHECK (("grade" IN ('HOT', 'WARM', 'COLD') OR "grade" = '')) NOT VALID; END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"leads"'::regclass AND conname = 'leads_grade_v49_4f96aecd') THEN
+    ALTER TABLE "leads" ADD CONSTRAINT "leads_grade_v49_4f96aecd" CHECK (("grade" IN ('Not graded', 'HOT', 'WARM', 'COLD') OR "grade" = '')) NOT VALID; END IF;
 END $$;
 DO $$ DECLARE r record; BEGIN
   FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"leads"'::regclass AND left(conname, 16) = 'leads_score_v49_' AND conname <> 'leads_score_v49_d0dfcb31' LOOP
@@ -504,7 +503,7 @@ END $$;
 ALTER TABLE "attendance" ADD COLUMN IF NOT EXISTS "date" timestamptz;
 ALTER TABLE "attendance" ADD COLUMN IF NOT EXISTS "batch" text;
 ALTER TABLE "attendance" ADD COLUMN IF NOT EXISTS "student_id" text;
-ALTER TABLE "attendance" ADD COLUMN IF NOT EXISTS "student_name" text;
+ALTER TABLE "attendance" ADD COLUMN IF NOT EXISTS "name" text;
 ALTER TABLE "attendance" ADD COLUMN IF NOT EXISTS "course" text;
 ALTER TABLE "attendance" ADD COLUMN IF NOT EXISTS "parent_name" text;
 ALTER TABLE "attendance" ADD COLUMN IF NOT EXISTS "parent_phone" text;
@@ -563,14 +562,13 @@ END $$;
 ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS "test_date" timestamptz;
 ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS "test_name" text;
 ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS "student_id" text;
-ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS "student_name" text;
+ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS "name" text;
 ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS "course" text;
 ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS "batch" text;
 ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS "subject" text;
 ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS "marks" numeric;
 ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS "max_marks" numeric;
 ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS "score_pct" numeric;
-ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS "entered_by" text;
 ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS _seq bigserial;
 DO $$ DECLARE r record; BEGIN
   FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"tests"'::regclass AND left(conname, 17) = 'tests_course_v49_' AND conname <> 'tests_course_v49_8873de20' LOOP

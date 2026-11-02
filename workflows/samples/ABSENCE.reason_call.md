@@ -6,7 +6,7 @@
   "Date": "<string>",
   "Batch": "<string>",
   "Student_ID": "<string>",
-  "Student_Name": "<string>",
+  "Name": "<string>",
   "Course": "<string>",
   "Parent_Name": "<string>",
   "Parent_Phone": "<string>"

@@ -23,8 +23,8 @@ _Generated from os.yaml. The step-2 summary: roles and homes, journeys, entities
 | leads | Name | Course | Assigned_To | Next_Followup_At | phone=Phone, whatsapp=Phone, email=Email | New → Called → Counselling → Demo Booked → Nurture → Enrolled → Lost |
 | students | Name | Course, Batch | Mentor |  | phone=Parent_Phone, whatsapp=Parent_Phone | Active → At Risk → Critical → Inactive |
 | fees | Student_Name | Course, Parent_Name |  | Due_Date | phone=Parent_Phone, whatsapp=Parent_Phone | Upcoming → Due → Overdue → Partial → Paid |
-| attendance | Student_Name | Batch, Course |  |  | phone=Parent_Phone, whatsapp=Parent_Phone | Present → Absent |
-| tests | Student_Name | Test_Name, Subject |  |  |  |  |
+| attendance | Name | Batch, Course |  |  | phone=Parent_Phone, whatsapp=Parent_Phone | Present → Absent |
+| tests | Name | Test_Name, Subject |  |  |  |  |
 | calls | Person | Agent, Course |  |  | phone=Phone, whatsapp=Phone | Queued → Calling → Completed → No Answer → Failed → Escalated |
 | messages | To_Name | Type |  |  |  | Queued → Sent → Delivered → Read → Failed → Simulated |
 | alerts | Title | Kind, Severity | Owner |  |  | Open → Acknowledged → Resolved |
@@ -104,18 +104,18 @@ Data: **PostgreSQL** (one database per client, single-tenant) · security: **§1
 | Leads | Call again with AI | status: 0 fields · ADMISSION_CALL |
 | Leads | Assign counsellor | edit: 2 fields · date presets · direct |
 | Leads | Change stage | status: 3 fields · date presets · direct |
-| Leads | Enrol as student | custom: 7 fields · STUDENT_MANAGE |
-| Students | Enrol student | create: 10 fields · STUDENT_MANAGE |
+| Leads | Enrol as student | custom: 5 fields · STUDENT_MANAGE |
+| Students | Enrol student | create: 8 fields · STUDENT_MANAGE |
 | Students | Assign mentor / counsellor | edit: 2 fields · direct |
 | Students | AI call to parent | status: 0 fields · PARENT_UPDATE |
 | Students | Send weekly report | status: 0 fields · PARENT_UPDATE |
 | Students | WhatsApp the parent | custom: 1 field · SEND_WHATSAPP |
-| Attendance | Mark one student | create: 6 fields · direct |
+| Attendance | Mark one student | create: 4 fields · panel · direct |
 | Attendance | Call the parent | status: 0 fields · ABSENCE |
 | Attendance | Follow-up done | status: 0 fields · direct |
 | Academic | AI counselling call | status: 0 fields · ACADEMIC_CALL |
 | Academic | Assign mentor / counsellor | edit: 2 fields · direct |
-| Test scores | Add score | create: 10 fields · direct |
+| Test scores | Add score | create: 7 fields · panel · direct |
 | Test scores | Correct marks | edit: 2 fields · direct |
 | Fees | Record payment | status: 4 fields · direct |
 | Fees | Send payment link | status: 0 fields · FEE_REMINDER |

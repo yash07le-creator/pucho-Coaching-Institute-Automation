@@ -500,6 +500,7 @@ export const PAGES = [
         "kanban": {
           "column": "Grade",
           "stages": [
+            "Not graded",
             "HOT",
             "WARM",
             "COLD"
@@ -511,10 +512,7 @@ export const PAGES = [
           ],
           "badge": "Score",
           "badge_label": "Score",
-          "avatar": "Assigned_To",
-          "move": {
-            "direct": "patch"
-          }
+          "avatar": "Assigned_To"
         },
         "drawer": {
           "score": "Score",
@@ -837,19 +835,6 @@ export const PAGES = [
             "label": "Fee due date",
             "type": "date",
             "required": true
-          },
-          {
-            "key": "Counsellor",
-            "label": "Counsellor",
-            "type": "select",
-            "options_from": "team.Name",
-            "options_where": "Role=Counsellor",
-            "default": "{{user}}"
-          },
-          {
-            "key": "Address",
-            "label": "Address",
-            "type": "text"
           }
         ]
       }
@@ -1150,18 +1135,6 @@ export const PAGES = [
             "label": "Fee due date",
             "type": "date",
             "required": true
-          },
-          {
-            "key": "Counsellor",
-            "label": "Counsellor",
-            "type": "select",
-            "options_from": "team.Name",
-            "options_where": "Role=Counsellor"
-          },
-          {
-            "key": "Address",
-            "label": "Address",
-            "type": "text"
           }
         ]
       },
@@ -1612,7 +1585,7 @@ export const PAGES = [
         },
         "columns": [
           {
-            "key": "Student_Name",
+            "key": "Name",
             "header": "Student",
             "type": "text",
             "sub": "Parent_Name"
@@ -1650,7 +1623,7 @@ export const PAGES = [
           }
         ],
         "search": [
-          "Student_Name",
+          "Name",
           "Parent_Name",
           "Student_ID"
         ],
@@ -1690,28 +1663,45 @@ export const PAGES = [
             "required": true
           },
           {
-            "key": "Batch",
-            "label": "Batch",
-            "type": "select",
-            "options": [
-              "Batch A — Morning",
-              "Batch B — Evening",
-              "Batch C — Weekend"
-            ],
-            "required": true
-          },
-          {
-            "key": "Student_ID",
+            "key": "Name",
             "label": "Student",
             "type": "select",
-            "options_from": "students.Student_ID",
+            "options_from": "students.Name",
             "required": true
           },
           {
-            "key": "Student_Name",
-            "label": "Student name",
-            "type": "text",
-            "required": true
+            "type": "panel",
+            "key": "who",
+            "title": "Student",
+            "icon": "GraduationCap",
+            "lookup": {
+              "entity": "students",
+              "match": "Name",
+              "by": "Name"
+            },
+            "copy": [
+              "Student_ID",
+              "Course",
+              "Batch",
+              "Parent_Name",
+              "Parent_Phone"
+            ],
+            "show": [
+              {
+                "key": "Batch",
+                "label": "{v}",
+                "badge": true
+              },
+              {
+                "key": "Course",
+                "label": "Course"
+              },
+              {
+                "key": "Parent_Name",
+                "label": "Parent"
+              }
+            ],
+            "empty": "Pick a student to see the batch."
           },
           {
             "key": "Status",
@@ -1723,12 +1713,6 @@ export const PAGES = [
             "default": "Present",
             "required": true,
             "help": "Absences are marked on the sheet above so the parent is told"
-          },
-          {
-            "key": "Marked_By",
-            "label": "Marked by",
-            "type": "text",
-            "default": "{{user}}"
           }
         ]
       },
@@ -1743,7 +1727,7 @@ export const PAGES = [
         "flow": "ABSENCE",
         "action": "reason_call",
         "summary": [
-          "Student_Name",
+          "Name",
           "Date",
           "Call_Status"
         ],
@@ -1752,7 +1736,7 @@ export const PAGES = [
           "Date",
           "Batch",
           "Student_ID",
-          "Student_Name",
+          "Name",
           "Course",
           "Parent_Name",
           "Parent_Phone"
@@ -1770,7 +1754,7 @@ export const PAGES = [
         "title": "Follow-up done",
         "direct": "patch",
         "summary": [
-          "Student_Name",
+          "Name",
           "Reason"
         ],
         "fill": {
@@ -2063,7 +2047,6 @@ export const PAGES = [
     "subtitle": "Marks per test and subject — they feed attendance-and-score risk every night",
     "icon": "ClipboardList",
     "group": "Students",
-    "parent": "academic",
     "entity": "tests",
     "modals": [
       {
@@ -2092,40 +2075,39 @@ export const PAGES = [
             "required": true
           },
           {
-            "key": "Student_ID",
+            "key": "Name",
             "label": "Student",
             "type": "select",
-            "options_from": "students.Student_ID",
+            "options_from": "students.Name",
             "required": true
           },
           {
-            "key": "Student_Name",
-            "label": "Student name",
-            "type": "text",
-            "required": true
-          },
-          {
-            "key": "Course",
-            "label": "Course",
-            "type": "select",
-            "options": [
-              "JEE Mains",
-              "NEET",
-              "CA Foundation",
-              "UPSC"
+            "type": "panel",
+            "key": "who",
+            "title": "Student",
+            "icon": "GraduationCap",
+            "lookup": {
+              "entity": "students",
+              "match": "Name",
+              "by": "Name"
+            },
+            "copy": [
+              "Student_ID",
+              "Course",
+              "Batch"
             ],
-            "required": true
-          },
-          {
-            "key": "Batch",
-            "label": "Batch",
-            "type": "select",
-            "options": [
-              "Batch A — Morning",
-              "Batch B — Evening",
-              "Batch C — Weekend"
+            "show": [
+              {
+                "key": "Course",
+                "label": "{v}",
+                "badge": true
+              },
+              {
+                "key": "Batch",
+                "label": "Batch"
+              }
             ],
-            "required": true
+            "empty": "Pick a student to see the course."
           },
           {
             "key": "Subject",
@@ -2145,12 +2127,6 @@ export const PAGES = [
             "type": "number",
             "default": 100,
             "required": true
-          },
-          {
-            "key": "Entered_By",
-            "label": "Entered by",
-            "type": "text",
-            "default": "{{user}}"
           }
         ]
       },
@@ -2163,7 +2139,7 @@ export const PAGES = [
         "title": "Correct marks",
         "direct": "patch",
         "summary": [
-          "Student_Name",
+          "Name",
           "Test_Name",
           "Subject"
         ],
@@ -2207,7 +2183,7 @@ export const PAGES = [
         },
         "columns": [
           {
-            "key": "Student_Name",
+            "key": "Name",
             "header": "Student",
             "type": "text",
             "sub": "Course"
@@ -2243,7 +2219,7 @@ export const PAGES = [
           }
         ],
         "search": [
-          "Student_Name",
+          "Name",
           "Test_Name",
           "Subject"
         ],

@@ -120,7 +120,7 @@ entities:
     fields:
       Course: { one_of: [JEE Mains, NEET, CA Foundation, UPSC] }
       Source: { one_of: [Instagram, WhatsApp, Google Ads, Referral, Website, Walk-in] }
-      Grade: { one_of: [HOT, WARM, COLD] }
+      Grade: { one_of: [Not graded, HOT, WARM, COLD] }
       Score: { type: number, min: 0, max: 100, integer: true }
       Call_Status: { one_of: [Scheduled, Calling, Completed, No Answer, Failed] }
       Phone: { type: phone }
@@ -131,7 +131,7 @@ entities:
       - { Lead_ID: LD-2026-0140, Created_At: "2026-11-01T17:10:00+05:30", Name: Ishaan Malviya, Phone: "+918765432109", Email: "", Course: NEET, Source: WhatsApp, Notes: "", Stage: Called, Grade: WARM, Score: 62, AI_Summary: "Interested in NEET 2027; comparing two institutes; fee is the concern.", Next_Action: "Share the fee plan and call back on Monday", Call_Status: Completed, Last_Called_At: "2026-11-01T17:15:00+05:30", Transcript: "", Assigned_To: Rahul Tiwari, Next_Followup_At: "2026-11-03T11:00:00+05:30" }
       - { Lead_ID: LD-2026-0139, Created_At: "2026-10-31T12:20:00+05:30", Name: Meera Chouhan, Phone: "+917654321098", Email: meera.c@example.com, Course: CA Foundation, Source: Google Ads, Notes: "B.Com first year", Stage: Called, Grade: HOT, Score: 88, AI_Summary: "Wants the weekend batch; ready to pay the first instalment this week.", Next_Action: "Call today and confirm the batch", Call_Status: Completed, Last_Called_At: "2026-10-31T12:26:00+05:30", Transcript: "", Assigned_To: "", Next_Followup_At: "2026-11-02T12:26:00+05:30" }
       - { Lead_ID: LD-2026-0138, Created_At: "2026-10-30T10:05:00+05:30", Name: Aditya Rathore, Phone: "+916543210987", Email: "", Course: UPSC, Source: Referral, Notes: "", Stage: Nurture, Grade: COLD, Score: 28, AI_Summary: "Preparing for 2028; not joining a batch this year.", Next_Action: "Nurture — send the free test series", Call_Status: Completed, Last_Called_At: "2026-10-30T10:12:00+05:30", Transcript: "", Assigned_To: Rahul Tiwari, Next_Followup_At: "2026-12-01T10:00:00+05:30" }
-      - { Lead_ID: LD-2026-0137, Created_At: "2026-11-02T08:15:00+05:30", Name: Pooja Thakur, Phone: "+915432109876", Email: pooja.t@example.com, Course: JEE Mains, Source: Website, Notes: "", Stage: New, Grade: "", Score: 0, AI_Summary: "", Next_Action: "", Call_Status: Scheduled, Last_Called_At: "", Transcript: "", Assigned_To: "", Next_Followup_At: "2026-11-02T10:00:00+05:30" }
+      - { Lead_ID: LD-2026-0137, Created_At: "2026-11-02T08:15:00+05:30", Name: Pooja Thakur, Phone: "+915432109876", Email: pooja.t@example.com, Course: JEE Mains, Source: Website, Notes: "", Stage: New, Grade: Not graded, Score: 0, AI_Summary: "", Next_Action: "", Call_Status: Scheduled, Last_Called_At: "", Transcript: "", Assigned_To: "", Next_Followup_At: "2026-11-02T10:00:00+05:30" }
 
   - name: students
     id: { column: Student_ID, prefix: "ST-" }
@@ -192,10 +192,10 @@ entities:
     id: { column: Att_ID, prefix: "AT-" }
     created: Date
     status: { column: Status, values: [Present, Absent] }
-    title: Student_Name
+    title: Name
     subtitle: [Batch, Course]
     contact: { phone: Parent_Phone, whatsapp: Parent_Phone }
-    columns: [Att_ID, Date, Batch, Student_ID, Student_Name, Course, Parent_Name, Parent_Phone, Status, Absences_This_Week, Absences_This_Month, Call_Status, Reason, Category, Needs_Followup, Followup_Done, Marked_By]
+    columns: [Att_ID, Date, Batch, Student_ID, Name, Course, Parent_Name, Parent_Phone, Status, Absences_This_Week, Absences_This_Month, Call_Status, Reason, Category, Needs_Followup, Followup_Done, Marked_By]
     unique_together: [[Date, Student_ID]]
     fields:
       Batch: { one_of: [Batch A — Morning, Batch B — Evening, Batch C — Weekend] }
@@ -208,16 +208,16 @@ entities:
       Parent_Phone: { type: phone }
     seed: 30
     examples:
-      - { Att_ID: AT-2026-5101, Date: "2026-11-02", Batch: Batch B — Evening, Student_ID: ST-2026-0102, Student_Name: Kavya Patel, Course: NEET, Parent_Name: Mrs. M. Patel, Parent_Phone: "+914321000002", Status: Absent, Absences_This_Week: 2, Absences_This_Month: 7, Call_Status: Call Done, Reason: "Not feeling well, but has missed classes all week", Category: PERSONAL, Needs_Followup: "Yes", Followup_Done: "No", Marked_By: Sunita Rao }
-      - { Att_ID: AT-2026-5102, Date: "2026-11-02", Batch: Batch A — Morning, Student_ID: ST-2026-0101, Student_Name: Rohan Mehra, Course: JEE Mains, Parent_Name: Mrs. P. Mehra, Parent_Phone: "+915432100001", Status: Present, Absences_This_Week: 0, Absences_This_Month: 1, Call_Status: Not Needed, Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: Sunita Rao }
-      - { Att_ID: AT-2026-5103, Date: "2026-11-02", Batch: Batch C — Weekend, Student_ID: ST-2026-0103, Student_Name: Sneha Joshi, Course: UPSC, Parent_Name: Mr. A. Joshi, Parent_Phone: "+916543200003", Status: Absent, Absences_This_Week: 1, Absences_This_Month: 3, Call_Status: WhatsApp Sent, Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: Sunita Rao }
+      - { Att_ID: AT-2026-5101, Date: "2026-11-02", Batch: Batch B — Evening, Student_ID: ST-2026-0102, Name: Kavya Patel, Course: NEET, Parent_Name: Mrs. M. Patel, Parent_Phone: "+914321000002", Status: Absent, Absences_This_Week: 2, Absences_This_Month: 7, Call_Status: Call Done, Reason: "Not feeling well, but has missed classes all week", Category: PERSONAL, Needs_Followup: "Yes", Followup_Done: "No", Marked_By: Sunita Rao }
+      - { Att_ID: AT-2026-5102, Date: "2026-11-02", Batch: Batch A — Morning, Student_ID: ST-2026-0101, Name: Rohan Mehra, Course: JEE Mains, Parent_Name: Mrs. P. Mehra, Parent_Phone: "+915432100001", Status: Present, Absences_This_Week: 0, Absences_This_Month: 1, Call_Status: Not Needed, Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: Sunita Rao }
+      - { Att_ID: AT-2026-5103, Date: "2026-11-02", Batch: Batch C — Weekend, Student_ID: ST-2026-0103, Name: Sneha Joshi, Course: UPSC, Parent_Name: Mr. A. Joshi, Parent_Phone: "+916543200003", Status: Absent, Absences_This_Week: 1, Absences_This_Month: 3, Call_Status: WhatsApp Sent, Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: Sunita Rao }
 
   - name: tests
     id: { column: Score_ID, prefix: "TS-" }
     created: Test_Date
-    title: Student_Name
+    title: Name
     subtitle: [Test_Name, Subject]
-    columns: [Score_ID, Test_Date, Test_Name, Student_ID, Student_Name, Course, Batch, Subject, Marks, Max_Marks, Score_Pct, Entered_By]
+    columns: [Score_ID, Test_Date, Test_Name, Student_ID, Name, Course, Batch, Subject, Marks, Max_Marks, Score_Pct]
     unique_together: [[Test_Name, Student_ID, Subject]]
     fields:
       Marks: { type: number, min: 0 }
@@ -226,9 +226,9 @@ entities:
       Course: { one_of: [JEE Mains, NEET, CA Foundation, UPSC] }
     seed: 30
     examples:
-      - { Score_ID: TS-2026-0801, Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: ST-2026-0101, Student_Name: Rohan Mehra, Course: JEE Mains, Batch: Batch A — Morning, Subject: Physics, Marks: 89, Max_Marks: 100, Score_Pct: 89, Entered_By: Arvind Mishra }
-      - { Score_ID: TS-2026-0802, Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: ST-2026-0102, Student_Name: Kavya Patel, Course: NEET, Batch: Batch B — Evening, Subject: Biology, Marks: 42, Max_Marks: 100, Score_Pct: 42, Entered_By: Arvind Mishra }
-      - { Score_ID: TS-2026-0803, Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: ST-2026-0103, Student_Name: Sneha Joshi, Course: UPSC, Batch: Batch C — Weekend, Subject: History, Marks: 38, Max_Marks: 100, Score_Pct: 38, Entered_By: Arvind Mishra }
+      - { Score_ID: TS-2026-0801, Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: ST-2026-0101, Name: Rohan Mehra, Course: JEE Mains, Batch: Batch A — Morning, Subject: Physics, Marks: 89, Max_Marks: 100, Score_Pct: 89 }
+      - { Score_ID: TS-2026-0802, Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: ST-2026-0102, Name: Kavya Patel, Course: NEET, Batch: Batch B — Evening, Subject: Biology, Marks: 42, Max_Marks: 100, Score_Pct: 42 }
+      - { Score_ID: TS-2026-0803, Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: ST-2026-0103, Name: Sneha Joshi, Course: UPSC, Batch: Batch C — Weekend, Subject: History, Marks: 38, Max_Marks: 100, Score_Pct: 38 }
 
   - name: calls
     id: { column: Call_ID, prefix: "CL-" }
@@ -393,14 +393,14 @@ flows:
         via: custom
         model: standard
         async: true
-        payload: { Date: string, Batch: string, Student_ID: string, Student_Name: string, Course: string, Parent_Name: string, Parent_Phone: string, Absences_This_Week: number, Marked_By: string }
+        payload: { Date: string, Batch: string, Student_ID: string, Name: string, Course: string, Parent_Name: string, Parent_Phone: string, Absences_This_Week: number, Marked_By: string }
         prompt: |
-          You read the transcript of a call to the parent of {{payload.Student_Name}} ({{payload.Course}}, {{payload.Batch}}), who was absent on {{payload.Date}}.
+          You read the transcript of a call to the parent of {{payload.Name}} ({{payload.Course}}, {{payload.Batch}}), who was absent on {{payload.Date}}.
           Extract the reason in the parent's words, its category (SICK, FAMILY, TRAVEL, PERSONAL, OTHER) and whether a counsellor should follow up (repeated absence, distress, dropping out, a complaint).
           Reply ONLY with JSON: {"reason": "", "category": "SICK|FAMILY|TRAVEL|PERSONAL|OTHER", "needs_followup": "Yes|No"}
         result: { reason: string, category: "SICK|FAMILY|TRAVEL|PERSONAL|OTHER", needs_followup: "Yes|No" }
         ai_task: extract
-        ai_text: [Student_Name, Course, Batch, Date]
+        ai_text: [Name, Course, Batch, Date]
         describe: { reason: "why the student was absent, in the parent's words", category: "SICK, FAMILY, TRAVEL, PERSONAL or OTHER", needs_followup: "Yes when the absence is repeated, the student may drop out, or the parent complains; else No" }
         rules: ["Called by the attendance sheet for every Absent mark (Present is a direct insert, no credits)", "Code first: Absences_This_Week < call_from_absence → WhatsApp template eduflow_absence_alert only (Call_Status WhatsApp Sent) and Return — no call, no AI", "Otherwise voiceCall the parent → delay ~4 min → getCallDetails → CDM extract → write Reason / Category / Needs_Followup / Call_Status", "Needs_Followup Yes → WhatsApp eduflow_staff_alert to the student's counsellor and an alerts row (Kind Attendance, HIGH)"]
         typical_seconds: 300
@@ -411,11 +411,11 @@ flows:
         covers: [R15, R16, R17]
         model: standard
         async: true
-        payload: { Att_ID: string, Date: string, Batch: string, Student_ID: string, Student_Name: string, Course: string, Parent_Name: string, Parent_Phone: string }
+        payload: { Att_ID: string, Date: string, Batch: string, Student_ID: string, Name: string, Course: string, Parent_Name: string, Parent_Phone: string }
         prompt: "same_as: ABSENCE.absent"
         result: "same_as: ABSENCE.absent"
         ai_task: extract
-        ai_text: [Student_Name, Course, Batch, Date]
+        ai_text: [Name, Course, Batch, Date]
         describe: "same_as: ABSENCE.absent"
         rules: ["A call on an absence already marked (row action) — same call → CDM → write → alert as absent"]
         typical_seconds: 300
@@ -636,7 +636,7 @@ pages:
         search: [Name, Phone, Email, Lead_ID, Course]
         filters: [Course, Source, Grade]
         bulk: [assign]
-        kanban: { column: Grade, stages: [HOT, WARM, COLD], title: Name, subtitle: Course, meta: [Next_Followup_At], badge: Score, badge_label: Score, avatar: Assigned_To, move: { direct: patch } }
+        kanban: { column: Grade, stages: [Not graded, HOT, WARM, COLD], title: Name, subtitle: Course, meta: [Next_Followup_At], badge: Score, badge_label: Score, avatar: Assigned_To }   # read-only: the grade is the AI call's, a person changes the stage
         drawer: { score: Score, tabs: [ { label: Summary, sections: [ { type: callout, column: AI_Summary, title: AI qualification summary, tone: neutral }, { type: callout, column: Next_Action, title: Next action, tone: info }, { type: fields, columns: [Phone, Email, Course, Source, Notes, Call_Status, Last_Called_At], hide_empty: true } ] }, { label: Transcript, sections: [ { type: callout, column: Transcript, title: AI call transcript, tone: neutral } ] }, { label: Calls, sections: [ { type: related, entity: calls, by: Lead_ID, columns: [Called_At, Status, Outcome, Duration_Sec] } ] } ] }
         empty: { title: No leads yet, reason: "Add an enquiry and the AI calls it within minutes, grades it and tells the counsellor.", action: add_lead }
         actions: { header: [add_lead], row: [call, assign, stage, enrol] }
@@ -681,8 +681,6 @@ pages:
           - { key: Batch, label: Batch, type: select, options: [Batch A — Morning, Batch B — Evening, Batch C — Weekend], required: true }
           - { key: Fee_Amount_INR, label: "First instalment (₹)", type: number, required: true }
           - { key: Fee_Due_Date, label: Fee due date, type: date, required: true }
-          - { key: Counsellor, label: Counsellor, type: select, options_from: team.Name, options_where: "Role=Counsellor", default: "{{user}}" }
-          - { key: Address, label: Address, type: text }
 
   - id: calls
     covers: [R35, R5, R39]
@@ -750,8 +748,6 @@ pages:
           - { key: Batch, label: Batch, type: select, options: [Batch A — Morning, Batch B — Evening, Batch C — Weekend], required: true }
           - { key: Fee_Amount_INR, label: "First instalment (₹)", type: number, required: true }
           - { key: Fee_Due_Date, label: Fee due date, type: date, required: true }
-          - { key: Counsellor, label: Counsellor, type: select, options_from: team.Name, options_where: "Role=Counsellor" }
-          - { key: Address, label: Address, type: text }
       - { id: assign_mentor, covers: [R23], kind: edit, title: Assign mentor / counsellor, direct: patch, summary: [Name, Status, Main_Issue], fields: [ { key: Mentor, label: Mentor, type: select, options_from: team.Name, options_where: "Role=Mentor" }, { key: Counsellor, label: Counsellor, type: select, options_from: team.Name, options_where: "Role=Counsellor" } ] }
       - { id: call_parent, covers: [R29, R33], kind: status, title: AI call to parent, flow: PARENT_UPDATE, action: update_call, summary: [Name, Parent_Name, Parent_Sentiment], pass: [Student_ID, Name, Parent_Name, Parent_Phone, Course, Attendance_Pct, Last_Score, Class_Rank, Performance_Trend, Strong_Subjects, Weak_Subjects], submit: Start AI call, success: "AI call to the parent started", fields: [] }
       - { id: weekly_report, covers: [R30], kind: status, title: Send weekly report, flow: PARENT_UPDATE, action: weekly_report, summary: [Name, Attendance_Pct, Last_Score], pass: [Student_ID, Name, Parent_Name, Parent_Phone, Attendance_Pct, Last_Score, Class_Rank, Performance_Trend], submit: Send on WhatsApp, success: "Weekly report sent to the parent", fields: [] }
@@ -794,14 +790,14 @@ pages:
       - type: table
         segments: { column: Status, all: All marks }
         period: { column: Date, presets: [today, yesterday, 7d, 30d], default: today }
-        columns: [ { key: Student_Name, header: Student, type: text, sub: Parent_Name }, { key: Batch, type: tag }, { key: Status, type: badge }, { key: Absences_This_Week, header: "This week", type: number }, { key: Call_Status, header: Parent reached, type: badge }, { key: Reason, type: truncate }, { key: Category, type: tag }, { key: Needs_Followup, header: Follow-up, type: badge } ]
-        search: [Student_Name, Parent_Name, Student_ID]
+        columns: [ { key: Name, header: Student, type: text, sub: Parent_Name }, { key: Batch, type: tag }, { key: Status, type: badge }, { key: Absences_This_Week, header: "This week", type: number }, { key: Call_Status, header: Parent reached, type: badge }, { key: Reason, type: truncate }, { key: Category, type: tag }, { key: Needs_Followup, header: Follow-up, type: badge } ]
+        search: [Name, Parent_Name, Student_ID]
         filters: [Batch, Category, Needs_Followup]
         actions: { header: [mark_one], row: [reason_call, followup_done] }
     modals:
-      - { id: mark_one, covers: [R14], kind: create, title: Mark one student, direct: insert, columns: 2, fields: [ { key: Date, label: Date, type: date, default: today, required: true }, { key: Batch, label: Batch, type: select, options: [Batch A — Morning, Batch B — Evening, Batch C — Weekend], required: true }, { key: Student_ID, label: Student, type: select, options_from: students.Student_ID, required: true }, { key: Student_Name, label: Student name, type: text, required: true }, { key: Status, label: Status, type: select, options: [Present], default: Present, required: true, help: "Absences are marked on the sheet above so the parent is told" }, { key: Marked_By, label: Marked by, type: text, default: "{{user}}" } ] }
-      - { id: reason_call, covers: [R15, R16], kind: status, title: Call the parent, flow: ABSENCE, action: reason_call, summary: [Student_Name, Date, Call_Status], pass: [Att_ID, Date, Batch, Student_ID, Student_Name, Course, Parent_Name, Parent_Phone], submit: Start AI call, success: "AI call started — the reason appears here in a few minutes", fields: [] }
-      - { id: followup_done, covers: [R17], kind: status, title: Follow-up done, direct: patch, summary: [Student_Name, Reason], fill: { Followup_Done: "Yes" }, fields: [] }
+      - { id: mark_one, covers: [R14], kind: create, title: Mark one student, direct: insert, columns: 2, fields: [ { key: Date, label: Date, type: date, default: today, required: true }, { key: Name, label: Student, type: select, options_from: students.Name, required: true }, { type: panel, key: who, title: Student, icon: GraduationCap, lookup: { entity: students, match: Name, by: Name }, copy: [Student_ID, Course, Batch, Parent_Name, Parent_Phone], show: [ { key: Batch, label: "{v}", badge: true }, { key: Course, label: Course }, { key: Parent_Name, label: Parent } ], empty: "Pick a student to see the batch." }, { key: Status, label: Status, type: select, options: [Present], default: Present, required: true, help: "Absences are marked on the sheet above so the parent is told" } ] }
+      - { id: reason_call, covers: [R15, R16], kind: status, title: Call the parent, flow: ABSENCE, action: reason_call, summary: [Name, Date, Call_Status], pass: [Att_ID, Date, Batch, Student_ID, Name, Course, Parent_Name, Parent_Phone], submit: Start AI call, success: "AI call started — the reason appears here in a few minutes", fields: [] }
+      - { id: followup_done, covers: [R17], kind: status, title: Follow-up done, direct: patch, summary: [Name, Reason], fill: { Followup_Done: "Yes" }, fields: [] }
 
   - id: academic
     covers: [R20, R21, R22, R23]
@@ -835,17 +831,16 @@ pages:
     subtitle: Marks per test and subject — they feed attendance-and-score risk every night
     icon: ClipboardList
     group: Students
-    parent: academic
     entity: tests
     roles: [admin, office, mentor]
     table:
       period: { column: Test_Date, presets: [7d, 30d, month, all], default: 30d }
-      columns: [ { key: Student_Name, header: Student, type: text, sub: Course }, { key: Test_Name, header: Test, type: text }, { key: Subject, type: tag }, { key: Marks, type: number }, { key: Max_Marks, header: Out of, type: number }, { key: Score_Pct, header: Score, type: number, suffix: "%" }, { key: Test_Date, header: Date, type: date } ]
-      search: [Student_Name, Test_Name, Subject]
+      columns: [ { key: Name, header: Student, type: text, sub: Course }, { key: Test_Name, header: Test, type: text }, { key: Subject, type: tag }, { key: Marks, type: number }, { key: Max_Marks, header: Out of, type: number }, { key: Score_Pct, header: Score, type: number, suffix: "%" }, { key: Test_Date, header: Date, type: date } ]
+      search: [Name, Test_Name, Subject]
       filters: [Course, Batch, Subject]
     modals:
-      - { id: add_score, covers: [R19], kind: create, primary: true, title: Add score, direct: insert, columns: 2, fields: [ { key: Test_Name, label: Test, type: text, required: true, placeholder: "Weekly Test 15" }, { key: Test_Date, label: Date, type: date, default: today, required: true }, { key: Student_ID, label: Student, type: select, options_from: students.Student_ID, required: true }, { key: Student_Name, label: Student name, type: text, required: true }, { key: Course, label: Course, type: select, options: [JEE Mains, NEET, CA Foundation, UPSC], required: true }, { key: Batch, label: Batch, type: select, options: [Batch A — Morning, Batch B — Evening, Batch C — Weekend], required: true }, { key: Subject, label: Subject, type: text, required: true }, { key: Marks, label: Marks, type: number, required: true }, { key: Max_Marks, label: Out of, type: number, default: 100, required: true }, { key: Entered_By, label: Entered by, type: text, default: "{{user}}" } ] }
-      - { id: edit_score, covers: [R19], kind: edit, title: Correct marks, direct: patch, summary: [Student_Name, Test_Name, Subject], fields: [ { key: Marks, label: Marks, type: number, required: true }, { key: Max_Marks, label: Out of, type: number, required: true } ] }
+      - { id: add_score, covers: [R19], kind: create, primary: true, title: Add score, direct: insert, columns: 2, fields: [ { key: Test_Name, label: Test, type: text, required: true, placeholder: "Weekly Test 15" }, { key: Test_Date, label: Date, type: date, default: today, required: true }, { key: Name, label: Student, type: select, options_from: students.Name, required: true }, { type: panel, key: who, title: Student, icon: GraduationCap, lookup: { entity: students, match: Name, by: Name }, copy: [Student_ID, Course, Batch], show: [ { key: Course, label: "{v}", badge: true }, { key: Batch, label: Batch } ], empty: "Pick a student to see the course." }, { key: Subject, label: Subject, type: text, required: true }, { key: Marks, label: Marks, type: number, required: true }, { key: Max_Marks, label: Out of, type: number, default: 100, required: true } ] }
+      - { id: edit_score, covers: [R19], kind: edit, title: Correct marks, direct: patch, summary: [Name, Test_Name, Subject], fields: [ { key: Marks, label: Marks, type: number, required: true }, { key: Max_Marks, label: Out of, type: number, required: true } ] }
     actions: { header: [add_score], row: [edit_score] }
 
   - id: fees
