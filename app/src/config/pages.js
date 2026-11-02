@@ -3168,10 +3168,18 @@ export const PAGES = [
     ],
     "route": "/batches",
     "label": "Batches",
-    "subtitle": "Morning, evening and weekend batches — attendance is marked per batch",
+    "subtitle": "Morning, evening and weekend batches — time, days and the courses each one teaches",
     "icon": "Clock",
     "group": "Setup",
     "entity": "batches",
+    "read_only": "Batches are added and edited in the BatchManager section (time-range picker, day and course chips); the two modals below only declare the writes the server allows",
+    "blocks": [
+      {
+        "type": "custom",
+        "name": "BatchManager",
+        "id": "batches-custom"
+      }
+    ],
     "modals": [
       {
         "id": "add_batch",
@@ -3179,45 +3187,21 @@ export const PAGES = [
           "R41"
         ],
         "kind": "create",
-        "primary": true,
         "title": "Add batch",
         "direct": "insert",
-        "columns": 2,
+        "entity": "batches",
         "fields": [
           {
             "key": "Name",
             "label": "Batch name",
             "type": "text",
-            "required": true,
-            "placeholder": "e.g. Batch D — Night"
-          },
-          {
-            "key": "Timing",
-            "label": "Timing",
-            "type": "text",
-            "placeholder": "7–9 PM"
-          },
-          {
-            "key": "Days",
-            "label": "Days",
-            "type": "text",
-            "placeholder": "Mon–Fri"
+            "required": true
           },
           {
             "key": "Courses",
             "label": "Courses taught",
-            "type": "text",
-            "placeholder": "NEET, JEE Mains"
-          },
-          {
-            "key": "Active",
-            "label": "Active",
             "type": "select",
-            "options": [
-              "true",
-              "false"
-            ],
-            "default": "true"
+            "options_from": "courses.Name"
           }
         ]
       },
@@ -3229,76 +3213,17 @@ export const PAGES = [
         "kind": "edit",
         "title": "Edit batch",
         "direct": "patch",
-        "summary": [
-          "Name"
-        ],
+        "entity": "batches",
         "fields": [
           {
-            "key": "Timing",
-            "label": "Timing",
+            "key": "Name",
+            "label": "Batch name",
             "type": "text"
-          },
-          {
-            "key": "Days",
-            "label": "Days",
-            "type": "text"
-          },
-          {
-            "key": "Courses",
-            "label": "Courses taught",
-            "type": "text"
-          },
-          {
-            "key": "Active",
-            "label": "Active",
-            "type": "select",
-            "options": [
-              "true",
-              "false"
-            ]
           }
         ]
       }
     ],
-    "actions": {
-      "header": [
-        "add_batch"
-      ],
-      "row": [
-        "edit_batch"
-      ]
-    },
-    "portal": "admin",
-    "blocks": [
-      {
-        "type": "table",
-        "columns": [
-          {
-            "key": "Name",
-            "type": "text",
-            "sub": "Timing"
-          },
-          {
-            "key": "Days",
-            "type": "text"
-          },
-          {
-            "key": "Courses",
-            "type": "text"
-          },
-          {
-            "key": "Active",
-            "type": "badge"
-          }
-        ],
-        "search": [
-          "Name",
-          "Courses"
-        ],
-        "id": "batches-table"
-      }
-    ],
-    "kind": "page"
+    "portal": "admin"
   },
   {
     "id": "team",

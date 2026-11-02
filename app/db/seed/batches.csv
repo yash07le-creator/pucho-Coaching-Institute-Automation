@@ -1,4 +1,4 @@
-Batch_ID,Name,Timing,Days,Courses,Active
-BT-001,Batch A — Morning,7–10 AM,Mon–Sat,"JEE Mains, CA Foundation",true
-BT-002,Batch B — Evening,4–7 PM,Mon–Sat,NEET,true
-BT-003,Batch C — Weekend,9 AM–1 PM,Sat–Sun,UPSC,true
+Batch_ID,Name,Start_Time,End_Time,Days,Courses,Active
+BT-001,Batch A — Morning,07:00,10:00,"Mon, Tue, Wed, Thu, Fri, Sat","JEE Mains, CA Foundation",true
+BT-002,Batch B — Evening,16:00,19:00,"Mon, Tue, Wed, Thu, Fri, Sat",NEET,true
+BT-003,Batch C — Weekend,09:00,13:00,"Sat, Sun",UPSC,true

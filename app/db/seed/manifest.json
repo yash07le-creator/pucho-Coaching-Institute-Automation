@@ -458,7 +458,8 @@
       "columns": [
         "Batch_ID",
         "Name",
-        "Timing",
+        "Start_Time",
+        "End_Time",
         "Days",
         "Courses",
         "Active"
@@ -466,7 +467,8 @@
       "types": {
         "Batch_ID": "text",
         "Name": "text",
-        "Timing": "text",
+        "Start_Time": "text",
+        "End_Time": "text",
         "Days": "text",
         "Courses": "text",
         "Active": "boolean"

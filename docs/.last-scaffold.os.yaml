@@ -517,15 +517,17 @@ entities:
   - name: batches
     id: { column: Batch_ID, prefix: "BT-" }
     title: Name
-    subtitle: [Timing]
-    columns: [Batch_ID, Name, Timing, Days, Courses, Active]
+    subtitle: [Days]
+    columns: [Batch_ID, Name, Start_Time, End_Time, Days, Courses, Active]
     fields:
       Name: { unique: true }
+      Start_Time: { type: text }     # HH:mm, 24-hour — picked, never typed (BatchManager)
+      End_Time: { type: text }       # HH:mm, after Start_Time (checked in BatchManager)
     seed: 0
     examples:
-      - { Batch_ID: "BT-001", Name: "Batch A — Morning", Timing: "7–10 AM", Days: "Mon–Sat", Courses: "JEE Mains, CA Foundation", Active: "true" }
-      - { Batch_ID: "BT-002", Name: "Batch B — Evening", Timing: "4–7 PM", Days: "Mon–Sat", Courses: "NEET", Active: "true" }
-      - { Batch_ID: "BT-003", Name: "Batch C — Weekend", Timing: "9 AM–1 PM", Days: "Sat–Sun", Courses: "UPSC", Active: "true" }
+      - { Batch_ID: "BT-001", Name: "Batch A — Morning", Start_Time: "07:00", End_Time: "10:00", Days: "Mon, Tue, Wed, Thu, Fri, Sat", Courses: "JEE Mains, CA Foundation", Active: "true" }
+      - { Batch_ID: "BT-002", Name: "Batch B — Evening", Start_Time: "16:00", End_Time: "19:00", Days: "Mon, Tue, Wed, Thu, Fri, Sat", Courses: "NEET", Active: "true" }
+      - { Batch_ID: "BT-003", Name: "Batch C — Weekend", Start_Time: "09:00", End_Time: "13:00", Days: "Sat, Sun", Courses: "UPSC", Active: "true" }
 
 header:
   covers: [R38, R9, R37]
@@ -1168,18 +1170,17 @@ pages:
     covers: [R41]
     route: /batches
     label: Batches
-    subtitle: Morning, evening and weekend batches — attendance is marked per batch
+    subtitle: Morning, evening and weekend batches — time, days and the courses each one teaches
     icon: Clock
     group: Setup
     entity: batches
     roles: [admin, office]
-    table:
-      columns: [ { key: Name, type: text, sub: Timing }, { key: Days, type: text }, { key: Courses, type: text }, { key: Active, type: badge } ]
-      search: [Name, Courses]
+    read_only: "Batches are added and edited in the BatchManager section (time-range picker, day and course chips); the two modals below only declare the writes the server allows"
+    blocks:
+      - { type: custom, name: BatchManager }
     modals:
-      - { id: add_batch, covers: [R41], kind: create, primary: true, title: Add batch, direct: insert, columns: 2, fields: [ { key: Name, label: Batch name, type: text, required: true, placeholder: "e.g. Batch D — Night" }, { key: Timing, label: Timing, type: text, placeholder: "7–9 PM" }, { key: Days, label: Days, type: text, placeholder: "Mon–Fri" }, { key: Courses, label: Courses taught, type: text, placeholder: "NEET, JEE Mains" }, { key: Active, label: Active, type: select, options: ["true", "false"], default: "true" } ] }
-      - { id: edit_batch, covers: [R41], kind: edit, title: Edit batch, direct: patch, summary: [Name], fields: [ { key: Timing, label: Timing, type: text }, { key: Days, label: Days, type: text }, { key: Courses, label: Courses taught, type: text }, { key: Active, label: Active, type: select, options: ["true", "false"] } ] }
-    actions: { header: [add_batch], row: [edit_batch] }
+      - { id: add_batch, covers: [R41], kind: create, title: Add batch, direct: insert, entity: batches, fields: [ { key: Name, label: Batch name, type: text, required: true }, { key: Courses, label: Courses taught, type: select, options_from: courses.Name } ] }
+      - { id: edit_batch, covers: [R41], kind: edit, title: Edit batch, direct: patch, entity: batches, fields: [ { key: Name, label: Batch name, type: text } ] }
 
   - id: team
     covers: [R4, R6, R17, R22]

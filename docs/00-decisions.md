@@ -31,7 +31,7 @@ _Generated from os.yaml. The step-2 summary: roles and homes, journeys, entities
 | team | Name | Role |  |  | phone=Phone, whatsapp=Phone, email=Email |  |
 | attendance_sessions | Batch | Date |  |  |  |  |
 | courses | Name | Exam |  |  |  |  |
-| batches | Name | Timing |  |  |  |  |
+| batches | Name | Days |  |  |  |  |
 | audit_log |  |  |  |  |  |  |
 
 Data: **PostgreSQL** (one database per client, single-tenant) · security: **§19 baseline** (`docs/security.md`)
@@ -94,7 +94,7 @@ Data: **PostgreSQL** (one database per client, single-tenant) · security: **§1
 | WhatsApp | kpis | kpis (strip) |
 | WhatsApp | messages | table; drawer per row |
 | Courses | courses | table; drawer per row |
-| Batches | batches | table; drawer per row |
+| Batches | custom | custom |
 | Team | team | table; drawer per row |
 
 ## D6 · Actions
@@ -127,8 +127,8 @@ Data: **PostgreSQL** (one database per client, single-tenant) · security: **§1
 | Fees | AI reminder call | status: 0 fields · FEE_REMINDER |
 | Courses | Add course | create: 6 fields · direct |
 | Courses | Edit course | edit: 5 fields · direct |
-| Batches | Add batch | create: 5 fields · direct |
-| Batches | Edit batch | edit: 4 fields · direct |
+| Batches | Add batch | create: 2 fields · direct |
+| Batches | Edit batch | edit: 1 field · direct |
 | Team | Add team member | create: 6 fields · direct |
 | Team | Edit team member | edit: 3 fields · direct |
 

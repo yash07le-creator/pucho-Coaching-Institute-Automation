@@ -319,7 +319,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS "courses_name_uq" ON "courses" ("name");
 CREATE TABLE IF NOT EXISTS "batches" (
   "batch_id" text PRIMARY KEY,
   "name" text,
-  "timing" text,
+  "start_time" text,
+  "end_time" text,
   "days" text,
   "courses" text,
   "active" boolean,
@@ -783,7 +784,8 @@ DO $$ DECLARE r record; BEGIN
     ALTER TABLE "courses" ADD CONSTRAINT "courses_instalments_v49_c6296d81" CHECK ("instalments" >= 1) NOT VALID; END IF;
 END $$;
 ALTER TABLE "batches" ADD COLUMN IF NOT EXISTS "name" text;
-ALTER TABLE "batches" ADD COLUMN IF NOT EXISTS "timing" text;
+ALTER TABLE "batches" ADD COLUMN IF NOT EXISTS "start_time" text;
+ALTER TABLE "batches" ADD COLUMN IF NOT EXISTS "end_time" text;
 ALTER TABLE "batches" ADD COLUMN IF NOT EXISTS "days" text;
 ALTER TABLE "batches" ADD COLUMN IF NOT EXISTS "courses" text;
 ALTER TABLE "batches" ADD COLUMN IF NOT EXISTS "active" boolean;

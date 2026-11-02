@@ -149,8 +149,7 @@ export const NAV = [
     "icon": "Clock",
     "desc": "",
     "group": "Setup",
-    "kind": "page",
-    "subtitle": "Morning, evening and weekend batches — attendance is marked per batch"
+    "subtitle": "Morning, evening and weekend batches — time, days and the courses each one teaches"
   },
   {
     "id": "team",

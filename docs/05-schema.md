@@ -242,7 +242,8 @@ id: Course_ID (CR-…) · status: —
 |---|---|
 | Batch_ID | text |
 | Name | text |
-| Timing | text |
+| Start_Time | text |
+| End_Time | text |
 | Days | text |
 | Courses | text |
 | Active | boolean |
