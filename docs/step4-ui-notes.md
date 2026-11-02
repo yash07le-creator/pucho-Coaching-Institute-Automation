@@ -45,3 +45,14 @@ module was out of sight. Cause: kernel `components/Sidebar.jsx` renders the menu
 its scroll — reported to the skill owner. Fix: `app/src/custom/navScroll.js` remembers the menu's scroll (sessionStorage) and,
 when the open page changes, brings its item into view (never while someone scrolls the menu by hand). Verified: Users & roles,
 Team, and a full reload of `/batches` all keep the menu at 231 px with the open module visible.
+
+## Batches: time and day pickers (owner request, 2 Nov 2026 — "add time picker and days picker")
+Kernel form fields have no time-only or multi-pick type, so the Batches page is the `BatchManager` custom section (the page's two
+modals in os.yaml only declare the writes the server allows). Add / Edit opens one form: batch name, a **time-range picker**
+(antd TimePicker, 12-hour, 15-minute steps; stored `Start_Time` / `End_Time` as HH:mm), **day chips** Mon–Sun with Mon–Fri ·
+Mon–Sat · Weekend · Every day shortcuts (a shortcut lights when the chosen days match it), **course chips** from the Courses
+list, and an Active switch. Checked in the form: a name, no other batch with the same name (any case), both times with the end
+after the start, at least one day. Escape on the open time panel closes only the panel (the kernel modal would otherwise take
+the same Escape and close the form — found by test, fixed by keeping Escape inside the picker while its panel is open).
+Verified: "Batch D — Night", 7:00–9:00 PM typed into the picker, Mon–Fri + Sat, NEET → stored 19:00 / 21:00 /
+"Mon, Tue, Wed, Thu, Fri, Sat" / NEET and offered in the enrolment form; a duplicate name, no time and no days were refused.

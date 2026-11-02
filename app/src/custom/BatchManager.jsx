@@ -34,6 +34,7 @@ export default function BatchManager({ data }) {
   const [form, setForm] = useState(null);   // null = closed; else the batch being added / edited
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
+  const [timeOpen, setTimeOpen] = useState(false);   // the time panel takes Escape for itself — it must not also close the form
 
   const open = (b) => {
     setErrors({});
@@ -111,7 +112,7 @@ export default function BatchManager({ data }) {
               <div className="min-w-0">
                 <label htmlFor="b-time">Time<span className="text-bad-text"> *</span></label>
                 <TimePicker.RangePicker {...pickerProps} id="b-time" format="h:mm A" use12Hours minuteStep={15} order={false} value={range} status={errors.Time ? 'error' : undefined}
-                  placeholder={['Starts', 'Ends']} onChange={(v) => { set('Start_Time', v?.[0]?.format('HH:mm') ?? ''); set('End_Time', v?.[1]?.format('HH:mm') ?? ''); set('Time', undefined); }} className="os-control w-full" />
+                  placeholder={['Starts', 'Ends']} onOpenChange={setTimeOpen} onKeyDown={(e) => { if (e.key === 'Escape' && timeOpen) e.stopPropagation(); }} onChange={(v) => { set('Start_Time', v?.[0]?.format('HH:mm') ?? ''); set('End_Time', v?.[1]?.format('HH:mm') ?? ''); set('Time', undefined); }} className="os-control w-full" />
                 {errors.Time && <p className="text-[12px] text-bad-text mt-1">{errors.Time}</p>}
               </div>
             </div>
