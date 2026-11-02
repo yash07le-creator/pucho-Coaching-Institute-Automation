@@ -3,6 +3,7 @@
 |---|---|---|---|---|
 | ADMISSION_CALL | webhook.catch_webhook | new_lead, call | | |
 | STUDENT_MANAGE | webhook.catch_webhook | enrol | | |
+| ATTENDANCE | webhook.catch_webhook | save_batch | | |
 | ABSENCE | webhook.catch_webhook | absent, reason_call | | |
 | ACADEMIC_CALL | webhook.catch_webhook | counsel | | |
 | FEE_REMINDER | webhook.catch_webhook | remind, send_link | | |
@@ -22,6 +23,7 @@ Never into the bundle. One environment variable per flow, on the server (`app/.e
 |---|---|
 | ADMISSION_CALL | `WEBHOOK_ADMISSION_CALL` |
 | STUDENT_MANAGE | `WEBHOOK_STUDENT_MANAGE` |
+| ATTENDANCE | `WEBHOOK_ATTENDANCE` |
 | ABSENCE | `WEBHOOK_ABSENCE` |
 | ACADEMIC_CALL | `WEBHOOK_ACADEMIC_CALL` |
 | FEE_REMINDER | `WEBHOOK_FEE_REMINDER` |

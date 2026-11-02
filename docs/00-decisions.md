@@ -5,7 +5,7 @@ _Generated from os.yaml. The step-2 summary: roles and homes, journeys, entities
 | role | lands on | pages | in their words |
 |---|---|---|---|
 | Director | `/` | * | Runs the institute: what needs action, leads, students, fees, parents and every AI call |
-| Office admin | `/attendance` | attendance, students, scores, fees, messages, alerts, settings | Marks attendance, enrols students, records fees and sends WhatsApp templates |
+| Office admin | `/attendance` | attendance, students, scores, fees, messages, alerts, courses, batches, settings | Marks attendance, enrols students, records fees and sends WhatsApp templates |
 | Counsellor | `/leads` | leads, calls, students, parents, alerts, messages, settings | Works the leads the AI qualified, follows up absences and parent concerns |
 | Mentor | `/academic` | academic, scores, students, attendance, calls, settings | Looks after at-risk students: counselling calls, scores and mentor sessions |
 
@@ -29,6 +29,9 @@ _Generated from os.yaml. The step-2 summary: roles and homes, journeys, entities
 | messages | To_Name | Type |  |  |  | Queued → Sent → Delivered → Read → Failed → Simulated |
 | alerts | Title | Kind, Severity | Owner |  |  | Open → Acknowledged → Resolved |
 | team | Name | Role |  |  | phone=Phone, whatsapp=Phone, email=Email |  |
+| attendance_sessions | Batch | Date |  |  |  |  |
+| courses | Name | Exam |  |  |  |  |
+| batches | Name | Timing |  |  |  |  |
 | audit_log |  |  |  |  |  |  |
 
 Data: **PostgreSQL** (one database per client, single-tenant) · security: **§19 baseline** (`docs/security.md`)
@@ -90,6 +93,8 @@ Data: **PostgreSQL** (one database per client, single-tenant) · security: **§1
 | Parent updates | calls | table; drawer per row |
 | WhatsApp | kpis | kpis (strip) |
 | WhatsApp | messages | table; drawer per row |
+| Courses | courses | table; drawer per row |
+| Batches | batches | table; drawer per row |
 | Team | team | table; drawer per row |
 
 ## D6 · Actions
@@ -120,12 +125,17 @@ Data: **PostgreSQL** (one database per client, single-tenant) · security: **§1
 | Fees | Record payment | status: 4 fields · direct |
 | Fees | Send payment link | status: 0 fields · FEE_REMINDER |
 | Fees | AI reminder call | status: 0 fields · FEE_REMINDER |
+| Courses | Add course | create: 6 fields · direct |
+| Courses | Edit course | edit: 5 fields · direct |
+| Batches | Add batch | create: 5 fields · direct |
+| Batches | Edit batch | edit: 4 fields · direct |
 | Team | Add team member | create: 6 fields · direct |
 | Team | Edit team member | edit: 3 fields · direct |
 
 ## D7 · Flows and AI
 - **ADMISSION_CALL** — `webhook.catch_webhook`; actions new_lead, call; AI in new_lead, call
 - **STUDENT_MANAGE** — `webhook.catch_webhook`; actions enrol; no model call
+- **ATTENDANCE** — `webhook.catch_webhook`; actions save_batch; no model call
 - **ABSENCE** — `webhook.catch_webhook`; actions absent, reason_call; AI in absent, reason_call
 - **ACADEMIC_CALL** — `webhook.catch_webhook`; actions counsel; AI in counsel
 - **FEE_REMINDER** — `webhook.catch_webhook`; actions remind, send_link; AI in remind
@@ -155,7 +165,7 @@ Data: **PostgreSQL** (one database per client, single-tenant) · security: **§1
 - The n8n AI Agents Status page — replaced by Settings → Flow webhook URLs and /api/health (X6)
 
 ## Footprint (lean frontend, v4.3)
-- footprint: 12 pages in the nav (0 hidden) · 37 KPIs · 2 charts · 27 modals · 3 drawer tabs · for 40 requirements
+- footprint: 14 pages in the nav (0 hidden) · 37 KPIs · 2 charts · 31 modals · 3 drawer tabs · for 41 requirements
 - Budget: overview ≤ 4 KPIs · ≤ 2 charts · ≤ 3 queues; a page ≤ 4 KPIs · ≤ 6 modals · drawer ≤ 3 tabs; nav pages ≤ requirements. Pages marked `badge: Preview` stay off the nav until `os.show_preview: true`.
 - Within budget.
 

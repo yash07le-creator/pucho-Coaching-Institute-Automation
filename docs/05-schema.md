@@ -93,6 +93,7 @@ id: Fee_ID (FE-…) · status: Status ['Upcoming', 'Due', 'Overdue', 'Partial', 
 | column | type |
 |---|---|
 | Att_ID | text |
+| Session_ID | text |
 | Date | timestamptz |
 | Batch | text |
 | Student_ID | text |
@@ -207,6 +208,46 @@ id: Alert_ID (AL-…) · status: Status ['Open', 'Acknowledged', 'Resolved']
 | Active | boolean |
 
 id: Member_ID (TM-…) · status: — 
+
+## attendance_sessions
+| column | type |
+|---|---|
+| Session_ID | text |
+| Date | date |
+| Batch | text |
+| Total_Count | numeric |
+| Present_Count | numeric |
+| Absent_Count | numeric |
+| Absentees | text |
+| Marked_By | text |
+| Saved_At | timestamptz |
+
+id: Session_ID (AS-…) · status: — 
+
+## courses
+| column | type |
+|---|---|
+| Course_ID | text |
+| Name | text |
+| Exam | text |
+| Duration | text |
+| Fee_Per_Instalment_INR | numeric |
+| Instalments | numeric |
+| Active | boolean |
+
+id: Course_ID (CR-…) · status: — 
+
+## batches
+| column | type |
+|---|---|
+| Batch_ID | text |
+| Name | text |
+| Timing | text |
+| Days | text |
+| Courses | text |
+| Active | boolean |
+
+id: Batch_ID (BT-…) · status: — 
 
 ## audit_log
 | column | type |

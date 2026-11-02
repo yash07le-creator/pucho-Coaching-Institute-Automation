@@ -13,6 +13,8 @@ _Generated 2026-11-02._
 - Fees `/fees` → direct patch (Record payment), `FEE_REMINDER.send_link` (Send payment link), `FEE_REMINDER.remind` (AI reminder call)
 - Parent updates `/parents` → no workflow
 - WhatsApp `/messages` → no workflow
+- Courses `/courses` → direct insert (Add course), direct patch (Edit course)
+- Batches `/batches` → direct insert (Add batch), direct patch (Edit batch)
 - Team `/team` → direct insert (Add team member), direct patch (Edit team member)
 - Settings `/settings` → no workflow
 - Users & roles `/users` → no workflow
@@ -23,6 +25,8 @@ _Generated 2026-11-02._
   - `call` — model standard, ~240s, ~44 credits; payload Lead_ID, Name, Phone, Course, Notes → result grade, score, summary, next_action
 - **STUDENT_MANAGE** — trigger `webhook.catch_webhook`; writes students, fees, messages, audit_log
   - `enrol` — model none, ~5s, ~7 credits; payload Name, Phone, Student_Phone, Parent_Name, Parent_Phone, Course, Batch, Fee_Amount_INR, Fee_Due_Date, Address, Counsellor → result 
+- **ATTENDANCE** — trigger `webhook.catch_webhook`; writes attendance_sessions, attendance, audit_log
+  - `save_batch` — model none, ~6s, ~6 credits; payload Date, Batch, Total_Count, Present_Count, Absent_Count, Absentees, Marked_By, lines → result 
 - **ABSENCE** — trigger `webhook.catch_webhook`; writes attendance, calls, messages, alerts, audit_log
   - `absent` — model standard, ~300s, ~14 credits; payload Date, Batch, Student_ID, Name, Course, Parent_Name, Parent_Phone, Absences_This_Week, Absences_This_Month, Marked_By → result reason, category, needs_followup
   - `reason_call` — model standard, ~300s, ~29 credits; payload Att_ID, Date, Batch, Student_ID, Name, Course, Parent_Name, Parent_Phone → result reason, category, needs_followup
@@ -51,6 +55,7 @@ _Generated 2026-11-02._
 | `ADMISSION_CALL.new_lead` | standard | 120 | 44 | 5,280 |
 | `ADMISSION_CALL.call` | standard | 30 | 44 | 1,320 |
 | `STUDENT_MANAGE.enrol` | none | 30 | 7 | 210 |
+| `ATTENDANCE.save_batch` | none | 90 | 6 | 540 |
 | `ABSENCE.absent` | standard | 1144 | 14 | 16,016 |
 | `ABSENCE.reason_call` | standard | 60 | 29 | 1,740 |
 | `ACADEMIC_CALL.counsel` | standard | 147 | 54 | 7,938 |
@@ -63,6 +68,6 @@ _Generated 2026-11-02._
 | `ACADEMIC_RUN.run` | none | 4 | 5 | 20 |
 | `PARENT_RUN.run` | none | 9 | 5 | 45 |
 | `ROLLUP.run` | none | 30 | 5 | 150 |
-| **total** | | | | **54,036** credits ≈ ₹16,211 / month (declared; `docs/estimate.md` is the client page and is re-counted on the built flows at step 6) |
+| **total** | | | | **54,576** credits ≈ ₹16,373 / month (declared; `docs/estimate.md` is the client page and is re-counted on the built flows at step 6) |
 
 Credits are the only unit the client is quoted — no plan fit. Per-step base per `flow/credit-table.md`.

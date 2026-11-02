@@ -131,6 +131,28 @@ export const NAV = [
     "subtitle": "Every template the agents and the office sent, with delivery status"
   },
   {
+    "id": "courses",
+    "portal": "admin",
+    "path": "/courses",
+    "label": "Courses",
+    "icon": "BookOpen",
+    "desc": "",
+    "group": "Setup",
+    "kind": "page",
+    "subtitle": "The courses this institute teaches — the enrolment, lead and score forms list them"
+  },
+  {
+    "id": "batches",
+    "portal": "admin",
+    "path": "/batches",
+    "label": "Batches",
+    "icon": "Clock",
+    "desc": "",
+    "group": "Setup",
+    "kind": "page",
+    "subtitle": "Morning, evening and weekend batches — attendance is marked per batch"
+  },
+  {
     "id": "team",
     "portal": "admin",
     "path": "/team",

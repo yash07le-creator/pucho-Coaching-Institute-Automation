@@ -60,6 +60,7 @@ requirements:
   - { id: R38, text: "The director searches students, leads, phones and courses from anywhere" }
   - { id: R39, text: "The director exports a list to CSV" }
   - { id: R40, text: "The director sees the institute dashboard: students, new leads this week, fees overdue, average attendance" }
+  - { id: R41, text: "The office admin adds the institute's own courses and batches, and the enrolment form offers them" }
 
 not_in_v1:
   - { text: "A parent or student login portal — parents are reached by call and WhatsApp only (X1)", covers: [] }
@@ -71,7 +72,7 @@ not_in_v1:
 
 roles:
   - { key: admin,      label: Director,     color: bg-primary-500, desc: "Runs the institute: what needs action, leads, students, fees, parents and every AI call", pages: ["*"], demo: { email: director@eduflow.pucho.ai, password: director123, name: Dev Dabi } }
-  - { key: office,     label: Office admin, color: bg-stage-4,     desc: "Marks attendance, enrols students, records fees and sends WhatsApp templates", pages: [attendance, students, scores, fees, messages, alerts, settings], home: /attendance, demo: { email: office@eduflow.pucho.ai, password: office1234, name: Sunita Rao } }
+  - { key: office,     label: Office admin, color: bg-stage-4,     desc: "Marks attendance, enrols students, records fees and sends WhatsApp templates", pages: [attendance, students, scores, fees, messages, alerts, courses, batches, settings], home: /attendance, demo: { email: office@eduflow.pucho.ai, password: office1234, name: Sunita Rao } }
   - { key: counsellor, label: Counsellor,   color: bg-stage-3,     desc: "Works the leads the AI qualified, follows up absences and parent concerns", pages: [leads, calls, students, parents, alerts, messages, settings], home: /leads, demo: { email: counsellor@eduflow.pucho.ai, password: counsel123, name: Priya Saxena } }
   - { key: mentor,     label: Mentor,       color: bg-stage-2,     desc: "Looks after at-risk students: counselling calls, scores and mentor sessions", pages: [academic, scores, students, attendance, calls, settings], home: /academic, demo: { email: mentor@eduflow.pucho.ai, password: mentor1234, name: Arvind Mishra } }
 
@@ -118,7 +119,6 @@ entities:
     columns: [Lead_ID, Created_At, Name, Phone, Email, Course, Source, Notes, Stage, Grade, Score, AI_Summary, Next_Action, Call_Status, Last_Called_At, Transcript, Assigned_To, Next_Followup_At, Lost_Reason]
     requires_on: { Lost: [Lost_Reason] }
     fields:
-      Course: { one_of: [JEE Mains, NEET, CA Foundation, UPSC] }
       Source: { one_of: [Instagram, WhatsApp, Google Ads, Referral, Website, Walk-in] }
       Grade: { one_of: [Not graded, HOT, WARM, COLD] }
       Score: { type: number, min: 0, max: 100, integer: true }
@@ -156,8 +156,6 @@ entities:
     contact: { phone: Parent_Phone, whatsapp: Parent_Phone }
     columns: [Student_ID, Enrolled_At, Name, Student_Phone, Parent_Name, Parent_Phone, Course, Batch, Address, Status, Attendance_Pct, Last_Score, Avg_Score, Class_Rank, Strong_Subjects, Weak_Subjects, Performance_Trend, Fee_Status, Fee_Amount_INR, Fee_Due_Date, Mentor, Counsellor, Issue_Type, Main_Issue, Last_Counselled_At, Last_Report_At, Last_Parent_Call_At, Parent_Sentiment, Parent_Concern]
     fields:
-      Course: { one_of: [JEE Mains, NEET, CA Foundation, UPSC] }
-      Batch: { one_of: [Batch A — Morning, Batch B — Evening, Batch C — Weekend] }
       Attendance_Pct: { type: number, min: 0, max: 100 }
       Last_Score: { type: number, min: 0, max: 100 }
       Avg_Score: { type: number, min: 0, max: 100 }
@@ -253,50 +251,49 @@ entities:
     title: Name
     subtitle: [Batch, Course]
     contact: { phone: Parent_Phone, whatsapp: Parent_Phone }
-    columns: [Att_ID, Date, Batch, Student_ID, Name, Course, Parent_Name, Parent_Phone, Status, Absences_This_Week, Absences_This_Month, Call_Status, Reason, Category, Needs_Followup, Followup_Done, Marked_By]
+    columns: [Att_ID, Session_ID, Date, Batch, Student_ID, Name, Course, Parent_Name, Parent_Phone, Status, Absences_This_Week, Absences_This_Month, Call_Status, Reason, Category, Needs_Followup, Followup_Done, Marked_By]
     unique_together: [[Date, Student_ID]]
     fields:
-      Batch: { one_of: [Batch A — Morning, Batch B — Evening, Batch C — Weekend] }
       Absences_This_Week: { type: number, min: 0, integer: true }
       Absences_This_Month: { type: number, min: 0, integer: true }
-      Call_Status: { one_of: [Not Needed, WhatsApp Sent, Calling, Call Done, No Answer] }
+      Call_Status: { one_of: [Not Needed, Queued, WhatsApp Sent, Calling, Call Done, No Answer] }
       Category: { one_of: [SICK, FAMILY, TRAVEL, PERSONAL, OTHER] }
       Needs_Followup: { one_of: ["Yes", "No"] }
       Followup_Done: { one_of: ["Yes", "No"] }
       Parent_Phone: { type: phone }
     seed: 0
     examples:
-      - { Att_ID: "AT-2026-5101", Date: "2026-10-30", Batch: "Batch B — Evening", Student_ID: "ST-2026-0108", Name: "Kavya Patel", Course: "NEET", Parent_Name: "Mrs. M. Patel", Parent_Phone: "+919425009611", Status: "Absent", Absences_This_Week: 1, Absences_This_Month: 6, Call_Status: "WhatsApp Sent", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5102", Date: "2026-10-31", Batch: "Batch B — Evening", Student_ID: "ST-2026-0112", Name: "Mohit Yadav", Course: "NEET", Parent_Name: "Mr. B. Yadav", Parent_Phone: "+919425015103", Status: "Absent", Absences_This_Week: 1, Absences_This_Month: 5, Call_Status: "WhatsApp Sent", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5103", Date: "2026-10-31", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0119", Name: "Sneha Joshi", Course: "UPSC", Parent_Name: "Mr. A. Joshi", Parent_Phone: "+919425024714", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5104", Date: "2026-10-31", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0120", Name: "Vikram Pal", Course: "UPSC", Parent_Name: "Mr. R. Pal", Parent_Phone: "+919425026087", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5105", Date: "2026-10-31", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0121", Name: "Anjali Mishra", Course: "UPSC", Parent_Name: "Mrs. U. Mishra", Parent_Phone: "+919425027460", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5106", Date: "2026-10-31", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0122", Name: "Saurabh Tiwari", Course: "UPSC", Parent_Name: "Mr. L. Tiwari", Parent_Phone: "+919425028833", Status: "Absent", Absences_This_Week: 1, Absences_This_Month: 3, Call_Status: "WhatsApp Sent", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5107", Date: "2026-10-31", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0123", Name: "Pallavi Gour", Course: "UPSC", Parent_Name: "Mrs. J. Gour", Parent_Phone: "+919425030206", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5108", Date: "2026-10-31", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0124", Name: "Arjun Thakur", Course: "UPSC", Parent_Name: "Mr. P. Thakur", Parent_Phone: "+919425031579", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5109", Date: "2026-11-01", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0119", Name: "Sneha Joshi", Course: "UPSC", Parent_Name: "Mr. A. Joshi", Parent_Phone: "+919425024714", Status: "Absent", Absences_This_Week: 1, Absences_This_Month: 3, Call_Status: "WhatsApp Sent", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5110", Date: "2026-11-01", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0120", Name: "Vikram Pal", Course: "UPSC", Parent_Name: "Mr. R. Pal", Parent_Phone: "+919425026087", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5111", Date: "2026-11-01", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0121", Name: "Anjali Mishra", Course: "UPSC", Parent_Name: "Mrs. U. Mishra", Parent_Phone: "+919425027460", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5112", Date: "2026-11-01", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0122", Name: "Saurabh Tiwari", Course: "UPSC", Parent_Name: "Mr. L. Tiwari", Parent_Phone: "+919425028833", Status: "Absent", Absences_This_Week: 2, Absences_This_Month: 4, Call_Status: "Call Done", Reason: "Travelling to Indore for a family wedding; back on Saturday", Category: "TRAVEL", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5113", Date: "2026-11-01", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0123", Name: "Pallavi Gour", Course: "UPSC", Parent_Name: "Mrs. J. Gour", Parent_Phone: "+919425030206", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5114", Date: "2026-11-01", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0124", Name: "Arjun Thakur", Course: "UPSC", Parent_Name: "Mr. P. Thakur", Parent_Phone: "+919425031579", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5115", Date: "2026-11-02", Batch: "Batch A — Morning", Student_ID: "ST-2026-0101", Name: "Rohan Mehra", Course: "JEE Mains", Parent_Name: "Mrs. P. Mehra", Parent_Phone: "+919425000000", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5116", Date: "2026-11-02", Batch: "Batch A — Morning", Student_ID: "ST-2026-0102", Name: "Aarav Jain", Course: "JEE Mains", Parent_Name: "Mr. S. Jain", Parent_Phone: "+919425001373", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5117", Date: "2026-11-02", Batch: "Batch A — Morning", Student_ID: "ST-2026-0103", Name: "Ishita Saxena", Course: "JEE Mains", Parent_Name: "Mrs. R. Saxena", Parent_Phone: "+919425002746", Status: "Absent", Absences_This_Week: 1, Absences_This_Month: 1, Call_Status: "WhatsApp Sent", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5118", Date: "2026-11-02", Batch: "Batch A — Morning", Student_ID: "ST-2026-0104", Name: "Kunal Raghuwanshi", Course: "JEE Mains", Parent_Name: "Mr. V. Raghuwanshi", Parent_Phone: "+919425004119", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5119", Date: "2026-11-02", Batch: "Batch A — Morning", Student_ID: "ST-2026-0105", Name: "Tanvi Dubey", Course: "JEE Mains", Parent_Name: "Mrs. A. Dubey", Parent_Phone: "+919425005492", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5120", Date: "2026-11-02", Batch: "Batch A — Morning", Student_ID: "ST-2026-0106", Name: "Yash Choudhary", Course: "JEE Mains", Parent_Name: "Mr. K. Choudhary", Parent_Phone: "+919425006865", Status: "Absent", Absences_This_Week: 1, Absences_This_Month: 2, Call_Status: "WhatsApp Sent", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5121", Date: "2026-11-02", Batch: "Batch A — Morning", Student_ID: "ST-2026-0107", Name: "Nikhil Kumar", Course: "JEE Mains", Parent_Name: "Mr. R. Kumar", Parent_Phone: "+919425008238", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5122", Date: "2026-11-02", Batch: "Batch B — Evening", Student_ID: "ST-2026-0108", Name: "Kavya Patel", Course: "NEET", Parent_Name: "Mrs. M. Patel", Parent_Phone: "+919425009611", Status: "Absent", Absences_This_Week: 2, Absences_This_Month: 7, Call_Status: "Call Done", Reason: "Not feeling well, but has missed classes all week", Category: "PERSONAL", Needs_Followup: "Yes", Followup_Done: "No", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5123", Date: "2026-11-02", Batch: "Batch B — Evening", Student_ID: "ST-2026-0109", Name: "Ananya Shrivastava", Course: "NEET", Parent_Name: "Mrs. S. Shrivastava", Parent_Phone: "+919425010984", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5124", Date: "2026-11-02", Batch: "Batch B — Evening", Student_ID: "ST-2026-0110", Name: "Harsh Rajput", Course: "NEET", Parent_Name: "Mr. D. Rajput", Parent_Phone: "+919425012357", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5125", Date: "2026-11-02", Batch: "Batch B — Evening", Student_ID: "ST-2026-0111", Name: "Sakshi Pandey", Course: "NEET", Parent_Name: "Mrs. K. Pandey", Parent_Phone: "+919425013730", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5126", Date: "2026-11-02", Batch: "Batch B — Evening", Student_ID: "ST-2026-0112", Name: "Mohit Yadav", Course: "NEET", Parent_Name: "Mr. B. Yadav", Parent_Phone: "+919425015103", Status: "Absent", Absences_This_Week: 2, Absences_This_Month: 6, Call_Status: "No Answer", Reason: "", Category: "", Needs_Followup: "Yes", Followup_Done: "No", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5127", Date: "2026-11-02", Batch: "Batch B — Evening", Student_ID: "ST-2026-0113", Name: "Riya Malviya", Course: "NEET", Parent_Name: "Mrs. N. Malviya", Parent_Phone: "+919425016476", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5128", Date: "2026-11-02", Batch: "Batch B — Evening", Student_ID: "ST-2026-0114", Name: "Neha Kumar", Course: "NEET", Parent_Name: "Mrs. G. Kumar", Parent_Phone: "+919425017849", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5129", Date: "2026-11-02", Batch: "Batch A — Morning", Student_ID: "ST-2026-0115", Name: "Dev Singh", Course: "CA Foundation", Parent_Name: "Mr. H. Singh", Parent_Phone: "+919425019222", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5130", Date: "2026-11-02", Batch: "Batch A — Morning", Student_ID: "ST-2026-0116", Name: "Muskan Agrawal", Course: "CA Foundation", Parent_Name: "Mrs. P. Agrawal", Parent_Phone: "+919425020595", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
-      - { Att_ID: "AT-2026-5131", Date: "2026-11-02", Batch: "Batch A — Morning", Student_ID: "ST-2026-0117", Name: "Aditi Soni", Course: "CA Foundation", Parent_Name: "Mr. M. Soni", Parent_Phone: "+919425021968", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao" }
+      - { Att_ID: "AT-2026-5101", Date: "2026-10-30", Batch: "Batch B — Evening", Student_ID: "ST-2026-0108", Name: "Kavya Patel", Course: "NEET", Parent_Name: "Mrs. M. Patel", Parent_Phone: "+919425009611", Status: "Absent", Absences_This_Week: 1, Absences_This_Month: 6, Call_Status: "WhatsApp Sent", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0001" }
+      - { Att_ID: "AT-2026-5102", Date: "2026-10-31", Batch: "Batch B — Evening", Student_ID: "ST-2026-0112", Name: "Mohit Yadav", Course: "NEET", Parent_Name: "Mr. B. Yadav", Parent_Phone: "+919425015103", Status: "Absent", Absences_This_Week: 1, Absences_This_Month: 5, Call_Status: "WhatsApp Sent", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0002" }
+      - { Att_ID: "AT-2026-5103", Date: "2026-10-31", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0119", Name: "Sneha Joshi", Course: "UPSC", Parent_Name: "Mr. A. Joshi", Parent_Phone: "+919425024714", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0003" }
+      - { Att_ID: "AT-2026-5104", Date: "2026-10-31", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0120", Name: "Vikram Pal", Course: "UPSC", Parent_Name: "Mr. R. Pal", Parent_Phone: "+919425026087", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0003" }
+      - { Att_ID: "AT-2026-5105", Date: "2026-10-31", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0121", Name: "Anjali Mishra", Course: "UPSC", Parent_Name: "Mrs. U. Mishra", Parent_Phone: "+919425027460", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0003" }
+      - { Att_ID: "AT-2026-5106", Date: "2026-10-31", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0122", Name: "Saurabh Tiwari", Course: "UPSC", Parent_Name: "Mr. L. Tiwari", Parent_Phone: "+919425028833", Status: "Absent", Absences_This_Week: 1, Absences_This_Month: 3, Call_Status: "WhatsApp Sent", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0003" }
+      - { Att_ID: "AT-2026-5107", Date: "2026-10-31", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0123", Name: "Pallavi Gour", Course: "UPSC", Parent_Name: "Mrs. J. Gour", Parent_Phone: "+919425030206", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0003" }
+      - { Att_ID: "AT-2026-5108", Date: "2026-10-31", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0124", Name: "Arjun Thakur", Course: "UPSC", Parent_Name: "Mr. P. Thakur", Parent_Phone: "+919425031579", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0003" }
+      - { Att_ID: "AT-2026-5109", Date: "2026-11-01", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0119", Name: "Sneha Joshi", Course: "UPSC", Parent_Name: "Mr. A. Joshi", Parent_Phone: "+919425024714", Status: "Absent", Absences_This_Week: 1, Absences_This_Month: 3, Call_Status: "WhatsApp Sent", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0004" }
+      - { Att_ID: "AT-2026-5110", Date: "2026-11-01", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0120", Name: "Vikram Pal", Course: "UPSC", Parent_Name: "Mr. R. Pal", Parent_Phone: "+919425026087", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0004" }
+      - { Att_ID: "AT-2026-5111", Date: "2026-11-01", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0121", Name: "Anjali Mishra", Course: "UPSC", Parent_Name: "Mrs. U. Mishra", Parent_Phone: "+919425027460", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0004" }
+      - { Att_ID: "AT-2026-5112", Date: "2026-11-01", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0122", Name: "Saurabh Tiwari", Course: "UPSC", Parent_Name: "Mr. L. Tiwari", Parent_Phone: "+919425028833", Status: "Absent", Absences_This_Week: 2, Absences_This_Month: 4, Call_Status: "Call Done", Reason: "Travelling to Indore for a family wedding; back on Saturday", Category: "TRAVEL", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0004" }
+      - { Att_ID: "AT-2026-5113", Date: "2026-11-01", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0123", Name: "Pallavi Gour", Course: "UPSC", Parent_Name: "Mrs. J. Gour", Parent_Phone: "+919425030206", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0004" }
+      - { Att_ID: "AT-2026-5114", Date: "2026-11-01", Batch: "Batch C — Weekend", Student_ID: "ST-2026-0124", Name: "Arjun Thakur", Course: "UPSC", Parent_Name: "Mr. P. Thakur", Parent_Phone: "+919425031579", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0004" }
+      - { Att_ID: "AT-2026-5115", Date: "2026-11-02", Batch: "Batch A — Morning", Student_ID: "ST-2026-0101", Name: "Rohan Mehra", Course: "JEE Mains", Parent_Name: "Mrs. P. Mehra", Parent_Phone: "+919425000000", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0005" }
+      - { Att_ID: "AT-2026-5116", Date: "2026-11-02", Batch: "Batch A — Morning", Student_ID: "ST-2026-0102", Name: "Aarav Jain", Course: "JEE Mains", Parent_Name: "Mr. S. Jain", Parent_Phone: "+919425001373", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0005" }
+      - { Att_ID: "AT-2026-5117", Date: "2026-11-02", Batch: "Batch A — Morning", Student_ID: "ST-2026-0103", Name: "Ishita Saxena", Course: "JEE Mains", Parent_Name: "Mrs. R. Saxena", Parent_Phone: "+919425002746", Status: "Absent", Absences_This_Week: 1, Absences_This_Month: 1, Call_Status: "WhatsApp Sent", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0005" }
+      - { Att_ID: "AT-2026-5118", Date: "2026-11-02", Batch: "Batch A — Morning", Student_ID: "ST-2026-0104", Name: "Kunal Raghuwanshi", Course: "JEE Mains", Parent_Name: "Mr. V. Raghuwanshi", Parent_Phone: "+919425004119", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0005" }
+      - { Att_ID: "AT-2026-5119", Date: "2026-11-02", Batch: "Batch A — Morning", Student_ID: "ST-2026-0105", Name: "Tanvi Dubey", Course: "JEE Mains", Parent_Name: "Mrs. A. Dubey", Parent_Phone: "+919425005492", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0005" }
+      - { Att_ID: "AT-2026-5120", Date: "2026-11-02", Batch: "Batch A — Morning", Student_ID: "ST-2026-0106", Name: "Yash Choudhary", Course: "JEE Mains", Parent_Name: "Mr. K. Choudhary", Parent_Phone: "+919425006865", Status: "Absent", Absences_This_Week: 1, Absences_This_Month: 2, Call_Status: "WhatsApp Sent", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0005" }
+      - { Att_ID: "AT-2026-5121", Date: "2026-11-02", Batch: "Batch A — Morning", Student_ID: "ST-2026-0107", Name: "Nikhil Kumar", Course: "JEE Mains", Parent_Name: "Mr. R. Kumar", Parent_Phone: "+919425008238", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0005" }
+      - { Att_ID: "AT-2026-5122", Date: "2026-11-02", Batch: "Batch B — Evening", Student_ID: "ST-2026-0108", Name: "Kavya Patel", Course: "NEET", Parent_Name: "Mrs. M. Patel", Parent_Phone: "+919425009611", Status: "Absent", Absences_This_Week: 2, Absences_This_Month: 7, Call_Status: "Call Done", Reason: "Not feeling well, but has missed classes all week", Category: "PERSONAL", Needs_Followup: "Yes", Followup_Done: "No", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0006" }
+      - { Att_ID: "AT-2026-5123", Date: "2026-11-02", Batch: "Batch B — Evening", Student_ID: "ST-2026-0109", Name: "Ananya Shrivastava", Course: "NEET", Parent_Name: "Mrs. S. Shrivastava", Parent_Phone: "+919425010984", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0006" }
+      - { Att_ID: "AT-2026-5124", Date: "2026-11-02", Batch: "Batch B — Evening", Student_ID: "ST-2026-0110", Name: "Harsh Rajput", Course: "NEET", Parent_Name: "Mr. D. Rajput", Parent_Phone: "+919425012357", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0006" }
+      - { Att_ID: "AT-2026-5125", Date: "2026-11-02", Batch: "Batch B — Evening", Student_ID: "ST-2026-0111", Name: "Sakshi Pandey", Course: "NEET", Parent_Name: "Mrs. K. Pandey", Parent_Phone: "+919425013730", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0006" }
+      - { Att_ID: "AT-2026-5126", Date: "2026-11-02", Batch: "Batch B — Evening", Student_ID: "ST-2026-0112", Name: "Mohit Yadav", Course: "NEET", Parent_Name: "Mr. B. Yadav", Parent_Phone: "+919425015103", Status: "Absent", Absences_This_Week: 2, Absences_This_Month: 6, Call_Status: "No Answer", Reason: "", Category: "", Needs_Followup: "Yes", Followup_Done: "No", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0006" }
+      - { Att_ID: "AT-2026-5127", Date: "2026-11-02", Batch: "Batch B — Evening", Student_ID: "ST-2026-0113", Name: "Riya Malviya", Course: "NEET", Parent_Name: "Mrs. N. Malviya", Parent_Phone: "+919425016476", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0006" }
+      - { Att_ID: "AT-2026-5128", Date: "2026-11-02", Batch: "Batch B — Evening", Student_ID: "ST-2026-0114", Name: "Neha Kumar", Course: "NEET", Parent_Name: "Mrs. G. Kumar", Parent_Phone: "+919425017849", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0006" }
+      - { Att_ID: "AT-2026-5129", Date: "2026-11-02", Batch: "Batch A — Morning", Student_ID: "ST-2026-0115", Name: "Dev Singh", Course: "CA Foundation", Parent_Name: "Mr. H. Singh", Parent_Phone: "+919425019222", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0005" }
+      - { Att_ID: "AT-2026-5130", Date: "2026-11-02", Batch: "Batch A — Morning", Student_ID: "ST-2026-0116", Name: "Muskan Agrawal", Course: "CA Foundation", Parent_Name: "Mrs. P. Agrawal", Parent_Phone: "+919425020595", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0005" }
+      - { Att_ID: "AT-2026-5131", Date: "2026-11-02", Batch: "Batch A — Morning", Student_ID: "ST-2026-0117", Name: "Aditi Soni", Course: "CA Foundation", Parent_Name: "Mr. M. Soni", Parent_Phone: "+919425021968", Status: "Present", Absences_This_Week: 0, Absences_This_Month: 0, Call_Status: "Not Needed", Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: "Sunita Rao", Session_ID: "AS-2026-0005" }
 
   - name: tests
     id: { column: Score_ID, prefix: "TS-" }
@@ -309,7 +306,6 @@ entities:
       Marks: { type: number, min: 0 }
       Max_Marks: { type: number, positive: true }
       Score_Pct: { type: number, computed: "round(Marks * 100 / Max_Marks)" }
-      Course: { one_of: [JEE Mains, NEET, CA Foundation, UPSC] }
     seed: 0
     examples:
       - { Score_ID: "TS-2026-0801", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0101", Name: "Rohan Mehra", Course: "JEE Mains", Batch: "Batch A — Morning", Subject: "Physics", Marks: 89, Max_Marks: 100, Score_Pct: 89 }
@@ -483,6 +479,54 @@ entities:
       - { Member_ID: "TM-005", Name: "Sunita Rao", Role: "Office Admin", Phone: "+919826000005", Email: "office@replora.example", Courses: "All", Active: "true" }
       - { Member_ID: "TM-006", Name: "Neelam Verma", Role: "Mentor", Phone: "+919826000006", Email: "neelam@replora.example", Courses: "NEET, UPSC", Active: "true" }
 
+  - name: attendance_sessions
+    id: { column: Session_ID, prefix: "AS-" }
+    created: Saved_At
+    title: Batch
+    subtitle: [Date]
+    columns: [Session_ID, Date, Batch, Total_Count, Present_Count, Absent_Count, Absentees, Marked_By, Saved_At]
+    fields:
+      Total_Count: { type: number, min: 0, integer: true }
+      Present_Count: { type: number, min: 0, integer: true }
+      Absent_Count: { type: number, min: 0, integer: true }
+    seed: 0
+    examples:
+      - { Session_ID: "AS-2026-0001", Date: "2026-10-30", Batch: "Batch B — Evening", Total_Count: 1, Present_Count: 0, Absent_Count: 1, Absentees: "ST-2026-0108", Marked_By: "Sunita Rao", Saved_At: "2026-10-30T16:05:00+05:30" }
+      - { Session_ID: "AS-2026-0002", Date: "2026-10-31", Batch: "Batch B — Evening", Total_Count: 1, Present_Count: 0, Absent_Count: 1, Absentees: "ST-2026-0112", Marked_By: "Sunita Rao", Saved_At: "2026-10-31T16:05:00+05:30" }
+      - { Session_ID: "AS-2026-0003", Date: "2026-10-31", Batch: "Batch C — Weekend", Total_Count: 6, Present_Count: 5, Absent_Count: 1, Absentees: "ST-2026-0122", Marked_By: "Sunita Rao", Saved_At: "2026-10-31T09:05:00+05:30" }
+      - { Session_ID: "AS-2026-0004", Date: "2026-11-01", Batch: "Batch C — Weekend", Total_Count: 6, Present_Count: 4, Absent_Count: 2, Absentees: "ST-2026-0119, ST-2026-0122", Marked_By: "Sunita Rao", Saved_At: "2026-11-01T09:05:00+05:30" }
+      - { Session_ID: "AS-2026-0005", Date: "2026-11-02", Batch: "Batch A — Morning", Total_Count: 10, Present_Count: 8, Absent_Count: 2, Absentees: "ST-2026-0103, ST-2026-0106", Marked_By: "Sunita Rao", Saved_At: "2026-11-02T08:05:00+05:30" }
+      - { Session_ID: "AS-2026-0006", Date: "2026-11-02", Batch: "Batch B — Evening", Total_Count: 7, Present_Count: 5, Absent_Count: 2, Absentees: "ST-2026-0108, ST-2026-0112", Marked_By: "Sunita Rao", Saved_At: "2026-11-02T16:05:00+05:30" }
+
+  - name: courses
+    id: { column: Course_ID, prefix: "CR-" }
+    title: Name
+    subtitle: [Exam]
+    columns: [Course_ID, Name, Exam, Duration, Fee_Per_Instalment_INR, Instalments, Active]
+    fields:
+      Name: { unique: true }
+      Fee_Per_Instalment_INR: { type: number, positive: true }
+      Instalments: { type: number, min: 1, integer: true }
+    seed: 0
+    examples:
+      - { Course_ID: "CR-001", Name: "JEE Mains", Exam: "JEE Main 2027", Duration: "2 years", Fee_Per_Instalment_INR: 18000, Instalments: 4, Active: "true" }
+      - { Course_ID: "CR-002", Name: "NEET", Exam: "NEET UG 2027", Duration: "2 years", Fee_Per_Instalment_INR: 18000, Instalments: 4, Active: "true" }
+      - { Course_ID: "CR-003", Name: "CA Foundation", Exam: "CA Foundation May 2027", Duration: "8 months", Fee_Per_Instalment_INR: 12000, Instalments: 4, Active: "true" }
+      - { Course_ID: "CR-004", Name: "UPSC", Exam: "UPSC Prelims 2027", Duration: "1 year", Fee_Per_Instalment_INR: 22000, Instalments: 3, Active: "true" }
+
+  - name: batches
+    id: { column: Batch_ID, prefix: "BT-" }
+    title: Name
+    subtitle: [Timing]
+    columns: [Batch_ID, Name, Timing, Days, Courses, Active]
+    fields:
+      Name: { unique: true }
+    seed: 0
+    examples:
+      - { Batch_ID: "BT-001", Name: "Batch A — Morning", Timing: "7–10 AM", Days: "Mon–Sat", Courses: "JEE Mains, CA Foundation", Active: "true" }
+      - { Batch_ID: "BT-002", Name: "Batch B — Evening", Timing: "4–7 PM", Days: "Mon–Sat", Courses: "NEET", Active: "true" }
+      - { Batch_ID: "BT-003", Name: "Batch C — Weekend", Timing: "9 AM–1 PM", Days: "Sat–Sun", Courses: "UPSC", Active: "true" }
+
 header:
   covers: [R38, R9, R37]
   search:
@@ -556,6 +600,22 @@ flows:
         runs_per_month: 30
         effect: { insert: students, fill: { Status: Active, Fee_Status: Due, Enrolled_At: now }, map: { Phone: Student_Phone } }
 
+  - name: ATTENDANCE
+    covers: [R14, R15]
+    trigger: { tool: webhook, name: catch_webhook, auth: none }
+    writes: [attendance_sessions, attendance]
+    actions:
+      - name: save_batch
+        covers: [R14, R15]
+        via: custom                 # called by the AttendanceSheet custom section
+        model: none
+        payload: { Date: string, Batch: string, Total_Count: number, Present_Count: number, Absent_Count: number, Absentees: string, Marked_By: string, lines: array }
+        rules: ["One call per batch per date: the session row and every student's mark (its lines) are written in ONE transaction — a refused mark rolls the whole save back", "Present marks need nothing else: no workflow, no AI, no WhatsApp", "Then, for each Student_ID in Absentees only, the flow posts ABSENCE.absent (WhatsApp on a first absence in 7 days, the AI call on a repeat)", "Absences_This_Week and Absences_This_Month on each line are counted by the sheet from the stored marks (code)"]
+        typical_seconds: 6
+        credits: 6
+        runs_per_month: 90
+        effect: { insert: attendance_sessions, fill: { Saved_At: now }, lines: { entity: attendance, by: Session_ID } }
+
   - name: ABSENCE
     covers: [R14, R15, R16, R17]
     trigger: { tool: webhook, name: catch_webhook, auth: none }
@@ -576,7 +636,7 @@ flows:
         ai_task: extract
         ai_text: [Name, Course, Batch, Date]
         describe: { reason: "why the student was absent, in the parent's words", category: "SICK, FAMILY, TRAVEL, PERSONAL or OTHER", needs_followup: "Yes when the absence is repeated, the student may drop out, or the parent complains; else No" }
-        rules: ["Called by the attendance sheet for every Absent mark (Present is a direct insert, no credits)", "Code first: Absences_This_Week < call_from_absence → WhatsApp template eduflow_absence_alert only (Call_Status WhatsApp Sent) and Return — no call, no AI", "Otherwise voiceCall the parent → delay ~4 min → getCallDetails → CDM extract → write Reason / Category / Needs_Followup / Call_Status", "Needs_Followup Yes → WhatsApp eduflow_staff_alert to the student's counsellor and an alerts row (Kind Attendance, HIGH)"]
+        rules: ["Posted by ATTENDANCE.save_batch once per absentee — never for a present student", "Code first: Absences_This_Week < call_from_absence → WhatsApp template eduflow_absence_alert only (Call_Status WhatsApp Sent) and Return — no call, no AI", "Otherwise voiceCall the parent → delay ~4 min → getCallDetails → CDM extract → write Reason / Category / Needs_Followup / Call_Status", "Needs_Followup Yes → WhatsApp eduflow_staff_alert to the student's counsellor and an alerts row (Kind Attendance, HIGH)"]
         typical_seconds: 300
         credits: 14                 # blended: ~70 % of absences are WhatsApp-only (7) and ~30 % get the call (29) — recommended policy
         runs_per_month: 1144
@@ -830,7 +890,7 @@ pages:
         fields:
           - { key: Name, label: Full name, type: text, required: true, placeholder: "e.g. Rahul Sharma" }
           - { key: Phone, label: Phone, type: text, required: true, placeholder: "+91 98765 43210" }
-          - { key: Course, label: Course interest, type: select, options: [JEE Mains, NEET, CA Foundation, UPSC], required: true }
+          - { key: Course, label: Course interest, type: select, options_from: courses.Name, options_where: "Active=true", required: true }
           - { key: Source, label: Lead source, type: select, options: [Instagram, WhatsApp, Google Ads, Referral, Website, Walk-in], default: Website, required: true }
           - { key: Email, label: Email, type: text }
           - { key: Assigned_To, label: Counsellor, type: select, options_from: team.Name, options_where: "Role=Counsellor", help: "Leave blank — a HOT lead goes to the counsellor with the fewest open HOT leads" }
@@ -852,7 +912,7 @@ pages:
         fields:
           - { key: Parent_Name, label: Parent name, type: text, required: true }
           - { key: Parent_Phone, label: Parent phone, type: text, required: true }
-          - { key: Batch, label: Batch, type: select, options: [Batch A — Morning, Batch B — Evening, Batch C — Weekend], required: true }
+          - { key: Batch, label: Batch, type: select, options_from: batches.Name, options_where: "Active=true", required: true }
           - { key: Fee_Amount_INR, label: "First instalment (₹)", type: number, required: true }
           - { key: Fee_Due_Date, label: Fee due date, type: date, required: true }
 
@@ -918,8 +978,8 @@ pages:
           - { key: Student_Phone, label: Student phone, type: text, required: true }
           - { key: Parent_Name, label: Parent name, type: text, required: true }
           - { key: Parent_Phone, label: Parent phone, type: text, required: true }
-          - { key: Course, label: Course, type: select, options: [JEE Mains, NEET, CA Foundation, UPSC], required: true }
-          - { key: Batch, label: Batch, type: select, options: [Batch A — Morning, Batch B — Evening, Batch C — Weekend], required: true }
+          - { key: Course, label: Course, type: select, options_from: courses.Name, options_where: "Active=true", required: true }
+          - { key: Batch, label: Batch, type: select, options_from: batches.Name, options_where: "Active=true", required: true }
           - { key: Fee_Amount_INR, label: "First instalment (₹)", type: number, required: true }
           - { key: Fee_Due_Date, label: Fee due date, type: date, required: true }
       - { id: assign_mentor, covers: [R23], kind: edit, title: Assign mentor / counsellor, direct: patch, summary: [Name, Status, Main_Issue], fields: [ { key: Mentor, label: Mentor, type: select, options_from: team.Name, options_where: "Role=Mentor" }, { key: Counsellor, label: Counsellor, type: select, options_from: team.Name, options_where: "Role=Counsellor" } ] }
@@ -960,7 +1020,7 @@ pages:
           - { metric: absent_today, filter: "Status=Absent" }
           - { metric: followup_needed, filter: "Needs_Followup=Yes" }
           - { metric: low_attendance }
-      - { type: custom, name: AttendanceSheet, flow: ABSENCE, action: absent }   # the sheet: Present = direct insert, Absent = this action
+      - { type: custom, name: AttendanceSheet, flow: ATTENDANCE, action: save_batch }   # one save per batch: session + every mark in one transaction
       - type: table
         segments: { column: Status, all: All marks }
         period: { column: Date, presets: [today, yesterday, 7d, 30d], default: today }
@@ -1086,6 +1146,40 @@ pages:
       columns: [ { key: To_Name, header: To, type: text, sub: To_Phone }, { key: Type, type: tag }, { key: Agent, type: tag }, { key: Preview, type: truncate }, { key: Status, type: badge }, { key: Sent_At, header: Sent, type: date, time: true } ]
       search: [To_Name, To_Phone, Preview]
       filters: [Agent, Status]
+
+  - id: courses
+    covers: [R41]
+    route: /courses
+    label: Courses
+    subtitle: The courses this institute teaches — the enrolment, lead and score forms list them
+    icon: BookOpen
+    group: Setup
+    entity: courses
+    roles: [admin, office]
+    table:
+      columns: [ { key: Name, type: text, sub: Exam }, { key: Duration, type: text }, { key: Fee_Per_Instalment_INR, header: Fee / instalment, type: money }, { key: Instalments, type: number }, { key: Active, type: badge } ]
+      search: [Name, Exam]
+    modals:
+      - { id: add_course, covers: [R41], kind: create, primary: true, title: Add course, direct: insert, columns: 2, fields: [ { key: Name, label: Course name, type: text, required: true, placeholder: "e.g. NEET Repeater" }, { key: Exam, label: Exam, type: text, placeholder: "e.g. NEET 2027" }, { key: Duration, label: Duration, type: text, placeholder: "1 year" }, { key: Fee_Per_Instalment_INR, label: "Fee per instalment (₹)", type: number }, { key: Instalments, label: Instalments, type: number, default: 4 }, { key: Active, label: Active, type: select, options: ["true", "false"], default: "true" } ] }
+      - { id: edit_course, covers: [R41], kind: edit, title: Edit course, direct: patch, summary: [Name], fields: [ { key: Exam, label: Exam, type: text }, { key: Duration, label: Duration, type: text }, { key: Fee_Per_Instalment_INR, label: "Fee per instalment (₹)", type: number }, { key: Instalments, label: Instalments, type: number }, { key: Active, label: Active, type: select, options: ["true", "false"] } ] }
+    actions: { header: [add_course], row: [edit_course] }
+
+  - id: batches
+    covers: [R41]
+    route: /batches
+    label: Batches
+    subtitle: Morning, evening and weekend batches — attendance is marked per batch
+    icon: Clock
+    group: Setup
+    entity: batches
+    roles: [admin, office]
+    table:
+      columns: [ { key: Name, type: text, sub: Timing }, { key: Days, type: text }, { key: Courses, type: text }, { key: Active, type: badge } ]
+      search: [Name, Courses]
+    modals:
+      - { id: add_batch, covers: [R41], kind: create, primary: true, title: Add batch, direct: insert, columns: 2, fields: [ { key: Name, label: Batch name, type: text, required: true, placeholder: "e.g. Batch D — Night" }, { key: Timing, label: Timing, type: text, placeholder: "7–9 PM" }, { key: Days, label: Days, type: text, placeholder: "Mon–Fri" }, { key: Courses, label: Courses taught, type: text, placeholder: "NEET, JEE Mains" }, { key: Active, label: Active, type: select, options: ["true", "false"], default: "true" } ] }
+      - { id: edit_batch, covers: [R41], kind: edit, title: Edit batch, direct: patch, summary: [Name], fields: [ { key: Timing, label: Timing, type: text }, { key: Days, label: Days, type: text }, { key: Courses, label: Courses taught, type: text }, { key: Active, label: Active, type: select, options: ["true", "false"] } ] }
+    actions: { header: [add_batch], row: [edit_batch] }
 
   - id: team
     covers: [R4, R6, R17, R22]

@@ -628,12 +628,8 @@ export const PAGES = [
             "key": "Course",
             "label": "Course interest",
             "type": "select",
-            "options": [
-              "JEE Mains",
-              "NEET",
-              "CA Foundation",
-              "UPSC"
-            ],
+            "options_from": "courses.Name",
+            "options_where": "Active=true",
             "required": true
           },
           {
@@ -814,11 +810,8 @@ export const PAGES = [
             "key": "Batch",
             "label": "Batch",
             "type": "select",
-            "options": [
-              "Batch A — Morning",
-              "Batch B — Evening",
-              "Batch C — Weekend"
-            ],
+            "options_from": "batches.Name",
+            "options_where": "Active=true",
             "required": true
           },
           {
@@ -1102,23 +1095,16 @@ export const PAGES = [
             "key": "Course",
             "label": "Course",
             "type": "select",
-            "options": [
-              "JEE Mains",
-              "NEET",
-              "CA Foundation",
-              "UPSC"
-            ],
+            "options_from": "courses.Name",
+            "options_where": "Active=true",
             "required": true
           },
           {
             "key": "Batch",
             "label": "Batch",
             "type": "select",
-            "options": [
-              "Batch A — Morning",
-              "Batch B — Evening",
-              "Batch C — Weekend"
-            ],
+            "options_from": "batches.Name",
+            "options_where": "Active=true",
             "required": true
           },
           {
@@ -1562,8 +1548,8 @@ export const PAGES = [
       {
         "type": "custom",
         "name": "AttendanceSheet",
-        "flow": "ABSENCE",
-        "action": "absent",
+        "flow": "ATTENDANCE",
+        "action": "save_batch",
         "id": "attendance-custom"
       },
       {
@@ -3017,6 +3003,299 @@ export const PAGES = [
           "Status"
         ],
         "id": "messages-table"
+      }
+    ],
+    "kind": "page"
+  },
+  {
+    "id": "courses",
+    "covers": [
+      "R41"
+    ],
+    "route": "/courses",
+    "label": "Courses",
+    "subtitle": "The courses this institute teaches — the enrolment, lead and score forms list them",
+    "icon": "BookOpen",
+    "group": "Setup",
+    "entity": "courses",
+    "modals": [
+      {
+        "id": "add_course",
+        "covers": [
+          "R41"
+        ],
+        "kind": "create",
+        "primary": true,
+        "title": "Add course",
+        "direct": "insert",
+        "columns": 2,
+        "fields": [
+          {
+            "key": "Name",
+            "label": "Course name",
+            "type": "text",
+            "required": true,
+            "placeholder": "e.g. NEET Repeater"
+          },
+          {
+            "key": "Exam",
+            "label": "Exam",
+            "type": "text",
+            "placeholder": "e.g. NEET 2027"
+          },
+          {
+            "key": "Duration",
+            "label": "Duration",
+            "type": "text",
+            "placeholder": "1 year"
+          },
+          {
+            "key": "Fee_Per_Instalment_INR",
+            "label": "Fee per instalment (₹)",
+            "type": "number"
+          },
+          {
+            "key": "Instalments",
+            "label": "Instalments",
+            "type": "number",
+            "default": 4
+          },
+          {
+            "key": "Active",
+            "label": "Active",
+            "type": "select",
+            "options": [
+              "true",
+              "false"
+            ],
+            "default": "true"
+          }
+        ]
+      },
+      {
+        "id": "edit_course",
+        "covers": [
+          "R41"
+        ],
+        "kind": "edit",
+        "title": "Edit course",
+        "direct": "patch",
+        "summary": [
+          "Name"
+        ],
+        "fields": [
+          {
+            "key": "Exam",
+            "label": "Exam",
+            "type": "text"
+          },
+          {
+            "key": "Duration",
+            "label": "Duration",
+            "type": "text"
+          },
+          {
+            "key": "Fee_Per_Instalment_INR",
+            "label": "Fee per instalment (₹)",
+            "type": "number"
+          },
+          {
+            "key": "Instalments",
+            "label": "Instalments",
+            "type": "number"
+          },
+          {
+            "key": "Active",
+            "label": "Active",
+            "type": "select",
+            "options": [
+              "true",
+              "false"
+            ]
+          }
+        ]
+      }
+    ],
+    "actions": {
+      "header": [
+        "add_course"
+      ],
+      "row": [
+        "edit_course"
+      ]
+    },
+    "portal": "admin",
+    "blocks": [
+      {
+        "type": "table",
+        "columns": [
+          {
+            "key": "Name",
+            "type": "text",
+            "sub": "Exam"
+          },
+          {
+            "key": "Duration",
+            "type": "text"
+          },
+          {
+            "key": "Fee_Per_Instalment_INR",
+            "header": "Fee / instalment",
+            "type": "money"
+          },
+          {
+            "key": "Instalments",
+            "type": "number"
+          },
+          {
+            "key": "Active",
+            "type": "badge"
+          }
+        ],
+        "search": [
+          "Name",
+          "Exam"
+        ],
+        "id": "courses-table"
+      }
+    ],
+    "kind": "page"
+  },
+  {
+    "id": "batches",
+    "covers": [
+      "R41"
+    ],
+    "route": "/batches",
+    "label": "Batches",
+    "subtitle": "Morning, evening and weekend batches — attendance is marked per batch",
+    "icon": "Clock",
+    "group": "Setup",
+    "entity": "batches",
+    "modals": [
+      {
+        "id": "add_batch",
+        "covers": [
+          "R41"
+        ],
+        "kind": "create",
+        "primary": true,
+        "title": "Add batch",
+        "direct": "insert",
+        "columns": 2,
+        "fields": [
+          {
+            "key": "Name",
+            "label": "Batch name",
+            "type": "text",
+            "required": true,
+            "placeholder": "e.g. Batch D — Night"
+          },
+          {
+            "key": "Timing",
+            "label": "Timing",
+            "type": "text",
+            "placeholder": "7–9 PM"
+          },
+          {
+            "key": "Days",
+            "label": "Days",
+            "type": "text",
+            "placeholder": "Mon–Fri"
+          },
+          {
+            "key": "Courses",
+            "label": "Courses taught",
+            "type": "text",
+            "placeholder": "NEET, JEE Mains"
+          },
+          {
+            "key": "Active",
+            "label": "Active",
+            "type": "select",
+            "options": [
+              "true",
+              "false"
+            ],
+            "default": "true"
+          }
+        ]
+      },
+      {
+        "id": "edit_batch",
+        "covers": [
+          "R41"
+        ],
+        "kind": "edit",
+        "title": "Edit batch",
+        "direct": "patch",
+        "summary": [
+          "Name"
+        ],
+        "fields": [
+          {
+            "key": "Timing",
+            "label": "Timing",
+            "type": "text"
+          },
+          {
+            "key": "Days",
+            "label": "Days",
+            "type": "text"
+          },
+          {
+            "key": "Courses",
+            "label": "Courses taught",
+            "type": "text"
+          },
+          {
+            "key": "Active",
+            "label": "Active",
+            "type": "select",
+            "options": [
+              "true",
+              "false"
+            ]
+          }
+        ]
+      }
+    ],
+    "actions": {
+      "header": [
+        "add_batch"
+      ],
+      "row": [
+        "edit_batch"
+      ]
+    },
+    "portal": "admin",
+    "blocks": [
+      {
+        "type": "table",
+        "columns": [
+          {
+            "key": "Name",
+            "type": "text",
+            "sub": "Timing"
+          },
+          {
+            "key": "Days",
+            "type": "text"
+          },
+          {
+            "key": "Courses",
+            "type": "text"
+          },
+          {
+            "key": "Active",
+            "type": "badge"
+          }
+        ],
+        "search": [
+          "Name",
+          "Courses"
+        ],
+        "id": "batches-table"
       }
     ],
     "kind": "page"

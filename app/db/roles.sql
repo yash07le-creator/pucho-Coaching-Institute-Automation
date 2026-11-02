@@ -6,6 +6,6 @@ END $$;
 GRANT USAGE ON SCHEMA public TO app, studio_reader;
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO app;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO app;
-GRANT SELECT ON "leads" ,"students" ,"fees" ,"attendance" ,"tests" ,"calls" ,"messages" ,"alerts" ,"team" ,"audit_log" TO studio_reader;
+GRANT SELECT ON "leads" ,"students" ,"fees" ,"attendance" ,"tests" ,"calls" ,"messages" ,"alerts" ,"team" ,"attendance_sessions" ,"courses" ,"batches" ,"audit_log" TO studio_reader;
 -- studio_reader deliberately has NO grant on users, sessions, otp_codes, files, jobs, signin_attempts.
 -- To use them: CREATE USER <app_login> WITH PASSWORD '…' IN ROLE app;  CREATE USER <studio_login> WITH PASSWORD '…' IN ROLE studio_reader;

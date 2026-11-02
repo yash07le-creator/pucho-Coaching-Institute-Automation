@@ -1,6 +1,6 @@
 // src/config/roles.js — generated from os.yaml roles[].
 export const ROLES = {"ADMIN": "admin", "OFFICE": "office", "COUNSELLOR": "counsellor", "MENTOR": "mentor"};
-export const ROLE_PERMISSIONS = {"admin": ["*"], "office": ["attendance", "students", "scores", "fees", "messages", "alerts", "settings"], "counsellor": ["leads", "calls", "students", "parents", "alerts", "messages", "settings"], "mentor": ["academic", "scores", "students", "attendance", "calls", "settings"]};
+export const ROLE_PERMISSIONS = {"admin": ["*"], "office": ["attendance", "students", "scores", "fees", "messages", "alerts", "courses", "batches", "settings"], "counsellor": ["leads", "calls", "students", "parents", "alerts", "messages", "settings"], "mentor": ["academic", "scores", "students", "attendance", "calls", "settings"]};
 export const ROLE_LABELS = {"admin": "Director", "office": "Office admin", "counsellor": "Counsellor", "mentor": "Mentor"};
 export const ROLE_COLORS = {"admin": "bg-primary-500", "office": "bg-stage-4", "counsellor": "bg-stage-3", "mentor": "bg-stage-2"};
 export const ROLE_HOME = {"admin": "/", "office": "/attendance", "counsellor": "/leads", "mentor": "/academic"};

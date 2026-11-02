@@ -176,6 +176,7 @@
       "name": "attendance",
       "columns": [
         "Att_ID",
+        "Session_ID",
         "Date",
         "Batch",
         "Student_ID",
@@ -195,6 +196,7 @@
       ],
       "types": {
         "Att_ID": "text",
+        "Session_ID": "text",
         "Date": "timestamptz",
         "Batch": "text",
         "Student_ID": "text",
@@ -401,6 +403,77 @@
         "Phone": "phone",
         "Email": "email"
       }
+    },
+    {
+      "name": "attendance_sessions",
+      "columns": [
+        "Session_ID",
+        "Date",
+        "Batch",
+        "Total_Count",
+        "Present_Count",
+        "Absent_Count",
+        "Absentees",
+        "Marked_By",
+        "Saved_At"
+      ],
+      "types": {
+        "Session_ID": "text",
+        "Date": "date",
+        "Batch": "text",
+        "Total_Count": "numeric",
+        "Present_Count": "numeric",
+        "Absent_Count": "numeric",
+        "Absentees": "text",
+        "Marked_By": "text",
+        "Saved_At": "timestamptz"
+      }
+    },
+    {
+      "name": "courses",
+      "columns": [
+        "Course_ID",
+        "Name",
+        "Exam",
+        "Duration",
+        "Fee_Per_Instalment_INR",
+        "Instalments",
+        "Active"
+      ],
+      "types": {
+        "Course_ID": "text",
+        "Name": "text",
+        "Exam": "text",
+        "Duration": "text",
+        "Fee_Per_Instalment_INR": "numeric",
+        "Instalments": "numeric",
+        "Active": "boolean"
+      },
+      "unique": [
+        "Name"
+      ]
+    },
+    {
+      "name": "batches",
+      "columns": [
+        "Batch_ID",
+        "Name",
+        "Timing",
+        "Days",
+        "Courses",
+        "Active"
+      ],
+      "types": {
+        "Batch_ID": "text",
+        "Name": "text",
+        "Timing": "text",
+        "Days": "text",
+        "Courses": "text",
+        "Active": "boolean"
+      },
+      "unique": [
+        "Name"
+      ]
     },
     {
       "name": "audit_log",

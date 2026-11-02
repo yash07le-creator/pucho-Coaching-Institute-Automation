@@ -16,8 +16,8 @@ Every client requirement and where the OS covers it. `scaffold_os.py` refuses to
 | R11 | A parent of a newly enrolled student gets a welcome message on WhatsApp | page leads › modal enrol; page students › modal add_student; flow STUDENT_MANAGE |
 | R12 | The office admin filters students by course, batch and status | page students |
 | R13 | The director opens a student profile with attendance, last test, rank, strong and weak subjects and parent info | page students; flow ROLLUP |
-| R14 | The office admin marks each student of a batch present or absent for a date | page attendance; page attendance › modal mark_one; flow ABSENCE; flow ABSENCE.absent |
-| R15 | A parent gets an AI call asking the reason when the student is marked absent | page attendance; page attendance › modal reason_call; flow ABSENCE; flow ABSENCE.absent; flow ABSENCE.reason_call |
+| R14 | The office admin marks each student of a batch present or absent for a date | page attendance; page attendance › modal mark_one; flow ATTENDANCE; flow ATTENDANCE.save_batch; flow ABSENCE; flow ABSENCE.absent |
+| R15 | A parent gets an AI call asking the reason when the student is marked absent | page attendance; page attendance › modal reason_call; flow ATTENDANCE; flow ATTENDANCE.save_batch; flow ABSENCE; flow ABSENCE.absent; flow ABSENCE.reason_call |
 | R16 | The office admin sees the reason and category collected by the call against each absence | page attendance; page attendance › modal reason_call; flow ABSENCE; flow ABSENCE.reason_call |
 | R17 | A counsellor is alerted on WhatsApp when an absence needs follow-up | page attendance; page attendance › modal followup_done; page team; flow ABSENCE; flow ABSENCE.reason_call |
 | R18 | The director sees students below 75% attendance as critical | page students; page attendance; flow ROLLUP |
@@ -43,3 +43,4 @@ Every client requirement and where the OS covers it. `scaffold_os.py` refuses to
 | R38 | The director searches students, leads, phones and courses from anywhere | header |
 | R39 | The director exports a list to CSV | page leads; page calls; page students; page fees |
 | R40 | The director sees the institute dashboard: students, new leads this week, fees overdue, average attendance | page overview |
+| R41 | The office admin adds the institute's own courses and batches, and the enrolment form offers them | page courses; page courses › modal add_course; page courses › modal edit_course; page batches; page batches › modal add_batch; page batches › modal edit_batch |

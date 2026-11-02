@@ -17,6 +17,8 @@ _Generated 2026-11-02 from os.yaml._
 - **fees** `/fees` — 
 - **parents** `/parents` — 
 - **messages** `/messages` — 
+- **courses** `/courses` — 
+- **batches** `/batches` — 
 - **team** `/team` — 
 - **settings** `/settings` — Profile, password, flow webhook URLs
 - **users** `/users` — Everyone who can sign in, and what each role may open
@@ -27,6 +29,8 @@ _Generated 2026-11-02 from os.yaml._
   - `call` — model standard, ~240s, ~44 credits; payload Lead_ID, Name, Phone, Course, Notes → result grade, score, summary, next_action
 - **STUDENT_MANAGE** — trigger `webhook.catch_webhook`; writes students, fees, messages, audit_log
   - `enrol` — model none, ~5s, ~7 credits; payload Name, Phone, Student_Phone, Parent_Name, Parent_Phone, Course, Batch, Fee_Amount_INR, Fee_Due_Date, Address, Counsellor → result 
+- **ATTENDANCE** — trigger `webhook.catch_webhook`; writes attendance_sessions, attendance, audit_log
+  - `save_batch` — model none, ~6s, ~6 credits; payload Date, Batch, Total_Count, Present_Count, Absent_Count, Absentees, Marked_By, lines → result 
 - **ABSENCE** — trigger `webhook.catch_webhook`; writes attendance, calls, messages, alerts, audit_log
   - `absent` — model standard, ~300s, ~14 credits; payload Date, Batch, Student_ID, Name, Course, Parent_Name, Parent_Phone, Absences_This_Week, Absences_This_Month, Marked_By → result reason, category, needs_followup
   - `reason_call` — model standard, ~300s, ~29 credits; payload Att_ID, Date, Batch, Student_ID, Name, Course, Parent_Name, Parent_Phone → result reason, category, needs_followup

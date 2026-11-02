@@ -1,0 +1,5 @@
+Course_ID,Name,Exam,Duration,Fee_Per_Instalment_INR,Instalments,Active
+CR-001,JEE Mains,JEE Main 2027,2 years,18000,4,true
+CR-002,NEET,NEET UG 2027,2 years,18000,4,true
+CR-003,CA Foundation,CA Foundation May 2027,8 months,12000,4,true
+CR-004,UPSC,UPSC Prelims 2027,1 year,22000,3,true

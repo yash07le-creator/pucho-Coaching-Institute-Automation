@@ -173,6 +173,7 @@ CREATE INDEX IF NOT EXISTS "fees_created_at_idx" ON "fees" ("created_at");
 
 CREATE TABLE IF NOT EXISTS "attendance" (
   "att_id" text PRIMARY KEY,
+  "session_id" text,
   "date" timestamptz,
   "batch" text,
   "student_id" text,
@@ -289,6 +290,43 @@ CREATE TABLE IF NOT EXISTS "team" (
   _seq bigserial
 );
 
+CREATE TABLE IF NOT EXISTS "attendance_sessions" (
+  "session_id" text PRIMARY KEY,
+  "date" date,
+  "batch" text,
+  "total_count" numeric,
+  "present_count" numeric,
+  "absent_count" numeric,
+  "absentees" text,
+  "marked_by" text,
+  "saved_at" timestamptz,
+  _seq bigserial
+);
+CREATE INDEX IF NOT EXISTS "attendance_sessions_saved_at_idx" ON "attendance_sessions" ("saved_at");
+
+CREATE TABLE IF NOT EXISTS "courses" (
+  "course_id" text PRIMARY KEY,
+  "name" text,
+  "exam" text,
+  "duration" text,
+  "fee_per_instalment_inr" numeric,
+  "instalments" numeric,
+  "active" boolean,
+  _seq bigserial
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "courses_name_uq" ON "courses" ("name");
+
+CREATE TABLE IF NOT EXISTS "batches" (
+  "batch_id" text PRIMARY KEY,
+  "name" text,
+  "timing" text,
+  "days" text,
+  "courses" text,
+  "active" boolean,
+  _seq bigserial
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "batches_name_uq" ON "batches" ("name");
+
 CREATE TABLE IF NOT EXISTS "audit_log" (
   "audit_id" text PRIMARY KEY,
   "at" timestamptz,
@@ -323,12 +361,6 @@ ALTER TABLE "leads" ADD COLUMN IF NOT EXISTS "assigned_to" text;
 ALTER TABLE "leads" ADD COLUMN IF NOT EXISTS "next_followup_at" timestamptz;
 ALTER TABLE "leads" ADD COLUMN IF NOT EXISTS "lost_reason" text;
 ALTER TABLE "leads" ADD COLUMN IF NOT EXISTS _seq bigserial;
-DO $$ DECLARE r record; BEGIN
-  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"leads"'::regclass AND left(conname, 17) = 'leads_course_v49_' AND conname <> 'leads_course_v49_8873de20' LOOP
-    EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'leads', r.conname); END LOOP;
-  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"leads"'::regclass AND conname = 'leads_course_v49_8873de20') THEN
-    ALTER TABLE "leads" ADD CONSTRAINT "leads_course_v49_8873de20" CHECK (("course" IN ('JEE Mains', 'NEET', 'CA Foundation', 'UPSC') OR "course" = '')) NOT VALID; END IF;
-END $$;
 DO $$ DECLARE r record; BEGIN
   FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"leads"'::regclass AND left(conname, 17) = 'leads_source_v49_' AND conname <> 'leads_source_v49_61f89f06' LOOP
     EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'leads', r.conname); END LOOP;
@@ -382,18 +414,6 @@ ALTER TABLE "students" ADD COLUMN IF NOT EXISTS "last_parent_call_at" timestampt
 ALTER TABLE "students" ADD COLUMN IF NOT EXISTS "parent_sentiment" text;
 ALTER TABLE "students" ADD COLUMN IF NOT EXISTS "parent_concern" text;
 ALTER TABLE "students" ADD COLUMN IF NOT EXISTS _seq bigserial;
-DO $$ DECLARE r record; BEGIN
-  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"students"'::regclass AND left(conname, 20) = 'students_course_v49_' AND conname <> 'students_course_v49_8873de20' LOOP
-    EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'students', r.conname); END LOOP;
-  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"students"'::regclass AND conname = 'students_course_v49_8873de20') THEN
-    ALTER TABLE "students" ADD CONSTRAINT "students_course_v49_8873de20" CHECK (("course" IN ('JEE Mains', 'NEET', 'CA Foundation', 'UPSC') OR "course" = '')) NOT VALID; END IF;
-END $$;
-DO $$ DECLARE r record; BEGIN
-  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"students"'::regclass AND left(conname, 19) = 'students_batch_v49_' AND conname <> 'students_batch_v49_59d354e5' LOOP
-    EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'students', r.conname); END LOOP;
-  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"students"'::regclass AND conname = 'students_batch_v49_59d354e5') THEN
-    ALTER TABLE "students" ADD CONSTRAINT "students_batch_v49_59d354e5" CHECK (("batch" IN ('Batch A — Morning', 'Batch B — Evening', 'Batch C — Weekend') OR "batch" = '')) NOT VALID; END IF;
-END $$;
 DO $$ DECLARE r record; BEGIN
   FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"students"'::regclass AND left(conname, 28) = 'students_attendance_pct_v49_' AND conname <> 'students_attendance_pct_v49_cfa206fa' LOOP
     EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'students', r.conname); END LOOP;
@@ -500,6 +520,7 @@ DO $$ DECLARE r record; BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"fees"'::regclass AND conname = 'fees_payment_mode_v49_925760f2') THEN
     ALTER TABLE "fees" ADD CONSTRAINT "fees_payment_mode_v49_925760f2" CHECK (("payment_mode" IN ('UPI', 'Cash', 'Card', 'Bank Transfer', 'Cheque') OR "payment_mode" = '')) NOT VALID; END IF;
 END $$;
+ALTER TABLE "attendance" ADD COLUMN IF NOT EXISTS "session_id" text;
 ALTER TABLE "attendance" ADD COLUMN IF NOT EXISTS "date" timestamptz;
 ALTER TABLE "attendance" ADD COLUMN IF NOT EXISTS "batch" text;
 ALTER TABLE "attendance" ADD COLUMN IF NOT EXISTS "student_id" text;
@@ -518,12 +539,6 @@ ALTER TABLE "attendance" ADD COLUMN IF NOT EXISTS "followup_done" text;
 ALTER TABLE "attendance" ADD COLUMN IF NOT EXISTS "marked_by" text;
 ALTER TABLE "attendance" ADD COLUMN IF NOT EXISTS _seq bigserial;
 DO $$ DECLARE r record; BEGIN
-  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"attendance"'::regclass AND left(conname, 21) = 'attendance_batch_v49_' AND conname <> 'attendance_batch_v49_59d354e5' LOOP
-    EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'attendance', r.conname); END LOOP;
-  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"attendance"'::regclass AND conname = 'attendance_batch_v49_59d354e5') THEN
-    ALTER TABLE "attendance" ADD CONSTRAINT "attendance_batch_v49_59d354e5" CHECK (("batch" IN ('Batch A — Morning', 'Batch B — Evening', 'Batch C — Weekend') OR "batch" = '')) NOT VALID; END IF;
-END $$;
-DO $$ DECLARE r record; BEGIN
   FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"attendance"'::regclass AND left(conname, 34) = 'attendance_absences_this_week_v49_' AND conname <> 'attendance_absences_this_week_v49_34c4633e' LOOP
     EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'attendance', r.conname); END LOOP;
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"attendance"'::regclass AND conname = 'attendance_absences_this_week_v49_34c4633e') THEN
@@ -536,10 +551,10 @@ DO $$ DECLARE r record; BEGIN
     ALTER TABLE "attendance" ADD CONSTRAINT "attendance_absences_this_month_v49_e883a55a" CHECK ("absences_this_month" >= 0) NOT VALID; END IF;
 END $$;
 DO $$ DECLARE r record; BEGIN
-  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"attendance"'::regclass AND left(conname, 27) = 'attendance_call_status_v49_' AND conname <> 'attendance_call_status_v49_efeb7825' LOOP
+  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"attendance"'::regclass AND left(conname, 27) = 'attendance_call_status_v49_' AND conname <> 'attendance_call_status_v49_967dd1c4' LOOP
     EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'attendance', r.conname); END LOOP;
-  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"attendance"'::regclass AND conname = 'attendance_call_status_v49_efeb7825') THEN
-    ALTER TABLE "attendance" ADD CONSTRAINT "attendance_call_status_v49_efeb7825" CHECK (("call_status" IN ('Not Needed', 'WhatsApp Sent', 'Calling', 'Call Done', 'No Answer') OR "call_status" = '')) NOT VALID; END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"attendance"'::regclass AND conname = 'attendance_call_status_v49_967dd1c4') THEN
+    ALTER TABLE "attendance" ADD CONSTRAINT "attendance_call_status_v49_967dd1c4" CHECK (("call_status" IN ('Not Needed', 'Queued', 'WhatsApp Sent', 'Calling', 'Call Done', 'No Answer') OR "call_status" = '')) NOT VALID; END IF;
 END $$;
 DO $$ DECLARE r record; BEGIN
   FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"attendance"'::regclass AND left(conname, 24) = 'attendance_category_v49_' AND conname <> 'attendance_category_v49_b0394d05' LOOP
@@ -570,12 +585,6 @@ ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS "marks" numeric;
 ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS "max_marks" numeric;
 ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS "score_pct" numeric;
 ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS _seq bigserial;
-DO $$ DECLARE r record; BEGIN
-  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"tests"'::regclass AND left(conname, 17) = 'tests_course_v49_' AND conname <> 'tests_course_v49_8873de20' LOOP
-    EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'tests', r.conname); END LOOP;
-  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"tests"'::regclass AND conname = 'tests_course_v49_8873de20') THEN
-    ALTER TABLE "tests" ADD CONSTRAINT "tests_course_v49_8873de20" CHECK (("course" IN ('JEE Mains', 'NEET', 'CA Foundation', 'UPSC') OR "course" = '')) NOT VALID; END IF;
-END $$;
 DO $$ DECLARE r record; BEGIN
   FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"tests"'::regclass AND left(conname, 16) = 'tests_marks_v49_' AND conname <> 'tests_marks_v49_814a696b' LOOP
     EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'tests', r.conname); END LOOP;
@@ -727,6 +736,58 @@ DO $$ DECLARE r record; BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"team"'::regclass AND conname = 'team_role_v49_66f73cf6') THEN
     ALTER TABLE "team" ADD CONSTRAINT "team_role_v49_66f73cf6" CHECK (("role" IN ('Director', 'Office Admin', 'Counsellor', 'Mentor') OR "role" = '')) NOT VALID; END IF;
 END $$;
+ALTER TABLE "attendance_sessions" ADD COLUMN IF NOT EXISTS "date" date;
+ALTER TABLE "attendance_sessions" ADD COLUMN IF NOT EXISTS "batch" text;
+ALTER TABLE "attendance_sessions" ADD COLUMN IF NOT EXISTS "total_count" numeric;
+ALTER TABLE "attendance_sessions" ADD COLUMN IF NOT EXISTS "present_count" numeric;
+ALTER TABLE "attendance_sessions" ADD COLUMN IF NOT EXISTS "absent_count" numeric;
+ALTER TABLE "attendance_sessions" ADD COLUMN IF NOT EXISTS "absentees" text;
+ALTER TABLE "attendance_sessions" ADD COLUMN IF NOT EXISTS "marked_by" text;
+ALTER TABLE "attendance_sessions" ADD COLUMN IF NOT EXISTS "saved_at" timestamptz;
+ALTER TABLE "attendance_sessions" ADD COLUMN IF NOT EXISTS _seq bigserial;
+DO $$ DECLARE r record; BEGIN
+  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"attendance_sessions"'::regclass AND left(conname, 36) = 'attendance_sessions_total_count_v49_' AND conname <> 'attendance_sessions_total_count_v49_4dc25d50' LOOP
+    EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'attendance_sessions', r.conname); END LOOP;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"attendance_sessions"'::regclass AND conname = 'attendance_sessions_total_count_v49_4dc25d50') THEN
+    ALTER TABLE "attendance_sessions" ADD CONSTRAINT "attendance_sessions_total_count_v49_4dc25d50" CHECK ("total_count" >= 0) NOT VALID; END IF;
+END $$;
+DO $$ DECLARE r record; BEGIN
+  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"attendance_sessions"'::regclass AND left(conname, 38) = 'attendance_sessions_present_count_v49_' AND conname <> 'attendance_sessions_present_count_v49_e08da53d' LOOP
+    EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'attendance_sessions', r.conname); END LOOP;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"attendance_sessions"'::regclass AND conname = 'attendance_sessions_present_count_v49_e08da53d') THEN
+    ALTER TABLE "attendance_sessions" ADD CONSTRAINT "attendance_sessions_present_count_v49_e08da53d" CHECK ("present_count" >= 0) NOT VALID; END IF;
+END $$;
+DO $$ DECLARE r record; BEGIN
+  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"attendance_sessions"'::regclass AND left(conname, 37) = 'attendance_sessions_absent_count_v49_' AND conname <> 'attendance_sessions_absent_count_v49_7fab2443' LOOP
+    EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'attendance_sessions', r.conname); END LOOP;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"attendance_sessions"'::regclass AND conname = 'attendance_sessions_absent_count_v49_7fab2443') THEN
+    ALTER TABLE "attendance_sessions" ADD CONSTRAINT "attendance_sessions_absent_count_v49_7fab2443" CHECK ("absent_count" >= 0) NOT VALID; END IF;
+END $$;
+ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "name" text;
+ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "exam" text;
+ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "duration" text;
+ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "fee_per_instalment_inr" numeric;
+ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "instalments" numeric;
+ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "active" boolean;
+ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS _seq bigserial;
+DO $$ DECLARE r record; BEGIN
+  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"courses"'::regclass AND left(conname, 35) = 'courses_fee_per_instalment_inr_v49_' AND conname <> 'courses_fee_per_instalment_inr_v49_d6198425' LOOP
+    EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'courses', r.conname); END LOOP;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"courses"'::regclass AND conname = 'courses_fee_per_instalment_inr_v49_d6198425') THEN
+    ALTER TABLE "courses" ADD CONSTRAINT "courses_fee_per_instalment_inr_v49_d6198425" CHECK ("fee_per_instalment_inr" > 0) NOT VALID; END IF;
+END $$;
+DO $$ DECLARE r record; BEGIN
+  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"courses"'::regclass AND left(conname, 24) = 'courses_instalments_v49_' AND conname <> 'courses_instalments_v49_c6296d81' LOOP
+    EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'courses', r.conname); END LOOP;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"courses"'::regclass AND conname = 'courses_instalments_v49_c6296d81') THEN
+    ALTER TABLE "courses" ADD CONSTRAINT "courses_instalments_v49_c6296d81" CHECK ("instalments" >= 1) NOT VALID; END IF;
+END $$;
+ALTER TABLE "batches" ADD COLUMN IF NOT EXISTS "name" text;
+ALTER TABLE "batches" ADD COLUMN IF NOT EXISTS "timing" text;
+ALTER TABLE "batches" ADD COLUMN IF NOT EXISTS "days" text;
+ALTER TABLE "batches" ADD COLUMN IF NOT EXISTS "courses" text;
+ALTER TABLE "batches" ADD COLUMN IF NOT EXISTS "active" boolean;
+ALTER TABLE "batches" ADD COLUMN IF NOT EXISTS _seq bigserial;
 ALTER TABLE "audit_log" ADD COLUMN IF NOT EXISTS "at" timestamptz;
 ALTER TABLE "audit_log" ADD COLUMN IF NOT EXISTS "who" text;
 ALTER TABLE "audit_log" ADD COLUMN IF NOT EXISTS "flow" text;
@@ -739,7 +800,7 @@ ALTER TABLE "audit_log" ADD COLUMN IF NOT EXISTS _seq bigserial;
 -- ── v5.1 built-in roles (os.yaml roles[]): inserted when missing and not deleted by an administrator (app_settings
 -- deleted_role:<key>), never overwritten — the Users & roles page edits them
 INSERT INTO app_roles (key, label, description, base_role, pages, built_in) SELECT 'admin', 'Director', 'Runs the institute: what needs action, leads, students, fees, parents and every AI call', 'admin', '{"*": "edit"}'::jsonb, true WHERE NOT EXISTS (SELECT 1 FROM app_settings WHERE key = 'deleted_role:admin') ON CONFLICT (key) DO NOTHING;
-INSERT INTO app_roles (key, label, description, base_role, pages, built_in) SELECT 'office', 'Office admin', 'Marks attendance, enrols students, records fees and sends WhatsApp templates', 'office', '{"attendance": "edit", "students": "edit", "scores": "edit", "fees": "edit", "messages": "edit", "alerts": "edit", "settings": "edit"}'::jsonb, true WHERE NOT EXISTS (SELECT 1 FROM app_settings WHERE key = 'deleted_role:office') ON CONFLICT (key) DO NOTHING;
+INSERT INTO app_roles (key, label, description, base_role, pages, built_in) SELECT 'office', 'Office admin', 'Marks attendance, enrols students, records fees and sends WhatsApp templates', 'office', '{"attendance": "edit", "students": "edit", "scores": "edit", "fees": "edit", "messages": "edit", "alerts": "edit", "courses": "edit", "batches": "edit", "settings": "edit"}'::jsonb, true WHERE NOT EXISTS (SELECT 1 FROM app_settings WHERE key = 'deleted_role:office') ON CONFLICT (key) DO NOTHING;
 INSERT INTO app_roles (key, label, description, base_role, pages, built_in) SELECT 'counsellor', 'Counsellor', 'Works the leads the AI qualified, follows up absences and parent concerns', 'counsellor', '{"leads": "edit", "calls": "edit", "students": "edit", "parents": "edit", "alerts": "edit", "messages": "edit", "settings": "edit"}'::jsonb, true WHERE NOT EXISTS (SELECT 1 FROM app_settings WHERE key = 'deleted_role:counsellor') ON CONFLICT (key) DO NOTHING;
 INSERT INTO app_roles (key, label, description, base_role, pages, built_in) SELECT 'mentor', 'Mentor', 'Looks after at-risk students: counselling calls, scores and mentor sessions', 'mentor', '{"academic": "edit", "scores": "edit", "students": "edit", "attendance": "edit", "calls": "edit", "settings": "edit"}'::jsonb, true WHERE NOT EXISTS (SELECT 1 FROM app_settings WHERE key = 'deleted_role:mentor') ON CONFLICT (key) DO NOTHING;
 

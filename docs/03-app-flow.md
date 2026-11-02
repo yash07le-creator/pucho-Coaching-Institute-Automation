@@ -11,11 +11,13 @@
 - **fees** `/fees` — 
 - **parents** `/parents` — 
 - **messages** `/messages` — 
+- **courses** `/courses` — 
+- **batches** `/batches` — 
 - **team** `/team` — 
 - **settings** `/settings` — Profile, password, flow webhook URLs
 - **users** `/users` — Everyone who can sign in, and what each role may open
 ## Navigation and look
-Shell per portal: admin=sidebar (`src/config/design.js`); nav from `src/config/nav.js`; tone pucho, radius pucho, density comfortable, sidebar light (`src/config/tokens.css`); header title = active page label. Login → first permitted page. Roles: admin (*), office (attendance, students, scores, fees, messages, alerts, settings), counsellor (leads, calls, students, parents, alerts, messages, settings), mentor (academic, scores, students, attendance, calls, settings).
+Shell per portal: admin=sidebar (`src/config/design.js`); nav from `src/config/nav.js`; tone pucho, radius pucho, density comfortable, sidebar light (`src/config/tokens.css`); header title = active page label. Login → first permitted page. Roles: admin (*), office (attendance, students, scores, fees, messages, alerts, courses, batches, settings), counsellor (leads, calls, students, parents, alerts, messages, settings), mentor (academic, scores, students, attendance, calls, settings).
 ## Workflow wiring (screen → flow.action)
 - Overview `/` → direct patch (Acknowledge alert), direct patch (Assign counsellor), `FEE_REMINDER.send_link` (Send payment link)
 - Alerts & escalations `/alerts` → direct patch (Mark read), direct patch (Resolve)
@@ -28,6 +30,8 @@ Shell per portal: admin=sidebar (`src/config/design.js`); nav from `src/config/n
 - Fees `/fees` → direct patch (Record payment), `FEE_REMINDER.send_link` (Send payment link), `FEE_REMINDER.remind` (AI reminder call)
 - Parent updates `/parents` → no workflow
 - WhatsApp `/messages` → no workflow
+- Courses `/courses` → direct insert (Add course), direct patch (Edit course)
+- Batches `/batches` → direct insert (Add batch), direct patch (Edit batch)
 - Team `/team` → direct insert (Add team member), direct patch (Edit team member)
 - Settings `/settings` → no workflow
 - Users & roles `/users` → no workflow
