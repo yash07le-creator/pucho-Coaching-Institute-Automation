@@ -1,15 +1,10 @@
 {
   "os": "EduFlow",
-  "status": "fail",
+  "status": "pass",
   "viewport": "desktop",
-  "passed": 1030,
-  "failed": 4,
-  "failures": [
-    "batches: nav hover indicator wrong ([{'top': 134, 'h': 36, 'op': 1}] vs item at 130)",
-    "team: nav hover indicator wrong ([{'top': 99, 'h': 36, 'op': 1}] vs item at 95)",
-    "settings: nav hover indicator wrong ([{'top': 103, 'h': 36, 'op': 1}] vs item at 99)",
-    "users: nav hover indicator wrong ([] vs item at 58)"
-  ],
+  "passed": 1034,
+  "failed": 0,
+  "failures": [],
   "warnings": [
     "students \u203a add_student: U6 8 fields in one form \u2014 split into sections or steps of 7 or fewer"
   ],
