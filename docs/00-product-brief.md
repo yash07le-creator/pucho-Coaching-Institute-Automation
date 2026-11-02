@@ -67,6 +67,7 @@ R37 The director sees action-required alerts with severity and marks them read �
 R38 The director searches students, leads, phones and courses from anywhere — "Student, lead, phone ya course search karo…" [html L339]
 R39 The director exports a list to CSV — "CSV export ho raha hai..." [html L666]
 R40 The director sees the institute dashboard: students, new leads this week, fees overdue, average attendance — "Institute Dashboard" [html L455]
+R41 The office admin adds the institute's own courses and batches, and the enrolment form offers them — "add manual cours and alos add bethch oprion" [owner, 2 Nov 2026]
 
 ## Not in v1
 X1  A parent or student login portal — parents are reached by call and WhatsApp only, and nobody outside the staff logs in
