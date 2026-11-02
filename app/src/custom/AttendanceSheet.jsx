@@ -3,14 +3,15 @@
 // Absent goes to ABSENCE.absent, which WhatsApps the parent on a first absence in 7 days and calls them on a repeat (R15).
 // The repeat count is computed here from the marks already stored (rule zero: code counts, the flow only acts on it).
 import { useMemo, useState } from 'react';
-import { Button, Select } from 'antd';
+import { Button, DatePicker, Select } from 'antd';
+import dayjs from 'dayjs';
 import { toast } from 'sonner';
 import { CalendarDays, CheckCheck, MessageCircle, PhoneCall } from 'lucide-react';
 import { Avatar, Progress } from '../components/ui/primitives';
 import StatusBadge from '../components/StatusBadge';
 import { CARD, SECTION_TITLE } from '../module/Charts';
 import { bizToday } from '../module/Fields';
-import { selectProps } from '../config/popup';
+import { pickerProps, selectProps } from '../config/popup';
 import { runAction, whoAmI } from '../utils/api';
 
 const BATCH_ORDER = ['Batch A — Morning', 'Batch B — Evening', 'Batch C — Weekend'];
@@ -41,7 +42,7 @@ export default function AttendanceSheet({ data }) {
   const toggle = (sid, a) => setAbsent((prev) => { const n = new Set(prev); if (a) n.add(sid); else n.delete(sid); return n; });
 
   async function save() {
-    const who = whoAmI(); const todo = pending; let calls = 0, texts = 0, simulated = false; const failed = [];
+    const who = whoAmI(); const todo = pending; let calls = 0, texts = 0, simulated = false; const failed = []; const keepAbsent = new Set();
     setSaving({ done: 0, total: todo.length });
     for (const [i, s] of todo.entries()) {
       const base = { Date: date, Batch: s.Batch, Student_ID: s.Student_ID, Name: s.Name, Course: s.Course, Parent_Name: s.Parent_Name, Parent_Phone: s.Parent_Phone, Marked_By: who };
@@ -54,11 +55,14 @@ export default function AttendanceSheet({ data }) {
         } else {
           await runAction({ direct: 'insert', entity: 'attendance' }, { ...base, Status: 'Present', Absences_This_Week: 0, Call_Status: 'Not Needed', Needs_Followup: 'No' });
         }
-      } catch (e) { failed.push(`${s.Name}: ${e.message}`); }
+      } catch (e) {
+        failed.push(`${s.Name}: ${e.message}`);
+        if (absent.has(s.Student_ID)) keepAbsent.add(s.Student_ID);   // a failed absence stays Absent — a second Save must never turn it into Present
+      }
       setSaving({ done: i + 1, total: todo.length });
     }
-    setSaving(null); setAbsent(new Set());
-    if (failed.length) toast.error(`${failed.length} mark(s) not saved`, { description: failed.slice(0, 3).join(' · ') });
+    setSaving(null); setAbsent(keepAbsent);
+    if (failed.length) toast.error(`${failed.length} mark${failed.length > 1 ? 's' : ''} not saved — still on the sheet`, { description: failed.slice(0, 3).join(' · '), duration: 12000 });
     const parts = [`${todo.length - failed.length} marked`];
     if (texts) parts.push(`${texts} parent${texts > 1 ? 's' : ''} WhatsApped`);
     if (calls) parts.push(`${calls} AI call${calls > 1 ? 's' : ''} started`);
@@ -73,11 +77,12 @@ export default function AttendanceSheet({ data }) {
           <h3 className={SECTION_TITLE}>Mark attendance</h3>
           <p className="text-[13px] text-ink-3 mt-0.5">Everyone starts present — tap Absent for who is missing, then save once.</p>
         </div>
-        <Select {...selectProps} aria-label="Batch" value={current} onChange={pick} options={batches.map((b) => ({ value: b, label: b }))} className="os-control w-full sm:w-[220px]" />
-        <label className="flex items-center gap-2 w-full sm:w-auto">
-          <CalendarDays className="w-4 h-4 text-ink-4 shrink-0" aria-hidden />
-          <input type="date" aria-label="Date" value={date} max={today} onChange={(e) => pickDate(e.target.value)} className="os-control w-full sm:w-[170px] px-3" />
-        </label>
+        {/* .os-control fills its box, so each control's width lives on its wrapper */}
+        <div className="w-full sm:w-[230px]"><Select {...selectProps} aria-label="Batch" value={current} onChange={pick} options={batches.map((b) => ({ value: b, label: b }))} className="os-control" /></div>
+        <div className="w-full sm:w-[170px]">
+          <DatePicker {...pickerProps} aria-label="Date" value={dayjs(date)} format="D MMM YYYY" allowClear={false} suffixIcon={<CalendarDays className="w-4 h-4 text-ink-4" aria-hidden />}
+            disabledDate={(v) => v && v.format('YYYY-MM-DD') > today} onChange={(v) => pickDate(v ? v.format('YYYY-MM-DD') : today)} className="os-control" />
+        </div>
       </div>
 
       {roster.length === 0 ? (
@@ -119,7 +124,7 @@ export default function AttendanceSheet({ data }) {
           ) : pending.length === 0 ? (
             <p className="flex-1 flex items-center gap-2 text-[13px] text-ink-2" data-os-sheet-done><CheckCheck className="w-4 h-4 text-ok-text" aria-hidden /> {current} is marked for {date === today ? 'today' : date}.</p>
           ) : (
-            <p className="flex-1 text-[13px] text-ink-2">{pending.length - nAbsent} present · <span className={nAbsent ? 'text-bad-text font-medium' : ''}>{nAbsent} absent</span>{marked.size > 0 && ` · ${roster.length - pending.length} already marked`}</p>
+            <p className="flex-1 text-[13px] text-ink-2">{pending.length - nAbsent} present · <span className={nAbsent ? 'text-bad-text font-medium' : ''}>{nAbsent} absent</span>{roster.length > pending.length && ` · ${roster.length - pending.length} already marked`}</p>
           )}
           {pending.length > 0 && (
             <>
