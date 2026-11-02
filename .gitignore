@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.next/
+.env
+.env.*
+!.env.example
+evidence/**/server.log
+evidence/**/standalone/
+__pycache__/
+.DS_Store
+# deploy folder (scripts/build_deploy.py): production secrets and demo data are never committed
+deploy/*.env
+deploy/flows/
+deploy/*DEMO-ONLY*.sql
+.deploy-staging/
+.deploy-old/

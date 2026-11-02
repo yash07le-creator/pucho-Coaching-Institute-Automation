@@ -1,0 +1,34 @@
+Att_ID,Date,Batch,Student_ID,Student_Name,Course,Parent_Name,Parent_Phone,Status,Absences_This_Week,Absences_This_Month,Call_Status,Reason,Category,Needs_Followup,Followup_Done,Marked_By
+AT-2026-5101,2026-11-02,Batch B — Evening,ST-2026-0102,Kavya Patel,NEET,Mrs. M. Patel,+914321000002,Absent,2,7,Call Done,"Not feeling well, but has missed classes all week",PERSONAL,Yes,No,Sunita Rao
+AT-2026-5102,2026-11-02,Batch A — Morning,ST-2026-0101,Rohan Mehra,JEE Mains,Mrs. P. Mehra,+915432100001,Present,0,1,Not Needed,,,No,,Sunita Rao
+AT-2026-5103,2026-11-02,Batch C — Weekend,ST-2026-0103,Sneha Joshi,UPSC,Mr. A. Joshi,+916543200003,Absent,1,3,WhatsApp Sent,,,No,,Sunita Rao
+AT-2026-0300,2026-09-15T09:00:00+05:30,Batch B — Evening,ST-2026-0102,Kavya Patel,NEET,Mrs. M. Patel,+914321000002,Present,1,4,Call Done,"Not feeling well, but has missed classes all week",SICK,Yes,No,Sunita Rao
+AT-2026-0299,2026-09-13T08:00:00+05:30,Batch A — Morning,ST-2026-0101,Rohan Mehra,JEE Mains,Mrs. P. Mehra,+915432100001,Absent,0,1,Not Needed,,FAMILY,No,No,Sunita Rao
+AT-2026-0298,2026-09-11T07:00:00+05:30,Batch C — Weekend,ST-2026-0103,Sneha Joshi,UPSC,Mr. A. Joshi,+916543200003,Present,1,3,WhatsApp Sent,,TRAVEL,No,Yes,Sunita Rao
+AT-2026-0297,2026-09-09T06:00:00+05:30,Batch B — Evening,ST-2026-0102,Kavya Patel,NEET,Mrs. M. Patel,+914321000002,Absent,3,9,Call Done,"Not feeling well, but has missed classes all week",PERSONAL,Yes,No,Sunita Rao
+AT-2026-0296,2026-09-07T05:00:00+05:30,Batch A — Morning,ST-2026-0101,Rohan Mehra,JEE Mains,Mrs. P. Mehra,+915432100001,Present,0,1,Not Needed,,OTHER,No,Yes,Sunita Rao
+AT-2026-0295,2026-09-05T04:00:00+05:30,Batch C — Weekend,ST-2026-0103,Sneha Joshi,UPSC,Mr. A. Joshi,+916543200003,Absent,1,4,WhatsApp Sent,,SICK,No,No,Sunita Rao
+AT-2026-0294,2026-09-03T03:00:00+05:30,Batch B — Evening,ST-2026-0102,Kavya Patel,NEET,Mrs. M. Patel,+914321000002,Present,1,4,Call Done,"Not feeling well, but has missed classes all week",FAMILY,Yes,No,Sunita Rao
+AT-2026-0293,2026-09-01T09:00:00+05:30,Batch A — Morning,ST-2026-0101,Rohan Mehra,JEE Mains,Mrs. P. Mehra,+915432100001,Absent,0,1,Not Needed,,TRAVEL,No,No,Sunita Rao
+AT-2026-0292,2026-08-30T08:00:00+05:30,Batch C — Weekend,ST-2026-0103,Sneha Joshi,UPSC,Mr. A. Joshi,+916543200003,Present,1,3,WhatsApp Sent,,PERSONAL,No,Yes,Sunita Rao
+AT-2026-0291,2026-08-28T07:00:00+05:30,Batch B — Evening,ST-2026-0102,Kavya Patel,NEET,Mrs. M. Patel,+914321000002,Absent,3,9,Call Done,"Not feeling well, but has missed classes all week",OTHER,Yes,No,Sunita Rao
+AT-2026-0290,2026-08-26T06:00:00+05:30,Batch A — Morning,ST-2026-0101,Rohan Mehra,JEE Mains,Mrs. P. Mehra,+915432100001,Present,0,1,Not Needed,,SICK,No,Yes,Sunita Rao
+AT-2026-0289,2026-08-24T05:00:00+05:30,Batch C — Weekend,ST-2026-0103,Sneha Joshi,UPSC,Mr. A. Joshi,+916543200003,Absent,1,4,WhatsApp Sent,,FAMILY,No,No,Sunita Rao
+AT-2026-0288,2026-08-22T04:00:00+05:30,Batch B — Evening,ST-2026-0102,Kavya Patel,NEET,Mrs. M. Patel,+914321000002,Present,1,4,Call Done,"Not feeling well, but has missed classes all week",TRAVEL,Yes,No,Sunita Rao
+AT-2026-0287,2026-08-20T03:00:00+05:30,Batch A — Morning,ST-2026-0101,Rohan Mehra,JEE Mains,Mrs. P. Mehra,+915432100001,Absent,0,1,Not Needed,,PERSONAL,No,No,Sunita Rao
+AT-2026-0286,2026-08-18T09:00:00+05:30,Batch C — Weekend,ST-2026-0103,Sneha Joshi,UPSC,Mr. A. Joshi,+916543200003,Present,1,3,WhatsApp Sent,,OTHER,No,Yes,Sunita Rao
+AT-2026-0285,2026-08-16T08:00:00+05:30,Batch B — Evening,ST-2026-0102,Kavya Patel,NEET,Mrs. M. Patel,+914321000002,Absent,3,9,Call Done,"Not feeling well, but has missed classes all week",SICK,Yes,No,Sunita Rao
+AT-2026-0284,2026-08-14T07:00:00+05:30,Batch A — Morning,ST-2026-0101,Rohan Mehra,JEE Mains,Mrs. P. Mehra,+915432100001,Present,0,1,Not Needed,,FAMILY,No,Yes,Sunita Rao
+AT-2026-0283,2026-08-12T06:00:00+05:30,Batch C — Weekend,ST-2026-0103,Sneha Joshi,UPSC,Mr. A. Joshi,+916543200003,Absent,1,4,WhatsApp Sent,,TRAVEL,No,No,Sunita Rao
+AT-2026-0282,2026-08-10T05:00:00+05:30,Batch B — Evening,ST-2026-0102,Kavya Patel,NEET,Mrs. M. Patel,+914321000002,Present,1,4,Call Done,"Not feeling well, but has missed classes all week",PERSONAL,Yes,No,Sunita Rao
+AT-2026-0281,2026-08-08T04:00:00+05:30,Batch A — Morning,ST-2026-0101,Rohan Mehra,JEE Mains,Mrs. P. Mehra,+915432100001,Absent,0,1,Not Needed,,OTHER,No,No,Sunita Rao
+AT-2026-0280,2026-08-06T03:00:00+05:30,Batch C — Weekend,ST-2026-0103,Sneha Joshi,UPSC,Mr. A. Joshi,+916543200003,Present,1,3,WhatsApp Sent,,SICK,No,Yes,Sunita Rao
+AT-2026-0279,2026-08-04T09:00:00+05:30,Batch B — Evening,ST-2026-0102,Kavya Patel,NEET,Mrs. M. Patel,+914321000002,Absent,3,9,Call Done,"Not feeling well, but has missed classes all week",FAMILY,Yes,No,Sunita Rao
+AT-2026-0278,2026-08-02T08:00:00+05:30,Batch A — Morning,ST-2026-0101,Rohan Mehra,JEE Mains,Mrs. P. Mehra,+915432100001,Present,0,1,Not Needed,,TRAVEL,No,Yes,Sunita Rao
+AT-2026-0277,2026-07-31T07:00:00+05:30,Batch C — Weekend,ST-2026-0103,Sneha Joshi,UPSC,Mr. A. Joshi,+916543200003,Absent,1,4,WhatsApp Sent,,PERSONAL,No,No,Sunita Rao
+AT-2026-0276,2026-07-29T06:00:00+05:30,Batch B — Evening,ST-2026-0102,Kavya Patel,NEET,Mrs. M. Patel,+914321000002,Present,1,4,Call Done,"Not feeling well, but has missed classes all week",OTHER,Yes,No,Sunita Rao
+AT-2026-0275,2026-07-27T05:00:00+05:30,Batch A — Morning,ST-2026-0101,Rohan Mehra,JEE Mains,Mrs. P. Mehra,+915432100001,Absent,0,1,Not Needed,,SICK,No,No,Sunita Rao
+AT-2026-0274,2026-07-25T04:00:00+05:30,Batch C — Weekend,ST-2026-0103,Sneha Joshi,UPSC,Mr. A. Joshi,+916543200003,Present,1,3,WhatsApp Sent,,FAMILY,No,Yes,Sunita Rao
+AT-2026-0273,2026-07-23T03:00:00+05:30,Batch B — Evening,ST-2026-0102,Kavya Patel,NEET,Mrs. M. Patel,+914321000002,Absent,3,9,Call Done,"Not feeling well, but has missed classes all week",TRAVEL,Yes,No,Sunita Rao
+AT-2026-0272,2026-07-21T09:00:00+05:30,Batch A — Morning,ST-2026-0101,Rohan Mehra,JEE Mains,Mrs. P. Mehra,+915432100001,Present,0,1,Not Needed,,PERSONAL,No,Yes,Sunita Rao
+AT-2026-0271,2026-07-19T08:00:00+05:30,Batch C — Weekend,ST-2026-0103,Sneha Joshi,UPSC,Mr. A. Joshi,+916543200003,Absent,1,4,WhatsApp Sent,,OTHER,No,No,Sunita Rao

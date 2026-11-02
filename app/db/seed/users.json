@@ -1,0 +1,30 @@
+[
+  {
+    "id": "USR-ADMIN",
+    "email": "director@eduflow.pucho.ai",
+    "name": "Dev Dabi",
+    "role": "admin",
+    "password": "director123"
+  },
+  {
+    "id": "USR-OFFICE",
+    "email": "office@eduflow.pucho.ai",
+    "name": "Sunita Rao",
+    "role": "office",
+    "password": "office1234"
+  },
+  {
+    "id": "USR-COUNSELLOR",
+    "email": "counsellor@eduflow.pucho.ai",
+    "name": "Priya Saxena",
+    "role": "counsellor",
+    "password": "counsel123"
+  },
+  {
+    "id": "USR-MENTOR",
+    "email": "mentor@eduflow.pucho.ai",
+    "name": "Arvind Mishra",
+    "role": "mentor",
+    "password": "mentor1234"
+  }
+]

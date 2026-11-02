@@ -1,0 +1,964 @@
+# os.yaml — Pucho EduFlow OS (product) · pucho-os v5.1.1 · step 2 draft, 2 Nov 2026
+# Sources: coaching_crm.html (mockup) + 5._Parent_Communication_Agent.json (n8n) → intake/00-product-brief.md (R1–R40).
+# Call policy: the RECOMMENDED policy (intake/01-step1-summary.md) — WhatsApp on every absence, a call from the 2nd absence in a
+# week; Friday WhatsApp report to every parent, a call only to parents of at-risk students; fee calls on day 1, 7 and 15 overdue.
+# ⚑ = assumption to confirm (gaps G1–G10). Demo business (invented, G8): Replora Coaching Institute, Bhopal.
+os:
+  name: EduFlow
+  slug: eduflow-os
+  mode: product
+  client: Pucho EduFlow OS
+  one_liner: Every lead, absence, overdue fee, slipping student and parent gets an AI call or a WhatsApp on time, and the director sees what needs action on one screen.
+  tagline: Admissions, attendance, fees and parent updates — called and messaged on time, without the office dialling.
+  languages: [en, hi]
+  volume_per_month: 4200          # ⚑ typical buyer (342 students): calls + WhatsApp + dispatcher runs, intake/estimate/typical-recommended
+  success_metric: Fees overdue going down month on month, and every absence with a reason collected
+  plan: growth
+  seed_dates: today
+  brand: { color: "#4F46E5", name: EduFlow }
+  audit: true
+  limits: { actions_per_day: 1500, public_actions_per_hour: 60 }   # bulk Friday reports to every parent go through the app
+
+requirements:
+  - { id: R1, text: "The office admin adds a lead with name, phone, email, course interest and source" }
+  - { id: R2, text: "A new lead gets an AI qualification call as soon as the lead is saved" }
+  - { id: R3, text: "A lead is graded HOT, WARM or COLD with a score and a qualification summary from the call" }
+  - { id: R4, text: "A counsellor is alerted on WhatsApp when a lead is graded HOT" }
+  - { id: R5, text: "A counsellor reads the call transcript and the next action on the lead" }
+  - { id: R6, text: "The director assigns a lead to a counsellor" }
+  - { id: R7, text: "A counsellor starts a fresh AI call to a lead with one click" }
+  - { id: R8, text: "A counsellor moves a COLD lead to nurture" }
+  - { id: R9, text: "The director sees HOT leads that no counsellor has followed up within 48 hours" }
+  - { id: R10, text: "The office admin enrols a student with parent name and phone, course, batch, fee amount and fee due date" }
+  - { id: R11, text: "A parent of a newly enrolled student gets a welcome message on WhatsApp" }
+  - { id: R12, text: "The office admin filters students by course, batch and status" }
+  - { id: R13, text: "The director opens a student profile with attendance, last test, rank, strong and weak subjects and parent info" }
+  - { id: R14, text: "The office admin marks each student of a batch present or absent for a date" }
+  - { id: R15, text: "A parent gets an AI call asking the reason when the student is marked absent" }
+  - { id: R16, text: "The office admin sees the reason and category collected by the call against each absence" }
+  - { id: R17, text: "A counsellor is alerted on WhatsApp when an absence needs follow-up" }
+  - { id: R18, text: "The director sees students below 75% attendance as critical" }
+  - { id: R19, text: "The office admin records each student's test score per subject" }
+  - { id: R20, text: "A student below 75% attendance or 60% score joins the at-risk queue every Monday at 11 AM" }
+  - { id: R21, text: "An at-risk student gets an AI counselling call that records the issue type and main issue" }
+  - { id: R22, text: "A mentor is alerted on WhatsApp when the call says the student needs a mentor" }
+  - { id: R23, text: "The director assigns a mentor or counsellor to an at-risk student" }
+  - { id: R24, text: "A parent with an overdue fee gets a reminder call and a WhatsApp payment link on the 10 AM run" }
+  - { id: R25, text: "The office admin sends one parent a payment link with one click" }
+  - { id: R26, text: "The office admin records a fee payment received" }
+  - { id: R27, text: "A parent gets a reminder 3 days before a fee falls due" }
+  - { id: R28, text: "The director sees fees collected this month, total overdue and the overdue students" }
+  - { id: R29, text: "A parent gets a weekly performance update call on Friday at 5 PM" }
+  - { id: R30, text: "A parent gets the weekly performance summary on WhatsApp with attendance, score and trend" }
+  - { id: R31, text: "The director gets a management alert when a parent raises a concern on the call" }
+  - { id: R32, text: "The director sees parent sentiment counts: happy, neutral and concerned" }
+  - { id: R33, text: "A parent who did not answer gets a retry call" }
+  - { id: R34, text: "The office admin sends a WhatsApp template to one parent, a batch or all parents" }
+  - { id: R35, text: "The director sees every AI call from all agents in one log, with outcome and transcript" }
+  - { id: R36, text: "The director sees every WhatsApp message with its delivery status" }
+  - { id: R37, text: "The director sees action-required alerts with severity and marks them read" }
+  - { id: R38, text: "The director searches students, leads, phones and courses from anywhere" }
+  - { id: R39, text: "The director exports a list to CSV" }
+  - { id: R40, text: "The director sees the institute dashboard: students, new leads this week, fees overdue, average attendance" }
+
+not_in_v1:
+  - { text: "A parent or student login portal — parents are reached by call and WhatsApp only (X1)", covers: [] }
+  - { text: "An online test engine — scores are entered on the Test scores page (X2)", covers: [] }
+  - { text: "Timetable, faculty attendance and payroll (X3)", covers: [] }
+  - { text: "Handling inbound WhatsApp replies with AI (X4)", covers: [] }
+  - { text: "Multi-branch institutes in one deployment (X5)", covers: [] }
+  - { text: "The n8n AI Agents Status page — replaced by Settings → Flow webhook URLs and /api/health (X6)", covers: [] }
+
+roles:
+  - { key: admin,      label: Director,     color: bg-primary-500, desc: "Runs the institute: what needs action, leads, students, fees, parents and every AI call", pages: ["*"], demo: { email: director@eduflow.pucho.ai, password: director123, name: Dev Dabi } }
+  - { key: office,     label: Office admin, color: bg-stage-4,     desc: "Marks attendance, enrols students, records fees and sends WhatsApp templates", pages: [attendance, students, scores, fees, messages, alerts, settings], home: /attendance, demo: { email: office@eduflow.pucho.ai, password: office1234, name: Sunita Rao } }
+  - { key: counsellor, label: Counsellor,   color: bg-stage-3,     desc: "Works the leads the AI qualified, follows up absences and parent concerns", pages: [leads, calls, students, parents, alerts, messages, settings], home: /leads, demo: { email: counsellor@eduflow.pucho.ai, password: counsel123, name: Priya Saxena } }
+  - { key: mentor,     label: Mentor,       color: bg-stage-2,     desc: "Looks after at-risk students: counselling calls, scores and mentor sessions", pages: [academic, scores, students, attendance, calls, settings], home: /academic, demo: { email: mentor@eduflow.pucho.ai, password: mentor1234, name: Arvind Mishra } }
+
+journeys:
+  - { role: admin,      does: "Clear today's escalations",                 lands: overview,   steps: ["Overview opens on Needs action", "Open alerts row → Acknowledge"] }
+  - { role: admin,      does: "Give a HOT lead to a counsellor",           lands: overview,   steps: ["HOT leads past 48 h on Needs action", "Assign → pick the counsellor"] }
+  - { role: office,     does: "Mark today's attendance for a batch",       lands: attendance, steps: ["Attendance opens with the batch sheet", "Tap P or A per student", "Save — absent parents get WhatsApp / a call"] }
+  - { role: office,     does: "Record a fee payment",                       lands: fees,       steps: ["Fees, Overdue tab", "Record payment on the row", "Amount + mode → Save"] }
+  - { role: counsellor, does: "Follow up a HOT lead the AI qualified",     lands: leads,      steps: ["Leads, HOT chip", "Open the lead — summary and transcript", "Enrol, or Call again"] }
+  - { role: mentor,     does: "Counsel an at-risk student",                lands: academic,   steps: ["Academic opens on the at-risk tab", "Start AI call, or Assign mentor on the row"] }
+
+metrics:
+  students_active: { entity: students, label: Active students,      where: "Status!=Inactive", icon: GraduationCap }
+  at_risk:         { entity: students, label: At risk,              where: "Status in [At Risk, Critical]", tone: warn, icon: AlertTriangle }
+  low_attendance:  { entity: students, label: Below 75% attendance, where: "Attendance_Pct<75 and Status!=Inactive", tone: bad, icon: CalendarX }
+  new_leads_7d:    { entity: leads,    label: New leads this week,  where: "Created_At in last 7 days", icon: UserPlus }
+  hot_leads:       { entity: leads,    label: HOT leads,            where: "Grade=HOT and Stage not in [Enrolled, Lost]", tone: info, icon: Flame }
+  hot_overdue:     { entity: leads,    label: HOT leads past 48 h,  where: "Grade=HOT and Next_Followup_At<today and Stage not in [Enrolled, Lost]", tone: bad, icon: Flame }
+  fees_overdue:    { entity: fees,     label: Fees overdue,         where: "Status=Overdue", sum: Balance_INR, format: money_l, tone: bad, icon: IndianRupee }
+  overdue_count:   { entity: fees,     label: Overdue students,     where: "Status=Overdue", tone: bad, icon: UserX }
+  overdue_15:      { entity: fees,     label: Overdue 15+ days,     where: "Status=Overdue and Days_Overdue>=15", tone: bad, icon: AlertOctagon }
+  collected_month: { entity: fees,     label: Collected this month, where: "Paid_At in month", sum: Paid_INR, format: money_l, tone: ok, icon: Wallet }
+  alerts_open:     { entity: alerts,   label: Open alerts,          where: "Status=Open", tone: bad, icon: BellRing }
+  absent_today:    { entity: attendance, label: Absent today,       where: "Date=today and Status=Absent", tone: warn, icon: UserMinus }
+  present_today:   { entity: attendance, label: Present today,      where: "Date=today and Status=Present", tone: ok, icon: UserCheck }
+  followup_needed: { entity: attendance, label: Needs follow-up,    where: "Needs_Followup=Yes and Date>=today-7", tone: bad, icon: PhoneForwarded }
+  calls_week:      { entity: calls,    label: AI calls this week,   where: "Called_At in last 7 days", icon: PhoneCall }
+  parents_happy:   { entity: calls,    label: Happy parents,        where: "Agent=Parent and Sentiment=Happy and Called_At in last 7 days", tone: ok, icon: Smile }
+  parents_neutral: { entity: calls,    label: Neutral,              where: "Agent=Parent and Sentiment=Neutral and Called_At in last 7 days", tone: warn, icon: Meh }
+  parents_concerned: { entity: calls,  label: Concerned parents,    where: "Agent=Parent and Sentiment=Concerned and Called_At in last 7 days", tone: bad, icon: Frown }
+  messages_today:  { entity: messages, label: WhatsApp sent today,  where: "Sent_At=today", icon: MessageCircle }
+  messages_failed: { entity: messages, label: Failed,               where: "Status=Failed", tone: bad, icon: MessageSquareX }
+
+entities:
+  - name: leads
+    id: { column: Lead_ID, prefix: "LD-" }
+    created: Created_At
+    status: { column: Stage, values: [New, Called, Counselling, Demo Booked, Nurture, Enrolled, Lost] }
+    title: Name
+    subtitle: [Course]
+    owner: Assigned_To
+    due: { column: Next_Followup_At, closed: "Stage in [Enrolled, Lost]" }
+    contact: { phone: Phone, whatsapp: Phone, email: Email }
+    columns: [Lead_ID, Created_At, Name, Phone, Email, Course, Source, Notes, Stage, Grade, Score, AI_Summary, Next_Action, Call_Status, Last_Called_At, Transcript, Assigned_To, Next_Followup_At, Lost_Reason]
+    requires_on: { Lost: [Lost_Reason] }
+    fields:
+      Course: { one_of: [JEE Mains, NEET, CA Foundation, UPSC] }
+      Source: { one_of: [Instagram, WhatsApp, Google Ads, Referral, Website, Walk-in] }
+      Grade: { one_of: [HOT, WARM, COLD] }
+      Score: { type: number, min: 0, max: 100, integer: true }
+      Call_Status: { one_of: [Scheduled, Calling, Completed, No Answer, Failed] }
+      Phone: { type: phone }
+      Email: { type: email }
+    seed: 14
+    examples:
+      - { Lead_ID: LD-2026-0141, Created_At: "2026-11-02T09:40:00+05:30", Name: Rahul Sharma, Phone: "+919876543210", Email: rahul.sharma@example.com, Course: JEE Mains, Source: Instagram, Notes: "Class 12, self-study; wants Physics guidance", Stage: Counselling, Grade: HOT, Score: 94, AI_Summary: "Ready to join the JEE batch; target IIT Delhi; parents supportive; asked for a demo class.", Next_Action: "Assign a counsellor and book the demo class", Call_Status: Completed, Last_Called_At: "2026-11-02T09:44:00+05:30", Transcript: "AI: Namaste Rahul ji! Main Replora Coaching se bol raha hoon. Aapne JEE Mains ke liye inquiry ki thi… Rahul: Haan ji, main 2027 mein appear dunga. IIT Delhi mera target hai… Proper guidance chahiye Physics mein… Kya demo class attend karna chahenge? Rahul: Haan bilkul!", Assigned_To: Priya Saxena, Next_Followup_At: "2026-11-04T09:44:00+05:30" }
+      - { Lead_ID: LD-2026-0140, Created_At: "2026-11-01T17:10:00+05:30", Name: Ishaan Malviya, Phone: "+918765432109", Email: "", Course: NEET, Source: WhatsApp, Notes: "", Stage: Called, Grade: WARM, Score: 62, AI_Summary: "Interested in NEET 2027; comparing two institutes; fee is the concern.", Next_Action: "Share the fee plan and call back on Monday", Call_Status: Completed, Last_Called_At: "2026-11-01T17:15:00+05:30", Transcript: "", Assigned_To: Rahul Tiwari, Next_Followup_At: "2026-11-03T11:00:00+05:30" }
+      - { Lead_ID: LD-2026-0139, Created_At: "2026-10-31T12:20:00+05:30", Name: Meera Chouhan, Phone: "+917654321098", Email: meera.c@example.com, Course: CA Foundation, Source: Google Ads, Notes: "B.Com first year", Stage: Called, Grade: HOT, Score: 88, AI_Summary: "Wants the weekend batch; ready to pay the first instalment this week.", Next_Action: "Call today and confirm the batch", Call_Status: Completed, Last_Called_At: "2026-10-31T12:26:00+05:30", Transcript: "", Assigned_To: "", Next_Followup_At: "2026-11-02T12:26:00+05:30" }
+      - { Lead_ID: LD-2026-0138, Created_At: "2026-10-30T10:05:00+05:30", Name: Aditya Rathore, Phone: "+916543210987", Email: "", Course: UPSC, Source: Referral, Notes: "", Stage: Nurture, Grade: COLD, Score: 28, AI_Summary: "Preparing for 2028; not joining a batch this year.", Next_Action: "Nurture — send the free test series", Call_Status: Completed, Last_Called_At: "2026-10-30T10:12:00+05:30", Transcript: "", Assigned_To: Rahul Tiwari, Next_Followup_At: "2026-12-01T10:00:00+05:30" }
+      - { Lead_ID: LD-2026-0137, Created_At: "2026-11-02T08:15:00+05:30", Name: Pooja Thakur, Phone: "+915432109876", Email: pooja.t@example.com, Course: JEE Mains, Source: Website, Notes: "", Stage: New, Grade: "", Score: 0, AI_Summary: "", Next_Action: "", Call_Status: Scheduled, Last_Called_At: "", Transcript: "", Assigned_To: "", Next_Followup_At: "2026-11-02T10:00:00+05:30" }
+
+  - name: students
+    id: { column: Student_ID, prefix: "ST-" }
+    created: Enrolled_At
+    status: { column: Status, values: [Active, At Risk, Critical, Inactive] }
+    title: Name
+    subtitle: [Course, Batch]
+    owner: Mentor
+    contact: { phone: Parent_Phone, whatsapp: Parent_Phone }
+    columns: [Student_ID, Enrolled_At, Name, Student_Phone, Parent_Name, Parent_Phone, Course, Batch, Address, Status, Attendance_Pct, Last_Score, Avg_Score, Class_Rank, Strong_Subjects, Weak_Subjects, Performance_Trend, Fee_Status, Fee_Amount_INR, Fee_Due_Date, Mentor, Counsellor, Issue_Type, Main_Issue, Last_Counselled_At, Last_Report_At, Last_Parent_Call_At, Parent_Sentiment, Parent_Concern]
+    fields:
+      Course: { one_of: [JEE Mains, NEET, CA Foundation, UPSC] }
+      Batch: { one_of: [Batch A — Morning, Batch B — Evening, Batch C — Weekend] }
+      Attendance_Pct: { type: number, min: 0, max: 100 }
+      Last_Score: { type: number, min: 0, max: 100 }
+      Avg_Score: { type: number, min: 0, max: 100 }
+      Class_Rank: { type: number, min: 1, integer: true }
+      Performance_Trend: { one_of: [Improving, Stable, Declining] }
+      Fee_Status: { one_of: [Paid, Partial, Due, Overdue] }
+      Fee_Amount_INR: { type: number, positive: true }
+      Issue_Type: { one_of: [ACADEMIC, PERSONAL, ATTENDANCE, FINANCIAL, OTHER] }
+      Parent_Sentiment: { one_of: [Happy, Neutral, Concerned, No Answer] }
+      Student_Phone: { type: phone }
+      Parent_Phone: { type: phone }
+    seed: 24
+    examples:
+      - { Student_ID: ST-2026-0101, Enrolled_At: "2026-06-10T10:00:00+05:30", Name: Rohan Mehra, Student_Phone: "+915432109876", Parent_Name: Mrs. P. Mehra, Parent_Phone: "+915432100001", Course: JEE Mains, Batch: Batch A — Morning, Address: "Arera Colony, Bhopal", Status: Active, Attendance_Pct: 96, Last_Score: 89, Avg_Score: 86, Class_Rank: 3, Strong_Subjects: "Maths, Physics", Weak_Subjects: Chemistry, Performance_Trend: Improving, Fee_Status: Paid, Fee_Amount_INR: 18000, Fee_Due_Date: "2026-12-01", Mentor: Arvind Mishra, Counsellor: Priya Saxena, Issue_Type: "", Main_Issue: "", Last_Counselled_At: "", Last_Report_At: "2026-10-30T17:02:00+05:30", Last_Parent_Call_At: "", Parent_Sentiment: Happy, Parent_Concern: "" }
+      - { Student_ID: ST-2026-0102, Enrolled_At: "2026-06-12T10:00:00+05:30", Name: Kavya Patel, Student_Phone: "+914321098765", Parent_Name: Mrs. M. Patel, Parent_Phone: "+914321000002", Course: NEET, Batch: Batch B — Evening, Address: "Kolar Road, Bhopal", Status: Critical, Attendance_Pct: 58, Last_Score: 42, Avg_Score: 47, Class_Rank: 61, Strong_Subjects: Physics, Weak_Subjects: "Biology, Chemistry", Performance_Trend: Declining, Fee_Status: Overdue, Fee_Amount_INR: 18000, Fee_Due_Date: "2026-10-14", Mentor: Arvind Mishra, Counsellor: Priya Saxena, Issue_Type: PERSONAL, Main_Issue: "Low attendance and falling scores; parent worried", Last_Counselled_At: "2026-10-27T11:20:00+05:30", Last_Report_At: "2026-10-30T17:09:00+05:30", Last_Parent_Call_At: "2026-10-30T17:09:00+05:30", Parent_Sentiment: Concerned, Parent_Concern: "Low attendance and score" }
+      - { Student_ID: ST-2026-0103, Enrolled_At: "2026-06-15T10:00:00+05:30", Name: Sneha Joshi, Student_Phone: "+916543210980", Parent_Name: Mr. A. Joshi, Parent_Phone: "+916543200003", Course: UPSC, Batch: Batch C — Weekend, Address: "MP Nagar, Bhopal", Status: At Risk, Attendance_Pct: 72, Last_Score: 38, Avg_Score: 44, Class_Rank: 48, Strong_Subjects: Geography, Weak_Subjects: "History, Polity", Performance_Trend: Declining, Fee_Status: Partial, Fee_Amount_INR: 22000, Fee_Due_Date: "2026-11-05", Mentor: Arvind Mishra, Counsellor: Rahul Tiwari, Issue_Type: ACADEMIC, Main_Issue: "Three consecutive low tests in History", Last_Counselled_At: "2026-10-27T11:00:00+05:30", Last_Report_At: "2026-10-30T17:05:00+05:30", Last_Parent_Call_At: "", Parent_Sentiment: Neutral, Parent_Concern: "Wants more tests" }
+      - { Student_ID: ST-2026-0104, Enrolled_At: "2026-06-18T10:00:00+05:30", Name: Vikram Pal, Student_Phone: "+913210987654", Parent_Name: Mr. R. Pal, Parent_Phone: "+913210900004", Course: UPSC, Batch: Batch C — Weekend, Address: "Bairagarh, Bhopal", Status: At Risk, Attendance_Pct: 72, Last_Score: 61, Avg_Score: 63, Class_Rank: 22, Strong_Subjects: Polity, Weak_Subjects: Economics, Performance_Trend: Stable, Fee_Status: Overdue, Fee_Amount_INR: 22000, Fee_Due_Date: "2026-10-18", Mentor: Arvind Mishra, Counsellor: Rahul Tiwari, Issue_Type: "", Main_Issue: "", Last_Counselled_At: "", Last_Report_At: "2026-10-30T17:06:00+05:30", Last_Parent_Call_At: "", Parent_Sentiment: "", Parent_Concern: "" }
+
+  - name: fees
+    id: { column: Fee_ID, prefix: "FE-" }
+    created: Created_At
+    status: { column: Status, values: [Upcoming, Due, Overdue, Partial, Paid] }
+    title: Student_Name
+    subtitle: [Course, Parent_Name]
+    due: { column: Due_Date, closed: "Status=Paid" }
+    contact: { phone: Parent_Phone, whatsapp: Parent_Phone }
+    columns: [Fee_ID, Created_At, Student_ID, Student_Name, Parent_Name, Parent_Phone, Course, Instalment, Amount_INR, Paid_INR, Balance_INR, Due_Date, Days_Overdue, Status, Reminder_Count, Last_Reminder_At, Payment_Link, Promise_Date, Parent_Response, Paid_At, Payment_Mode, Receipt_No]
+    requires_on: { Paid: [Paid_At, Payment_Mode] }
+    fields:
+      Amount_INR: { type: number, positive: true }
+      Paid_INR: { type: number, min: 0 }
+      Balance_INR: { type: number, computed: "Amount_INR - Paid_INR" }
+      Days_Overdue: { type: number, min: 0, integer: true }
+      Reminder_Count: { type: number, min: 0, integer: true }
+      Payment_Mode: { one_of: [UPI, Cash, Card, Bank Transfer, Cheque] }
+      Parent_Phone: { type: phone }
+    seed: 20
+    examples:
+      - { Fee_ID: FE-2026-0301, Created_At: "2026-06-12T10:00:00+05:30", Student_ID: ST-2026-0102, Student_Name: Kavya Patel, Parent_Name: Mrs. M. Patel, Parent_Phone: "+914321000002", Course: NEET, Instalment: "Instalment 3 of 4", Amount_INR: 18000, Paid_INR: 0, Balance_INR: 18000, Due_Date: "2026-10-14", Days_Overdue: 19, Status: Overdue, Reminder_Count: 2, Last_Reminder_At: "2026-10-28T10:05:00+05:30", Payment_Link: "https://rzp.io/l/replora-fe0301", Promise_Date: "", Parent_Response: "Asked for one more week", Paid_At: "", Payment_Mode: "", Receipt_No: "" }
+      - { Fee_ID: FE-2026-0302, Created_At: "2026-06-18T10:00:00+05:30", Student_ID: ST-2026-0104, Student_Name: Vikram Pal, Parent_Name: Mr. R. Pal, Parent_Phone: "+913210900004", Course: UPSC, Instalment: "Instalment 2 of 3", Amount_INR: 22000, Paid_INR: 0, Balance_INR: 22000, Due_Date: "2026-10-18", Days_Overdue: 15, Status: Overdue, Reminder_Count: 2, Last_Reminder_At: "2026-10-25T10:04:00+05:30", Payment_Link: "https://rzp.io/l/replora-fe0302", Promise_Date: "2026-11-07", Parent_Response: "Will pay by Friday", Paid_At: "", Payment_Mode: "", Receipt_No: "" }
+      - { Fee_ID: FE-2026-0303, Created_At: "2026-06-10T10:00:00+05:30", Student_ID: ST-2026-0101, Student_Name: Rohan Mehra, Parent_Name: Mrs. P. Mehra, Parent_Phone: "+915432100001", Course: JEE Mains, Instalment: "Instalment 3 of 4", Amount_INR: 18000, Paid_INR: 18000, Balance_INR: 0, Due_Date: "2026-11-01", Days_Overdue: 0, Status: Paid, Reminder_Count: 1, Last_Reminder_At: "2026-10-29T10:00:00+05:30", Payment_Link: "", Promise_Date: "", Parent_Response: "", Paid_At: "2026-10-31T16:20:00+05:30", Payment_Mode: UPI, Receipt_No: RCI/2026/0418 }
+      - { Fee_ID: FE-2026-0304, Created_At: "2026-06-15T10:00:00+05:30", Student_ID: ST-2026-0103, Student_Name: Sneha Joshi, Parent_Name: Mr. A. Joshi, Parent_Phone: "+916543200003", Course: UPSC, Instalment: "Instalment 2 of 3", Amount_INR: 22000, Paid_INR: 10000, Balance_INR: 12000, Due_Date: "2026-11-05", Days_Overdue: 0, Status: Partial, Reminder_Count: 0, Last_Reminder_At: "", Payment_Link: "", Promise_Date: "", Parent_Response: "", Paid_At: "2026-10-20T12:00:00+05:30", Payment_Mode: Cash, Receipt_No: RCI/2026/0392 }
+
+  - name: attendance
+    id: { column: Att_ID, prefix: "AT-" }
+    created: Date
+    status: { column: Status, values: [Present, Absent] }
+    title: Student_Name
+    subtitle: [Batch, Course]
+    contact: { phone: Parent_Phone, whatsapp: Parent_Phone }
+    columns: [Att_ID, Date, Batch, Student_ID, Student_Name, Course, Parent_Name, Parent_Phone, Status, Absences_This_Week, Absences_This_Month, Call_Status, Reason, Category, Needs_Followup, Followup_Done, Marked_By]
+    unique_together: [[Date, Student_ID]]
+    fields:
+      Batch: { one_of: [Batch A — Morning, Batch B — Evening, Batch C — Weekend] }
+      Absences_This_Week: { type: number, min: 0, integer: true }
+      Absences_This_Month: { type: number, min: 0, integer: true }
+      Call_Status: { one_of: [Not Needed, WhatsApp Sent, Calling, Call Done, No Answer] }
+      Category: { one_of: [SICK, FAMILY, TRAVEL, PERSONAL, OTHER] }
+      Needs_Followup: { one_of: ["Yes", "No"] }
+      Followup_Done: { one_of: ["Yes", "No"] }
+      Parent_Phone: { type: phone }
+    seed: 30
+    examples:
+      - { Att_ID: AT-2026-5101, Date: "2026-11-02", Batch: Batch B — Evening, Student_ID: ST-2026-0102, Student_Name: Kavya Patel, Course: NEET, Parent_Name: Mrs. M. Patel, Parent_Phone: "+914321000002", Status: Absent, Absences_This_Week: 2, Absences_This_Month: 7, Call_Status: Call Done, Reason: "Not feeling well, but has missed classes all week", Category: PERSONAL, Needs_Followup: "Yes", Followup_Done: "No", Marked_By: Sunita Rao }
+      - { Att_ID: AT-2026-5102, Date: "2026-11-02", Batch: Batch A — Morning, Student_ID: ST-2026-0101, Student_Name: Rohan Mehra, Course: JEE Mains, Parent_Name: Mrs. P. Mehra, Parent_Phone: "+915432100001", Status: Present, Absences_This_Week: 0, Absences_This_Month: 1, Call_Status: Not Needed, Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: Sunita Rao }
+      - { Att_ID: AT-2026-5103, Date: "2026-11-02", Batch: Batch C — Weekend, Student_ID: ST-2026-0103, Student_Name: Sneha Joshi, Course: UPSC, Parent_Name: Mr. A. Joshi, Parent_Phone: "+916543200003", Status: Absent, Absences_This_Week: 1, Absences_This_Month: 3, Call_Status: WhatsApp Sent, Reason: "", Category: "", Needs_Followup: "No", Followup_Done: "", Marked_By: Sunita Rao }
+
+  - name: tests
+    id: { column: Score_ID, prefix: "TS-" }
+    created: Test_Date
+    title: Student_Name
+    subtitle: [Test_Name, Subject]
+    columns: [Score_ID, Test_Date, Test_Name, Student_ID, Student_Name, Course, Batch, Subject, Marks, Max_Marks, Score_Pct, Entered_By]
+    unique_together: [[Test_Name, Student_ID, Subject]]
+    fields:
+      Marks: { type: number, min: 0 }
+      Max_Marks: { type: number, positive: true }
+      Score_Pct: { type: number, computed: "round(Marks * 100 / Max_Marks)" }
+      Course: { one_of: [JEE Mains, NEET, CA Foundation, UPSC] }
+    seed: 30
+    examples:
+      - { Score_ID: TS-2026-0801, Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: ST-2026-0101, Student_Name: Rohan Mehra, Course: JEE Mains, Batch: Batch A — Morning, Subject: Physics, Marks: 89, Max_Marks: 100, Score_Pct: 89, Entered_By: Arvind Mishra }
+      - { Score_ID: TS-2026-0802, Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: ST-2026-0102, Student_Name: Kavya Patel, Course: NEET, Batch: Batch B — Evening, Subject: Biology, Marks: 42, Max_Marks: 100, Score_Pct: 42, Entered_By: Arvind Mishra }
+      - { Score_ID: TS-2026-0803, Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: ST-2026-0103, Student_Name: Sneha Joshi, Course: UPSC, Batch: Batch C — Weekend, Subject: History, Marks: 38, Max_Marks: 100, Score_Pct: 38, Entered_By: Arvind Mishra }
+
+  - name: calls
+    id: { column: Call_ID, prefix: "CL-" }
+    created: Called_At
+    status: { column: Status, values: [Queued, Calling, Completed, No Answer, Failed, Escalated] }
+    title: Person
+    subtitle: [Agent, Course]
+    contact: { phone: Phone, whatsapp: Phone }
+    columns: [Call_ID, Called_At, Agent, Person, Relation, Phone, Lead_ID, Student_ID, Course, Status, Duration_Sec, Request_ID, Outcome, Summary, Transcript, Grade, Score, Sentiment, Concern, Issue_Type, Reason, Category, Needs_Followup, Retry_At]
+    fields:
+      Agent: { one_of: [Admission, Fee, Attendance, Academic, Parent] }
+      Relation: { one_of: [Lead, Parent, Student] }
+      Duration_Sec: { type: number, min: 0, integer: true }
+      Grade: { one_of: [HOT, WARM, COLD] }
+      Score: { type: number, min: 0, max: 100 }
+      Sentiment: { one_of: [Happy, Neutral, Concerned, No Answer] }
+      Issue_Type: { one_of: [ACADEMIC, PERSONAL, ATTENDANCE, FINANCIAL, OTHER] }
+      Category: { one_of: [SICK, FAMILY, TRAVEL, PERSONAL, OTHER] }
+      Needs_Followup: { one_of: ["Yes", "No"] }
+      Phone: { type: phone }
+    seed: 24
+    examples:
+      - { Call_ID: CL-2026-2201, Called_At: "2026-11-02T09:40:00+05:30", Agent: Admission, Person: Rahul Sharma, Relation: Lead, Phone: "+919876543210", Lead_ID: LD-2026-0141, Student_ID: "", Course: JEE Mains, Status: Completed, Duration_Sec: 222, Request_ID: "", Outcome: Counsellor assigned, Summary: "Ready to join; asked for a demo class", Transcript: "AI: Namaste Rahul ji! … Rahul: Haan bilkul! Kab hogi?", Grade: HOT, Score: 94, Sentiment: "", Concern: "", Issue_Type: "", Reason: "", Category: "", Needs_Followup: "No", Retry_At: "" }
+      - { Call_ID: CL-2026-2202, Called_At: "2026-10-30T17:02:00+05:30", Agent: Parent, Person: Mrs. M. Patel, Relation: Parent, Phone: "+914321000002", Lead_ID: "", Student_ID: ST-2026-0102, Course: NEET, Status: Escalated, Duration_Sec: 372, Request_ID: "", Outcome: Management alerted, Summary: "Parent worried about attendance and scores", Transcript: "", Grade: "", Score: 0, Sentiment: Concerned, Concern: "Low score + attendance", Issue_Type: "", Reason: "", Category: "", Needs_Followup: "Yes", Retry_At: "" }
+      - { Call_ID: CL-2026-2203, Called_At: "2026-10-30T17:14:00+05:30", Agent: Parent, Person: Mrs. P. Mehra, Relation: Parent, Phone: "+915432100001", Lead_ID: "", Student_ID: ST-2026-0101, Course: JEE Mains, Status: No Answer, Duration_Sec: 0, Request_ID: "", Outcome: "WhatsApp report sent; retry Monday", Summary: "", Transcript: "", Grade: "", Score: 0, Sentiment: No Answer, Concern: "", Issue_Type: "", Reason: "", Category: "", Needs_Followup: "No", Retry_At: "2026-11-03T17:00:00+05:30" }
+      - { Call_ID: CL-2026-2204, Called_At: "2026-11-02T09:15:00+05:30", Agent: Attendance, Person: Mrs. M. Patel, Relation: Parent, Phone: "+914321000002", Lead_ID: "", Student_ID: ST-2026-0102, Course: NEET, Status: Completed, Duration_Sec: 131, Request_ID: "", Outcome: Counsellor alerted, Summary: "Second absence this week; not well and losing interest", Transcript: "", Grade: "", Score: 0, Sentiment: "", Concern: "", Issue_Type: "", Reason: "Not feeling well, but has missed classes all week", Category: PERSONAL, Needs_Followup: "Yes", Retry_At: "" }
+
+  - name: messages
+    id: { column: Msg_ID, prefix: "WA-" }
+    created: Sent_At
+    status: { column: Status, values: [Queued, Sent, Delivered, Read, Failed, Simulated] }
+    title: To_Name
+    subtitle: [Type]
+    columns: [Msg_ID, Sent_At, To_Name, To_Phone, Type, Agent, Template, Preview, Status, Student_ID, Lead_ID]
+    fields:
+      Type: { one_of: [Welcome, Fee Reminder, Payment Link, Absence Alert, Weekly Report, Staff Alert, General Update] }
+      Agent: { one_of: [Admission, Fee, Attendance, Academic, Parent, Office] }
+      To_Phone: { type: phone }
+    seed: 24
+    examples:
+      - { Msg_ID: WA-2026-7701, Sent_At: "2026-11-02T10:47:00+05:30", To_Name: Mrs. M. Patel, To_Phone: "+914321000002", Type: Payment Link, Agent: Fee, Template: eduflow_fee_payment_link, Preview: "Fee due: ₹18,000 for Kavya · pay here: rzp.io/l/replora-fe0301", Status: Read, Student_ID: ST-2026-0102, Lead_ID: "" }
+      - { Msg_ID: WA-2026-7702, Sent_At: "2026-10-30T17:02:00+05:30", To_Name: Mrs. P. Mehra, To_Phone: "+915432100001", Type: Weekly Report, Agent: Parent, Template: eduflow_weekly_report, Preview: "Rohan's weekly report: attendance 96%, last test 89%, rank 3", Status: Delivered, Student_ID: ST-2026-0101, Lead_ID: "" }
+      - { Msg_ID: WA-2026-7703, Sent_At: "2026-11-02T09:45:00+05:30", To_Name: Mr. A. Joshi, To_Phone: "+916543200003", Type: Absence Alert, Agent: Attendance, Template: eduflow_absence_alert, Preview: "Sneha is absent today (Batch C — Weekend). Please reply with the reason.", Status: Read, Student_ID: ST-2026-0103, Lead_ID: "" }
+
+  - name: alerts
+    id: { column: Alert_ID, prefix: "AL-" }
+    created: Raised_At
+    status: { column: Status, values: [Open, Acknowledged, Resolved] }
+    title: Title
+    subtitle: [Kind, Severity]
+    owner: Owner
+    columns: [Alert_ID, Raised_At, Title, Detail, Kind, Severity, Student_ID, Lead_ID, Raised_By, Owner, Status, Resolution, Resolved_At]
+    requires_on: { Resolved: [Resolution] }
+    fields:
+      Kind: { one_of: [Fee, Attendance, Academic, Lead, Parent] }
+      Severity: { one_of: [CRITICAL, HIGH, MEDIUM, LOW] }
+    seed: 6
+    examples:
+      - { Alert_ID: AL-2026-0091, Raised_At: "2026-11-02T10:05:00+05:30", Title: "Fee overdue — Kavya Patel — ₹18,000 — 19 days", Detail: "2 AI calls, 2 WhatsApp sent — no payment received. Management intervention needed.", Kind: Fee, Severity: CRITICAL, Student_ID: ST-2026-0102, Lead_ID: "", Raised_By: "flow:FEE_REMINDER", Owner: Dev Dabi, Status: Open, Resolution: "", Resolved_At: "" }
+      - { Alert_ID: AL-2026-0090, Raised_At: "2026-10-30T17:09:00+05:30", Title: "Parent concern — Kavya Patel — NEET", Detail: "Mrs. M. Patel raised a concern: attendance 58%, score 42%.", Kind: Parent, Severity: HIGH, Student_ID: ST-2026-0102, Lead_ID: "", Raised_By: "flow:PARENT_UPDATE", Owner: Priya Saxena, Status: Open, Resolution: "", Resolved_At: "" }
+      - { Alert_ID: AL-2026-0089, Raised_At: "2026-10-27T11:20:00+05:30", Title: "Academic risk — Sneha Joshi — 3 low tests", Detail: "38% in History; mentor session assigned, monitoring.", Kind: Academic, Severity: MEDIUM, Student_ID: ST-2026-0103, Lead_ID: "", Raised_By: "flow:ACADEMIC_CALL", Owner: Arvind Mishra, Status: Acknowledged, Resolution: "", Resolved_At: "" }
+
+  - name: team
+    id: { column: Member_ID, prefix: "TM-" }
+    title: Name
+    subtitle: [Role]
+    contact: { phone: Phone, whatsapp: Phone, email: Email }
+    columns: [Member_ID, Name, Role, Phone, Email, Courses, Active]
+    fields:
+      Role: { one_of: [Director, Office Admin, Counsellor, Mentor] }
+      Phone: { type: phone }
+      Email: { type: email }
+    seed: 0
+    examples:
+      - { Member_ID: TM-001, Name: Dev Dabi, Role: Director, Phone: "+919826000001", Email: director@replora.example, Courses: "All", Active: "true" }
+      - { Member_ID: TM-002, Name: Priya Saxena, Role: Counsellor, Phone: "+919826000002", Email: priya@replora.example, Courses: "JEE Mains, NEET", Active: "true" }
+      - { Member_ID: TM-003, Name: Rahul Tiwari, Role: Counsellor, Phone: "+919826000003", Email: rahul.t@replora.example, Courses: "CA Foundation, UPSC", Active: "true" }
+      - { Member_ID: TM-004, Name: Arvind Mishra, Role: Mentor, Phone: "+919826000004", Email: arvind@replora.example, Courses: "All", Active: "true" }
+      - { Member_ID: TM-005, Name: Sunita Rao, Role: Office Admin, Phone: "+919826000005", Email: office@replora.example, Courses: "All", Active: "true" }
+
+header:
+  covers: [R38, R9, R37]
+  search:
+    - { label: Students, entity: students, columns: [Student_ID, Name, Student_Phone, Parent_Name, Parent_Phone, Course, Batch], title: Name, subtitle: [Course, Batch, Status], link: "/students/{{Student_ID}}", page: students }
+    - { label: Leads, entity: leads, columns: [Lead_ID, Name, Phone, Email, Course], title: Name, subtitle: [Course, Grade, Stage], link: /leads, page: leads }
+  notifications:
+    - { metric: alerts_open, title: Title, subtitle: [Severity], date: Raised_At, link: /alerts, page: alerts }
+    - { metric: hot_overdue, title: Name, subtitle: [Course], date: Next_Followup_At, age: due, link: /leads, page: leads }
+    - { metric: overdue_15, title: Student_Name, subtitle: [Course], date: Due_Date, age: due, link: /fees, page: fees }
+
+# ── Flows ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+# The five AI-call agents (ADMISSION_CALL, FEE_REMINDER.remind, ABSENCE.absent / reason_call, ACADEMIC_CALL, PARENT_UPDATE.update_call)
+# each need: voiceCall → delay → getCallDetails → ONE Pucho CDM read → code → router → WhatsApp → write → Return. That is more than one
+# tool step per path, so at step 6 they are built on the CUSTOM path (method/ai-pipeline.md: tools/build_eduflow_flows.py, stricter
+# contracts) — the declarations below are what the app calls, simulates (effect:) and shows; prompts and describe: say what CDM reads.
+# UNVERIFIED until a live Studio run: ai-voice-call voiceCall `connectionDetails` (G1), the longest `delay`, schedule fan-out.
+flows:
+  - name: ADMISSION_CALL
+    covers: [R2, R3, R4, R5, R7]
+    trigger: { tool: webhook, name: catch_webhook, auth: none }
+    constants: { counsellors_from: team, voice_language: hi }
+    writes: [leads, calls, messages]
+    actions:
+      - name: new_lead
+        covers: [R1, R2, R3, R4]
+        model: standard
+        async: true
+        payload: { Name: string, Phone: string, Email: string, Course: string, Source: string, Notes: string, Assigned_To: string }
+        prompt: |
+          You read the transcript of an AI admission call to a coaching-institute lead ({{payload.Name}}, interested in {{payload.Course}}; notes: {{payload.Notes}}).
+          Grade the lead: HOT (ready to join or book a demo now), WARM (interested, comparing or needs a follow-up), COLD (not joining this year).
+          Write a two-line qualification summary and the next action for the counsellor, in the language the lead used (Hinglish allowed).
+          Reply ONLY with JSON: {"grade": "HOT|WARM|COLD", "score": 0, "summary": "", "next_action": ""}
+        result: { grade: "HOT|WARM|COLD", score: number, summary: string, next_action: string }
+        ai_task: extract
+        ai_text: [Name, Course, Notes]
+        describe: { grade: "how ready the lead is: HOT (joining or booking a demo now), WARM (interested, needs a follow-up), COLD (not joining this year)", score: "readiness from 0 to 100", summary: "two lines on what the lead said: goal, current preparation, concerns", next_action: "the one next step for the counsellor" }
+        rules: ["Custom path: voiceCall with the lead's name, course and notes as call context → delay ~3 min → getCallDetails → CDM extract on the transcript", "Score is the model's readiness; HOT also needs score ≥ 80, else WARM (code)", "HOT → Next_Followup_At = now + 48 h and a WhatsApp template eduflow_hot_lead_alert to the assigned counsellor (team.Phone), else the counsellor with the fewest open HOT leads for the course", "Writes the lead (Stage Called, Grade, Score, AI_Summary, Next_Action, Transcript, Call_Status), one calls row (Agent Admission) and one messages row", "No answer → Call_Status No Answer, one retry after 2 hours"]
+        typical_seconds: 240
+        credits: 44
+        runs_per_month: 120
+        effect: { insert: leads, fill: { Stage: Called, Grade: WARM, Score: 62, Call_Status: Completed, AI_Summary: "Simulated call — interested, wants the fee plan and a demo class.", Next_Action: "Share the fee plan and book a demo", Last_Called_At: now } }
+      - name: call
+        covers: [R7]
+        model: standard
+        async: true
+        payload: { Lead_ID: string, Name: string, Phone: string, Course: string, Notes: string }
+        prompt: "same_as: ADMISSION_CALL.new_lead"
+        result: "same_as: ADMISSION_CALL.new_lead"
+        ai_task: extract
+        ai_text: [Name, Course, Notes]
+        describe: "same_as: ADMISSION_CALL.new_lead"
+        rules: ["Same pipeline as new_lead on an existing lead; patches the lead instead of inserting"]
+        typical_seconds: 240
+        credits: 44
+        runs_per_month: 30
+        effect: { patch: leads, fill: { Call_Status: Completed, Last_Called_At: now, AI_Summary: "Simulated re-call — still interested; call back after the weekend." } }
+
+  - name: STUDENT_MANAGE
+    covers: [R10, R11]
+    trigger: { tool: webhook, name: catch_webhook, auth: none }
+    writes: [students, fees, messages]
+    actions:
+      - name: enrol
+        model: none
+        payload: { Name: string, Phone: string, Student_Phone: string, Parent_Name: string, Parent_Phone: string, Course: string, Batch: string, Fee_Amount_INR: number, Fee_Due_Date: string, Address: string, Counsellor: string }
+        sends: { tool: whatsapp, to: Parent_Phone, template: { name: eduflow_welcome, variables: { "1": "{{Parent_Name}}", "2": "{{Name}}", "3": "{{Course}}", "4": "{{Batch}}" } } }
+        rules: ["Inserts the student (Status Active) and the first fees row (Amount_INR = Fee_Amount_INR, Due_Date = Fee_Due_Date, Status Upcoming) in code", "Welcome template to the parent after the write; one messages row (Type Welcome)", "From a lead: the lead's Stage → Enrolled; the lead's Phone becomes Student_Phone"]
+        typical_seconds: 5
+        credits: 7
+        runs_per_month: 30
+        effect: { insert: students, fill: { Status: Active, Fee_Status: Due, Enrolled_At: now }, map: { Phone: Student_Phone } }
+
+  - name: ABSENCE
+    covers: [R14, R15, R16, R17]
+    trigger: { tool: webhook, name: catch_webhook, auth: none }
+    constants: { counsellors_from: team, call_from_absence: 2, voice_language: hi }
+    writes: [attendance, calls, messages, alerts]
+    actions:
+      - name: absent
+        covers: [R14, R15]
+        via: custom
+        model: standard
+        async: true
+        payload: { Date: string, Batch: string, Student_ID: string, Student_Name: string, Course: string, Parent_Name: string, Parent_Phone: string, Absences_This_Week: number, Marked_By: string }
+        prompt: |
+          You read the transcript of a call to the parent of {{payload.Student_Name}} ({{payload.Course}}, {{payload.Batch}}), who was absent on {{payload.Date}}.
+          Extract the reason in the parent's words, its category (SICK, FAMILY, TRAVEL, PERSONAL, OTHER) and whether a counsellor should follow up (repeated absence, distress, dropping out, a complaint).
+          Reply ONLY with JSON: {"reason": "", "category": "SICK|FAMILY|TRAVEL|PERSONAL|OTHER", "needs_followup": "Yes|No"}
+        result: { reason: string, category: "SICK|FAMILY|TRAVEL|PERSONAL|OTHER", needs_followup: "Yes|No" }
+        ai_task: extract
+        ai_text: [Student_Name, Course, Batch, Date]
+        describe: { reason: "why the student was absent, in the parent's words", category: "SICK, FAMILY, TRAVEL, PERSONAL or OTHER", needs_followup: "Yes when the absence is repeated, the student may drop out, or the parent complains; else No" }
+        rules: ["Called by the attendance sheet for every Absent mark (Present is a direct insert, no credits)", "Code first: Absences_This_Week < call_from_absence → WhatsApp template eduflow_absence_alert only (Call_Status WhatsApp Sent) and Return — no call, no AI", "Otherwise voiceCall the parent → delay ~4 min → getCallDetails → CDM extract → write Reason / Category / Needs_Followup / Call_Status", "Needs_Followup Yes → WhatsApp eduflow_staff_alert to the student's counsellor and an alerts row (Kind Attendance, HIGH)"]
+        typical_seconds: 300
+        credits: 14                 # blended: ~70 % of absences are WhatsApp-only (7) and ~30 % get the call (29) — recommended policy
+        runs_per_month: 1144
+        effect: { insert: attendance, fill: { Status: Absent, Call_Status: WhatsApp Sent, Needs_Followup: "No" } }
+      - name: reason_call
+        covers: [R15, R16, R17]
+        model: standard
+        async: true
+        payload: { Att_ID: string, Date: string, Batch: string, Student_ID: string, Student_Name: string, Course: string, Parent_Name: string, Parent_Phone: string }
+        prompt: "same_as: ABSENCE.absent"
+        result: "same_as: ABSENCE.absent"
+        ai_task: extract
+        ai_text: [Student_Name, Course, Batch, Date]
+        describe: "same_as: ABSENCE.absent"
+        rules: ["A call on an absence already marked (row action) — same call → CDM → write → alert as absent"]
+        typical_seconds: 300
+        credits: 29
+        runs_per_month: 60
+        effect: { patch: attendance, fill: { Call_Status: Call Done, Reason: "Simulated call — unwell, will attend tomorrow", Category: SICK, Needs_Followup: "No" } }
+
+  - name: ACADEMIC_CALL
+    covers: [R20, R21, R22]
+    trigger: { tool: webhook, name: catch_webhook, auth: none }
+    constants: { mentors_from: team, voice_language: hi }
+    writes: [students, calls, alerts, messages]
+    actions:
+      - name: counsel
+        model: standard
+        async: true
+        payload: { Student_ID: string, Name: string, Student_Phone: string, Course: string, Attendance_Pct: number, Last_Score: number, Weak_Subjects: string, Mentor: string }
+        prompt: |
+          You read the transcript of an AI counselling call to {{payload.Name}} ({{payload.Course}}; attendance {{payload.Attendance_Pct}}%, last test {{payload.Last_Score}}%, weak in {{payload.Weak_Subjects}}).
+          Extract the main issue in one line, its type, and whether the student needs a mentor session or a counsellor.
+          Reply ONLY with JSON: {"issue_type": "ACADEMIC|PERSONAL|ATTENDANCE|FINANCIAL|OTHER", "main_issue": "", "needs_mentor": "Yes|No", "needs_counsellor": "Yes|No"}
+        result: { issue_type: "ACADEMIC|PERSONAL|ATTENDANCE|FINANCIAL|OTHER", main_issue: string, needs_mentor: "Yes|No", needs_counsellor: "Yes|No" }
+        ai_task: extract
+        ai_text: [Name, Course, Weak_Subjects]
+        describe: { issue_type: "the kind of problem: ACADEMIC, PERSONAL, ATTENDANCE, FINANCIAL or OTHER", main_issue: "the student's main problem in one line", needs_mentor: "Yes when the student needs a subject mentor session", needs_counsellor: "Yes when the student needs a counsellor (stress, family, motivation)" }
+        rules: ["The Monday 11:00 ACADEMIC_RUN selects students with Attendance_Pct < 75 or Last_Score < 60 (max 50) and posts each here", "voiceCall the student → delay ~5 min → getCallDetails → CDM extract", "needs_mentor or needs_counsellor Yes → WhatsApp eduflow_staff_alert to the mentor / counsellor and an alerts row (Kind Academic)", "Writes Issue_Type, Main_Issue, Last_Counselled_At on the student and one calls row (Agent Academic)"]
+        typical_seconds: 360
+        credits: 54
+        runs_per_month: 147
+        effect: { patch: students, fill: { Issue_Type: ACADEMIC, Main_Issue: "Simulated call — struggling with the weak subjects; asked for extra doubt sessions", Last_Counselled_At: now } }
+
+  - name: FEE_REMINDER
+    covers: [R24, R25, R27]
+    trigger: { tool: webhook, name: catch_webhook, auth: none }
+    constants: { voice_language: hi }
+    writes: [fees, calls, messages, alerts]
+    actions:
+      - name: remind
+        covers: [R24]
+        model: standard
+        async: true
+        payload: { Fee_ID: string, Student_Name: string, Parent_Name: string, Parent_Phone: string, Course: string, Balance_INR: number, Due_Date: string, Days_Overdue: number, Payment_Link: string }
+        prompt: |
+          You read the transcript of a polite fee-reminder call to {{payload.Parent_Name}}, parent of {{payload.Student_Name}} ({{payload.Course}}), about ₹{{payload.Balance_INR}} due on {{payload.Due_Date}}.
+          Extract what the parent said and the date they promised to pay, if any.
+          Reply ONLY with JSON: {"parent_response": "", "promise_date": ""}
+        result: { parent_response: string, promise_date: string }
+        ai_task: extract
+        ai_text: [Parent_Name, Student_Name, Course, Due_Date]
+        describe: { parent_response: "what the parent said about paying, in their words", promise_date: "the date the parent promised to pay, if they named one" }
+        rules: ["The daily 10:00 FEE_RUN posts each fee on day 1, 7 and 15 of being overdue (recommended policy)", "voiceCall the parent → delay ~3 min → getCallDetails → CDM extract → WhatsApp template eduflow_fee_payment_link → write", "Reminder_Count + 1, Last_Reminder_At now, Promise_Date, Parent_Response (code)", "Day 15 or later with no promise → alerts row (Kind Fee, CRITICAL) for the director"]
+        typical_seconds: 240
+        credits: 29
+        runs_per_month: 69
+        effect: { patch: fees, fill: { Last_Reminder_At: now, Parent_Response: "Simulated call — will pay by Friday" } }
+      - name: send_link
+        covers: [R25, R27]
+        model: none
+        payload: { Fee_ID: string, Student_Name: string, Parent_Name: string, Parent_Phone: string, Balance_INR: number, Due_Date: string, Payment_Link: string }
+        sends: { tool: whatsapp, to: Parent_Phone, template: { name: eduflow_fee_payment_link, variables: { "1": "{{Parent_Name}}", "2": "{{Student_Name}}", "3": "{{Balance_INR}}", "4": "{{Due_Date}}", "5": "{{Payment_Link}}" } } }
+        rules: ["Also posted by FEE_RUN 3 days before Due_Date (R27) — WhatsApp only, no call", "Payment_Link from the fee row (⚑ G4: Razorpay per reminder or a fixed link)", "Last_Reminder_At now; one messages row (Type Payment Link)"]
+        typical_seconds: 4
+        credits: 7
+        runs_per_month: 80
+        effect: { patch: fees, fill: { Last_Reminder_At: now } }
+
+  - name: PARENT_UPDATE
+    covers: [R29, R30, R31, R33]
+    trigger: { tool: webhook, name: catch_webhook, auth: none }
+    constants: { voice_language: hi }
+    writes: [students, calls, messages, alerts]
+    actions:
+      - name: weekly_report
+        covers: [R30]
+        model: none
+        payload: { Student_ID: string, Name: string, Parent_Name: string, Parent_Phone: string, Attendance_Pct: number, Last_Score: number, Class_Rank: number, Performance_Trend: string }
+        sends: { tool: whatsapp, to: Parent_Phone, template: { name: eduflow_weekly_report, variables: { "1": "{{Parent_Name}}", "2": "{{Name}}", "3": "{{Attendance_Pct}}", "4": "{{Last_Score}}", "5": "{{Class_Rank}}", "6": "{{Performance_Trend}}" } } }
+        rules: ["Every Friday 17:00 PARENT_RUN posts every active student (recommended policy) — numbers from the record, never from a model", "Last_Report_At now; one messages row (Type Weekly Report)"]
+        typical_seconds: 4
+        credits: 7
+        runs_per_month: 1481
+        effect: { patch: students, fill: { Last_Report_At: now } }
+      - name: update_call
+        covers: [R29, R31, R33]
+        model: standard
+        async: true
+        payload: { Student_ID: string, Name: string, Parent_Name: string, Parent_Phone: string, Course: string, Attendance_Pct: number, Last_Score: number, Class_Rank: number, Performance_Trend: string, Strong_Subjects: string, Weak_Subjects: string }
+        prompt: |
+          You read the transcript of a weekly update call to {{payload.Parent_Name}}, parent of {{payload.Name}} ({{payload.Course}}; attendance {{payload.Attendance_Pct}}%, last test {{payload.Last_Score}}%, rank {{payload.Class_Rank}}, trend {{payload.Performance_Trend}}).
+          Extract the parent's sentiment, their feedback and any concern, and whether management should be alerted.
+          Reply ONLY with JSON: {"sentiment": "Happy|Neutral|Concerned|No Answer", "feedback": "", "concern": "", "needs_escalation": "Yes|No"}
+        result: { sentiment: "Happy|Neutral|Concerned|No Answer", feedback: string, concern: string, needs_escalation: "Yes|No" }
+        ai_task: extract
+        ai_text: [Parent_Name, Name, Course, Performance_Trend]
+        describe: { sentiment: "how the parent felt: Happy, Neutral, Concerned, or No Answer when nobody spoke", feedback: "what the parent said, in one line", concern: "the parent's concern, if any", needs_escalation: "Yes when the parent is upset, threatens to withdraw or asks for the director" }
+        rules: ["Friday 17:00 PARENT_RUN calls only parents of at-risk students (recommended policy); the row action calls any parent; a No Answer gets one retry on Monday 17:00 (R33)", "voiceCall → delay ~4 min → getCallDetails → CDM extract → write Parent_Sentiment, Parent_Concern, Last_Parent_Call_At and one calls row (Agent Parent)", "needs_escalation Yes → WhatsApp eduflow_staff_alert to the director and an alerts row (Kind Parent, HIGH)"]
+        typical_seconds: 300
+        credits: 49
+        runs_per_month: 160
+        effect: { patch: students, fill: { Parent_Sentiment: Happy, Last_Parent_Call_At: now } }
+
+  - name: SEND_WHATSAPP
+    covers: [R34]
+    trigger: { tool: webhook, name: catch_webhook, auth: none }
+    writes: [messages]
+    actions:
+      - name: send_update
+        model: none
+        payload: { Student_ID: string, Name: string, Parent_Name: string, Message: string, To: string }
+        sends: { tool: whatsapp, to: { entity: students, match: Student_ID, by: Student_ID, column: Parent_Phone }, template: { name: eduflow_general_update, variables: { "1": "{{Parent_Name}}", "2": "{{Name}}", "3": "{{Message}}" } }, review: true }
+        rules: ["One parent from the row, a batch or everyone through the Students page's bulk select — the modal runs once per row", "One messages row per send (Type General Update, Agent Office)"]
+        typical_seconds: 4
+        credits: 7
+        runs_per_month: 57
+        effect: { patch: students, fill: {} }
+
+  # ── schedules (the dispatchers): the code selects the list, each record goes to its per-record flow ─────────────────────────
+  - name: FEE_RUN
+    covers: [R24, R27]
+    trigger: { tool: schedule, name: cron_expression, input: { cronExpression: "0 10 * * *", timezone: Asia/Kolkata } }
+    writes: [fees]
+    actions:
+      - { name: run, model: none, cadence: every_day, rules: ["Recompute Days_Overdue and Status (Due → Overdue the day after Due_Date) for every unpaid fee", "Overdue on day 1, 7 or 15 → POST FEE_REMINDER.remind; Due_Date = today + 3 → POST FEE_REMINDER.send_link"], typical_seconds: 20, credits: 5, runs_per_month: 30 }
+  - name: ACADEMIC_RUN
+    covers: [R20]
+    trigger: { tool: schedule, name: cron_expression, input: { cronExpression: "0 11 * * 1", timezone: Asia/Kolkata } }
+    writes: [students]
+    actions:
+      - { name: run, model: none, cadence: every_week, rules: ["Students with Attendance_Pct < 75 or Last_Score < 60 (max 50, worst first) → POST ACADEMIC_CALL.counsel"], typical_seconds: 20, credits: 5, runs_per_month: 4 }
+  - name: PARENT_RUN
+    covers: [R29, R30, R33]
+    trigger: { tool: schedule, name: cron_expression, input: { cronExpression: "0 17 * * 1,5", timezone: Asia/Kolkata } }
+    writes: [students]
+    actions:
+      - { name: run, model: none, cadence: every_week, rules: ["Friday: every active student → POST PARENT_UPDATE.weekly_report; Status At Risk / Critical → also POST PARENT_UPDATE.update_call", "Monday: last Friday's No Answer calls → POST PARENT_UPDATE.update_call once (R33)"], typical_seconds: 20, credits: 5, runs_per_month: 9 }
+  - name: ROLLUP
+    covers: [R9, R13, R18, R20, R28]
+    trigger: { tool: schedule, name: cron_expression, input: { cronExpression: "30 1 * * *", timezone: Asia/Kolkata } }
+    writes: [students, alerts]
+    actions:
+      - { name: run, model: none, cadence: every_day, rules: ["Per student, from attendance and tests: Attendance_Pct (last 30 days), Last_Score, Avg_Score, Class_Rank within course + batch, Performance_Trend (last 3 tests), Strong/Weak_Subjects", "Status: Critical when Attendance_Pct < 60 or Avg_Score < 40; At Risk when < 75 / < 60; else Active", "Fee_Status from the student's open fees rows", "Raises alerts (no duplicates while one is open): attendance < 75 (HIGH), fee overdue 15+ days (CRITICAL), HOT lead past 48 h (MEDIUM)"], typical_seconds: 25, credits: 5, runs_per_month: 30 }
+
+# ── Pages ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+pages:
+  - id: overview
+    covers: [R9, R28, R37, R40]
+    kind: overview
+    route: /
+    label: Overview
+    icon: LayoutDashboard
+    desc: What needs action today, then the institute's numbers
+    greeting: Here is what needs you today.
+    roles: [admin]
+    quick_links: false
+    kpis:
+      - { metric: students_active }
+      - { metric: new_leads_7d }
+      - { metric: fees_overdue, filter: false }
+      - { label: Avg attendance, entity: students, formula: "avg Attendance_Pct where Status!=Inactive", format: pct, icon: CalendarCheck }
+    queues:
+      - { metric: alerts_open, action: acknowledge, action_label: Acknowledge, sub: Severity, link: /alerts }
+      - { metric: hot_overdue, action: assign, action_label: Assign, sub: Course, link: /leads }
+      - { metric: overdue_15, action: send_link, action_label: Send link, sub: Course, link: /fees }
+    charts:
+      - { id: lead-funnel, type: funnel, entity: leads, title: Admissions funnel, where: "Stage!=Lost", span: 3, footer: "Leads by stage, with conversion from the previous stage. Lost leads are excluded." }
+      - { id: calls-week, type: trend, entity: calls, title: AI calls per week by agent, date: Called_At, series: [Agent], days: 56, bucket: week, span: 3 }
+    modals:
+      - { id: acknowledge, covers: [R37], kind: status, title: Acknowledge alert, direct: patch, entity: alerts, summary: [Title, Severity], fill: { Status: Acknowledged }, fields: [ { key: Owner, label: Owner, type: select, options_from: team.Name, required: true } ] }
+      - { id: assign, covers: [R6, R9], kind: edit, title: Assign counsellor, direct: patch, entity: leads, summary: [Name, Course, Grade], fields: [ { key: Assigned_To, label: Counsellor, type: select, options_from: team.Name, options_where: "Role=Counsellor", required: true } ] }
+      - { id: send_link, covers: [R25], kind: status, title: Send payment link, flow: FEE_REMINDER, action: send_link, entity: fees, summary: [Student_Name, Balance_INR, Due_Date], pass: [Fee_ID, Student_Name, Parent_Name, Parent_Phone, Balance_INR, Due_Date, Payment_Link], submit: Send on WhatsApp, success: "Payment link sent to the parent", fields: [] }
+
+  - id: alerts
+    covers: [R37]
+    route: /alerts
+    label: Alerts & escalations
+    subtitle: Everything the agents and the rules flagged for a person to act on
+    icon: BellRing
+    group: Overview
+    entity: alerts
+    roles: [admin, office, counsellor]
+    badge: { entity: alerts, where: "Status=Open" }
+    kpis:
+      - { metric: alerts_open }
+      - { label: Critical, formula: "count where Severity=CRITICAL and Status=Open", icon: AlertOctagon, alert: true }
+      - { label: Resolved this week, formula: "count where Status=Resolved and Resolved_At in last 7 days", icon: CheckCircle2 }
+    table:
+      segments: { column: Status, all: All alerts }
+      columns: [ { key: Title, type: text, sub: Detail }, { key: Severity, type: badge }, { key: Kind, type: tag }, { key: Owner, type: owner }, { key: Status, type: badge }, { key: Raised_At, header: Raised, type: date, time: true } ]
+      search: [Title, Detail, Owner]
+      filters: [Kind, Severity]
+      bulk: [acknowledge]
+    modals:
+      - { id: acknowledge, covers: [R37], kind: status, title: Mark read, direct: patch, summary: [Title, Severity], fill: { Status: Acknowledged }, fields: [ { key: Owner, label: Owner, type: select, options_from: team.Name, required: true } ] }
+      - { id: resolve, covers: [R37], kind: status, title: Resolve, direct: patch, summary: [Title], fill: { Status: Resolved, Resolved_At: now }, fields: [ { key: Resolution, label: What was done, type: textarea, rows: 3, required: true } ] }
+    actions: { header: [], row: [acknowledge, resolve] }
+
+  - id: leads
+    covers: [R1, R3, R5, R6, R7, R8, R9, R39]
+    route: /leads
+    label: Leads
+    subtitle: Every enquiry — called by the AI, graded HOT, WARM or COLD, followed up by a counsellor
+    icon: Users
+    group: Admissions
+    entity: leads
+    roles: [admin, counsellor]
+    blocks:
+      - type: kpis
+        kpis:
+          - { metric: hot_leads, filter: "Grade=HOT" }
+          - { label: WARM, formula: "count where Grade=WARM and Stage not in [Enrolled, Lost]", icon: Thermometer, filter: "Grade=WARM" }
+          - { label: COLD, formula: "count where Grade=COLD and Stage not in [Enrolled, Lost]", icon: Snowflake, filter: "Grade=COLD" }
+          - { metric: hot_overdue }
+      - type: table
+        segments: { column: Stage, all: All leads }
+        period: { column: Created_At, presets: [today, 7d, 30d, month, all], default: all }
+        views: [table, kanban]
+        columns: [ { key: Name, type: text, sub: Phone }, { key: Grade, type: badge }, { key: Score, type: number }, { key: Stage, type: badge }, { key: Next_Followup_At, header: Follow-up, type: due }, { key: Assigned_To, header: Counsellor, type: owner }, { key: Course, type: tag }, { key: Source, type: tag, priority: low }, { key: Call_Status, header: AI call, type: badge, priority: low } ]
+        search: [Name, Phone, Email, Lead_ID, Course]
+        filters: [Course, Source, Grade]
+        bulk: [assign]
+        kanban: { column: Grade, stages: [HOT, WARM, COLD], title: Name, subtitle: Course, meta: [Next_Followup_At], badge: Score, badge_label: Score, avatar: Assigned_To, move: { direct: patch } }
+        drawer: { score: Score, tabs: [ { label: Summary, sections: [ { type: callout, column: AI_Summary, title: AI qualification summary, tone: neutral }, { type: callout, column: Next_Action, title: Next action, tone: info }, { type: fields, columns: [Phone, Email, Course, Source, Notes, Call_Status, Last_Called_At], hide_empty: true } ] }, { label: Transcript, sections: [ { type: callout, column: Transcript, title: AI call transcript, tone: neutral } ] }, { label: Calls, sections: [ { type: related, entity: calls, by: Lead_ID, columns: [Called_At, Status, Outcome, Duration_Sec] } ] } ] }
+        empty: { title: No leads yet, reason: "Add an enquiry and the AI calls it within minutes, grades it and tells the counsellor.", action: add_lead }
+        actions: { header: [add_lead], row: [call, assign, stage, enrol] }
+    modals:
+      - id: add_lead
+        covers: [R1, R2]
+        kind: create
+        primary: true
+        title: Add lead
+        intro: "The AI calls this lead as soon as you save, grades it and writes the summary here."
+        flow: ADMISSION_CALL
+        action: new_lead
+        columns: 2
+        submit: Add lead & call
+        pending: "Saving and starting the AI call…"
+        success: "Lead added — the AI call has started"
+        fields:
+          - { key: Name, label: Full name, type: text, required: true, placeholder: "e.g. Rahul Sharma" }
+          - { key: Phone, label: Phone, type: text, required: true, placeholder: "+91 98765 43210" }
+          - { key: Course, label: Course interest, type: select, options: [JEE Mains, NEET, CA Foundation, UPSC], required: true }
+          - { key: Source, label: Lead source, type: select, options: [Instagram, WhatsApp, Google Ads, Referral, Website, Walk-in], default: Website, required: true }
+          - { key: Email, label: Email, type: text }
+          - { key: Assigned_To, label: Counsellor, type: select, options_from: team.Name, options_where: "Role=Counsellor", help: "Leave blank — a HOT lead goes to the counsellor with the fewest open HOT leads" }
+          - { key: Notes, label: Notes, type: textarea, rows: 2, placeholder: "Anything the caller should know" }
+      - { id: call, covers: [R7], kind: status, title: Call again with AI, flow: ADMISSION_CALL, action: call, summary: [Name, Grade, Last_Called_At], pass: [Lead_ID, Name, Phone, Course, Notes], submit: Start AI call, pending: "Starting the call…", success: "AI call started — the grade updates in a few minutes", fields: [] }
+      - { id: assign, covers: [R6], kind: edit, title: Assign counsellor, direct: patch, summary: [Name, Course, Grade], fields: [ { key: Assigned_To, label: Counsellor, type: select, options_from: team.Name, options_where: "Role=Counsellor", required: true }, { key: Next_Followup_At, label: Follow up by, type: date, presets: [tomorrow, +2d, +1w] } ] }
+      - { id: stage, covers: [R8], kind: status, title: Change stage, direct: patch, summary: [Name, Stage], fields: [ { key: Stage, label: Stage, type: select, options_status: true, required: true }, { key: Next_Followup_At, label: Next follow-up, type: date, presets: [tomorrow, +2d, +1w], show_when: "Stage not in [Enrolled, Lost]" }, { key: Lost_Reason, label: Reason, type: textarea, rows: 2, required_when: "Stage=Lost", show_when: "Stage=Lost" } ] }
+      - id: enrol
+        covers: [R10, R11]
+        kind: custom
+        title: Enrol as student
+        flow: STUDENT_MANAGE
+        action: enrol
+        summary: [Name, Course, Grade]
+        pass: [Name, Phone, Course]
+        columns: 2
+        submit: Enrol & send welcome
+        success: "Student enrolled — welcome sent to the parent on WhatsApp"
+        fields:
+          - { key: Parent_Name, label: Parent name, type: text, required: true }
+          - { key: Parent_Phone, label: Parent phone, type: text, required: true }
+          - { key: Batch, label: Batch, type: select, options: [Batch A — Morning, Batch B — Evening, Batch C — Weekend], required: true }
+          - { key: Fee_Amount_INR, label: "First instalment (₹)", type: number, required: true }
+          - { key: Fee_Due_Date, label: Fee due date, type: date, required: true }
+          - { key: Counsellor, label: Counsellor, type: select, options_from: team.Name, options_where: "Role=Counsellor", default: "{{user}}" }
+          - { key: Address, label: Address, type: text }
+
+  - id: calls
+    covers: [R35, R5, R39]
+    route: /calls
+    label: AI call log
+    subtitle: Every call the five agents made — outcome, sentiment and transcript
+    icon: PhoneCall
+    group: Admissions
+    entity: calls
+    roles: [admin, counsellor, mentor]
+    read_only: "Calls are written by the agents; a person reads the outcome and the transcript and acts on the lead or student page"
+    kpis:
+      - { metric: calls_week }
+      - { label: Completed, formula: "count where Status=Completed and Called_At in last 7 days", icon: PhoneIncoming }
+      - { label: No answer, formula: "count where Status=No Answer and Called_At in last 7 days", icon: PhoneMissed, alert: true }
+      - { label: Escalated, formula: "count where Status=Escalated and Called_At in last 7 days", icon: Siren, alert: true }
+    table:
+      segments: { column: Agent, all: All agents, values: [Admission, Fee, Attendance, Academic, Parent] }
+      period: { column: Called_At, presets: [today, 7d, 30d, all], default: 7d }
+      views: [cards, table]
+      view: cards
+      card: { title: Person, subtitle: [Agent, Course], badge: Status, id: false, columns: 3, fields: [ { key: Called_At, label: Time, icon: Clock }, { key: Outcome, label: Outcome, icon: CheckCircle2 }, { key: Sentiment, label: Sentiment, icon: Smile }, { key: Reason, label: Reason, icon: MessageSquare } ], callout: { column: Summary, label: Summary, tone: neutral } }
+      columns: [ { key: Person, type: text, sub: Phone }, { key: Agent, type: tag }, { key: Status, type: badge }, { key: Outcome, type: truncate }, { key: Sentiment, type: badge }, { key: Duration_Sec, header: Duration (s), type: number }, { key: Called_At, header: Time, type: date, time: true } ]
+      search: [Person, Phone, Summary, Outcome]
+      filters: [Status, Sentiment]
+      drawer: { sections: [ { type: fields, columns: [Agent, Relation, Phone, Course, Status, Outcome, Grade, Score, Sentiment, Concern, Issue_Type, Reason, Category, Needs_Followup, Retry_At], hide_empty: true }, { type: callout, column: Summary, title: Summary, tone: neutral }, { type: callout, column: Transcript, title: Transcript, tone: neutral } ] }
+
+  - id: students
+    covers: [R10, R12, R13, R18, R23, R34, R39]
+    route: /students
+    label: Students
+    subtitle: Every enrolled student — attendance, scores, fees and how the parents feel
+    icon: GraduationCap
+    group: Students
+    entity: students
+    roles: [admin, office, counsellor, mentor]
+    kpis:
+      - { metric: students_active }
+      - { metric: at_risk, filter: "Status in [At Risk, Critical]" }
+      - { metric: low_attendance, filter: "Attendance_Pct<75" }
+    table:
+      segments: { column: Status, all: All students }
+      columns: [ { key: Name, type: text, sub: Student_Phone }, { key: Course, type: tag }, { key: Batch, type: tag }, { key: Attendance_Pct, header: Attendance, type: number, suffix: "%" }, { key: Last_Score, header: Last score, type: number, suffix: "%" }, { key: Fee_Status, header: Fee, type: badge }, { key: Status, type: badge }, { key: Mentor, type: owner, priority: low } ]
+      search: [Name, Student_Phone, Parent_Name, Parent_Phone, Student_ID]
+      filters: [Course, Batch, Fee_Status]
+      bulk: [send_update, weekly_report]
+      empty: { title: No students yet, reason: "Enrol the first student — or enrol a lead from the Leads page.", action: add_student }
+    modals:
+      - id: add_student
+        covers: [R10, R11]
+        kind: create
+        primary: true
+        title: Enrol student
+        flow: STUDENT_MANAGE
+        action: enrol
+        columns: 2
+        submit: Enrol & send welcome
+        success: "Student enrolled — welcome sent to the parent on WhatsApp"
+        fields:
+          - { key: Name, label: Student name, type: text, required: true }
+          - { key: Student_Phone, label: Student phone, type: text, required: true }
+          - { key: Parent_Name, label: Parent name, type: text, required: true }
+          - { key: Parent_Phone, label: Parent phone, type: text, required: true }
+          - { key: Course, label: Course, type: select, options: [JEE Mains, NEET, CA Foundation, UPSC], required: true }
+          - { key: Batch, label: Batch, type: select, options: [Batch A — Morning, Batch B — Evening, Batch C — Weekend], required: true }
+          - { key: Fee_Amount_INR, label: "First instalment (₹)", type: number, required: true }
+          - { key: Fee_Due_Date, label: Fee due date, type: date, required: true }
+          - { key: Counsellor, label: Counsellor, type: select, options_from: team.Name, options_where: "Role=Counsellor" }
+          - { key: Address, label: Address, type: text }
+      - { id: assign_mentor, covers: [R23], kind: edit, title: Assign mentor / counsellor, direct: patch, summary: [Name, Status, Main_Issue], fields: [ { key: Mentor, label: Mentor, type: select, options_from: team.Name, options_where: "Role=Mentor" }, { key: Counsellor, label: Counsellor, type: select, options_from: team.Name, options_where: "Role=Counsellor" } ] }
+      - { id: call_parent, covers: [R29, R33], kind: status, title: AI call to parent, flow: PARENT_UPDATE, action: update_call, summary: [Name, Parent_Name, Parent_Sentiment], pass: [Student_ID, Name, Parent_Name, Parent_Phone, Course, Attendance_Pct, Last_Score, Class_Rank, Performance_Trend, Strong_Subjects, Weak_Subjects], submit: Start AI call, success: "AI call to the parent started", fields: [] }
+      - { id: weekly_report, covers: [R30], kind: status, title: Send weekly report, flow: PARENT_UPDATE, action: weekly_report, summary: [Name, Attendance_Pct, Last_Score], pass: [Student_ID, Name, Parent_Name, Parent_Phone, Attendance_Pct, Last_Score, Class_Rank, Performance_Trend], submit: Send on WhatsApp, success: "Weekly report sent to the parent", fields: [] }
+      - { id: send_update, covers: [R34], kind: custom, title: WhatsApp the parent, flow: SEND_WHATSAPP, action: send_update, summary: [Name, Parent_Name], pass: [Student_ID, Name, Parent_Name], submit: Send, success: "Message sent", intro: "Goes to the parent's WhatsApp on the student's record, as the approved General update template.", fields: [ { key: Message, label: Message, type: textarea, rows: 4, required: true, default: "Kal (Saturday) institute band rahega. Monday se classes normal samay par chalengi." } ] }
+    actions: { header: [add_student], row: [call_parent, weekly_report, send_update, assign_mentor] }
+    detail:
+      route: /students/:id
+      layout: rail
+      title_column: Name
+      subtitle: [Course, Batch]
+      meta: [ { icon: Phone, column: Student_Phone }, { icon: User, label: Parent, column: Parent_Name }, { icon: PhoneCall, label: Parent phone, column: Parent_Phone }, { icon: MapPin, column: Address } ]
+      sections:
+        - { type: tiles, title: This month, columns: [Attendance_Pct, Last_Score, Avg_Score, Class_Rank] }
+        - { type: fields, title: Subjects, columns: [Strong_Subjects, Weak_Subjects, Performance_Trend, Issue_Type, Main_Issue], hide_empty: true }
+        - { type: related, entity: fees, by: Student_ID, title: Fees, columns: [Instalment, Amount_INR, Balance_INR, Due_Date, Status] }
+        - { type: related, entity: attendance, by: Student_ID, title: Attendance, columns: [Date, Status, Reason, Category] }
+        - { type: timeline, title: Calls, entity: calls, by: Student_ID, date: Called_At, status: Status, title_column: Agent, body: Summary, limit: 10 }
+      rail:
+        - { type: card, title: Mentor, column: Mentor, columns: [Mentor, Counsellor], action: assign_mentor }
+        - { type: card, title: Parent, column: Parent_Name, columns: [Parent_Phone, Parent_Sentiment, Parent_Concern, Last_Parent_Call_At], action: call_parent }
+
+  - id: attendance
+    covers: [R14, R15, R16, R17, R18]
+    route: /attendance
+    label: Attendance
+    subtitle: Mark a batch; absent parents get a WhatsApp, a repeat absence gets an AI call
+    icon: CalendarCheck
+    group: Students
+    entity: attendance
+    roles: [admin, office, mentor]
+    badge: { entity: attendance, where: "Needs_Followup=Yes and Followup_Done!=Yes" }
+    blocks:
+      - type: kpis
+        kpis:
+          - { metric: present_today }
+          - { metric: absent_today, filter: "Status=Absent" }
+          - { metric: followup_needed, filter: "Needs_Followup=Yes" }
+          - { metric: low_attendance }
+      - { type: custom, name: AttendanceSheet }
+      - type: table
+        segments: { column: Status, all: All marks }
+        period: { column: Date, presets: [today, yesterday, 7d, 30d], default: today }
+        columns: [ { key: Student_Name, header: Student, type: text, sub: Parent_Name }, { key: Batch, type: tag }, { key: Status, type: badge }, { key: Absences_This_Week, header: "This week", type: number }, { key: Call_Status, header: Parent reached, type: badge }, { key: Reason, type: truncate }, { key: Category, type: tag }, { key: Needs_Followup, header: Follow-up, type: badge } ]
+        search: [Student_Name, Parent_Name, Student_ID]
+        filters: [Batch, Category, Needs_Followup]
+        actions: { header: [mark_one], row: [reason_call, followup_done] }
+    modals:
+      - { id: mark_one, covers: [R14], kind: create, title: Mark one student, direct: insert, columns: 2, fields: [ { key: Date, label: Date, type: date, default: today, required: true }, { key: Batch, label: Batch, type: select, options: [Batch A — Morning, Batch B — Evening, Batch C — Weekend], required: true }, { key: Student_ID, label: Student, type: select, options_from: students.Student_ID, required: true }, { key: Student_Name, label: Student name, type: text, required: true }, { key: Status, label: Status, type: select, options: [Present], default: Present, required: true, help: "Absences are marked on the sheet above so the parent is told" }, { key: Marked_By, label: Marked by, type: text, default: "{{user}}" } ] }
+      - { id: reason_call, covers: [R15, R16], kind: status, title: Call the parent, flow: ABSENCE, action: reason_call, summary: [Student_Name, Date, Call_Status], pass: [Att_ID, Date, Batch, Student_ID, Student_Name, Course, Parent_Name, Parent_Phone], submit: Start AI call, success: "AI call started — the reason appears here in a few minutes", fields: [] }
+      - { id: followup_done, covers: [R17], kind: status, title: Follow-up done, direct: patch, summary: [Student_Name, Reason], fill: { Followup_Done: "Yes" }, fields: [] }
+
+  - id: academic
+    covers: [R20, R21, R22, R23]
+    route: /academic
+    label: Academic
+    subtitle: Students below 75% attendance or 60% score — counselled every Monday, escalated to a mentor
+    icon: Activity
+    group: Students
+    entity: students
+    roles: [admin, mentor]
+    kpis:
+      - { label: Avg score, formula: "avg Avg_Score where Status!=Inactive", format: pct, icon: Star }
+      - { label: Below 60% score, formula: "count where Last_Score<60 and Status!=Inactive", icon: TrendingDown, alert: true }
+      - { metric: at_risk }
+      - { label: Counselled this week, formula: "count where Last_Counselled_At in last 7 days", icon: PhoneCall }
+    tabs: [ { label: At-risk queue, where: "Status in [At Risk, Critical]" }, { label: All students } ]
+    table:
+      columns: [ { key: Name, type: text, sub: Course }, { key: Attendance_Pct, header: Attendance, type: number, suffix: "%" }, { key: Last_Score, header: Last score, type: number, suffix: "%" }, { key: Weak_Subjects, header: Weak in, type: truncate }, { key: Issue_Type, header: Issue, type: badge }, { key: Last_Counselled_At, header: Counselled, type: date }, { key: Mentor, type: owner }, { key: Status, type: badge } ]
+      search: [Name, Weak_Subjects, Main_Issue]
+      filters: [Course, Batch, Issue_Type]
+      bulk: [counsel]
+    modals:
+      - { id: counsel, covers: [R21, R22], kind: status, primary: true, title: AI counselling call, flow: ACADEMIC_CALL, action: counsel, summary: [Name, Attendance_Pct, Last_Score, Weak_Subjects], pass: [Student_ID, Name, Student_Phone, Course, Attendance_Pct, Last_Score, Weak_Subjects, Mentor], submit: Start AI call, success: "Counselling call started — the issue appears here in a few minutes", fields: [] }
+      - { id: assign_mentor, covers: [R23], kind: edit, title: Assign mentor / counsellor, direct: patch, summary: [Name, Main_Issue], fields: [ { key: Mentor, label: Mentor, type: select, options_from: team.Name, options_where: "Role=Mentor" }, { key: Counsellor, label: Counsellor, type: select, options_from: team.Name, options_where: "Role=Counsellor" } ] }
+    actions: { header: [], row: [counsel, assign_mentor] }
+
+  - id: scores
+    covers: [R19]
+    route: /scores
+    label: Test scores
+    subtitle: Marks per test and subject — they feed attendance-and-score risk every night
+    icon: ClipboardList
+    group: Students
+    parent: academic
+    entity: tests
+    roles: [admin, office, mentor]
+    table:
+      period: { column: Test_Date, presets: [7d, 30d, month, all], default: 30d }
+      columns: [ { key: Student_Name, header: Student, type: text, sub: Course }, { key: Test_Name, header: Test, type: text }, { key: Subject, type: tag }, { key: Marks, type: number }, { key: Max_Marks, header: Out of, type: number }, { key: Score_Pct, header: Score, type: number, suffix: "%" }, { key: Test_Date, header: Date, type: date } ]
+      search: [Student_Name, Test_Name, Subject]
+      filters: [Course, Batch, Subject]
+    modals:
+      - { id: add_score, covers: [R19], kind: create, primary: true, title: Add score, direct: insert, columns: 2, fields: [ { key: Test_Name, label: Test, type: text, required: true, placeholder: "Weekly Test 15" }, { key: Test_Date, label: Date, type: date, default: today, required: true }, { key: Student_ID, label: Student, type: select, options_from: students.Student_ID, required: true }, { key: Student_Name, label: Student name, type: text, required: true }, { key: Course, label: Course, type: select, options: [JEE Mains, NEET, CA Foundation, UPSC], required: true }, { key: Batch, label: Batch, type: select, options: [Batch A — Morning, Batch B — Evening, Batch C — Weekend], required: true }, { key: Subject, label: Subject, type: text, required: true }, { key: Marks, label: Marks, type: number, required: true }, { key: Max_Marks, label: Out of, type: number, default: 100, required: true }, { key: Entered_By, label: Entered by, type: text, default: "{{user}}" } ] }
+      - { id: edit_score, covers: [R19], kind: edit, title: Correct marks, direct: patch, summary: [Student_Name, Test_Name, Subject], fields: [ { key: Marks, label: Marks, type: number, required: true }, { key: Max_Marks, label: Out of, type: number, required: true } ] }
+    actions: { header: [add_score], row: [edit_score] }
+
+  - id: fees
+    covers: [R24, R25, R26, R27, R28, R39]
+    route: /fees
+    label: Fees
+    subtitle: Overdue fees get a call on day 1, 7 and 15 and a WhatsApp link; record payments as they come in
+    icon: IndianRupee
+    group: Finance
+    entity: fees
+    roles: [admin, office]
+    badge: { entity: fees, where: "Status=Overdue" }
+    kpis:
+      - { metric: collected_month }
+      - { metric: fees_overdue, filter: "Status=Overdue" }
+      - { metric: overdue_count, filter: "Status=Overdue" }
+      - { label: Reminders today, formula: "count where Last_Reminder_At=today", icon: Send }
+    tabs: [ { label: Overdue, where: "Status=Overdue" }, { label: Due this week, where: "Status in [Due, Upcoming, Partial] and Due_Date<=today+7" }, { label: Paid this month, where: "Status=Paid and Paid_At in month" }, { label: All } ]
+    table:
+      columns: [ { key: Student_Name, header: Student, type: text, sub: Parent_Name }, { key: Course, type: tag }, { key: Balance_INR, header: Balance, type: money }, { key: Due_Date, header: Due, type: due }, { key: Days_Overdue, header: Days overdue, type: number }, { key: Reminder_Count, header: Reminders, type: number }, { key: Parent_Response, header: Parent said, type: truncate }, { key: Status, type: badge } ]
+      search: [Student_Name, Parent_Name, Parent_Phone, Fee_ID, Receipt_No]
+      filters: [Course]
+      bulk: [remind, send_link]
+    modals:
+      - { id: record_payment, covers: [R26], kind: status, primary: true, title: Record payment, direct: patch, summary: [Student_Name, Amount_INR, Balance_INR], fill: { Paid_At: now }, columns: 2, fields: [ { key: Paid_INR, label: "Total paid (₹)", type: number, required: true }, { key: Payment_Mode, label: Mode, type: select, options: [UPI, Cash, Card, Bank Transfer, Cheque], required: true }, { key: Receipt_No, label: Receipt no., type: text }, { key: Status, label: Status, type: select, options: [Paid, Partial], required: true } ] }
+      - { id: send_link, covers: [R25], kind: status, title: Send payment link, flow: FEE_REMINDER, action: send_link, summary: [Student_Name, Balance_INR, Due_Date], pass: [Fee_ID, Student_Name, Parent_Name, Parent_Phone, Balance_INR, Due_Date, Payment_Link], submit: Send on WhatsApp, success: "Payment link sent to the parent", fields: [] }
+      - { id: remind, covers: [R24], kind: status, title: AI reminder call, flow: FEE_REMINDER, action: remind, summary: [Student_Name, Balance_INR, Days_Overdue], pass: [Fee_ID, Student_Name, Parent_Name, Parent_Phone, Course, Balance_INR, Due_Date, Days_Overdue, Payment_Link], submit: Call & send link, success: "Reminder call started — the parent's answer appears here", fields: [] }
+    actions: { header: [], row: [record_payment, send_link, remind] }
+
+  - id: parents
+    covers: [R29, R31, R32, R33]
+    route: /parents
+    label: Parent updates
+    subtitle: Friday reports and calls — how each parent feels, and who raised a concern
+    icon: HeartHandshake
+    group: Communication
+    entity: calls
+    roles: [admin, counsellor]
+    read_only: "Parent calls are written by the Parent agent; a call or report to one parent starts from the Students page"
+    kpis:
+      - { metric: parents_happy, filter: "Sentiment=Happy" }
+      - { metric: parents_neutral, filter: "Sentiment=Neutral" }
+      - { metric: parents_concerned, filter: "Sentiment=Concerned" }
+    tabs: [ { label: Parent calls, where: "Agent=Parent" }, { label: Concerns, where: "Agent=Parent and Sentiment=Concerned" } ]
+    table:
+      period: { column: Called_At, presets: [7d, 30d, all], default: 7d }
+      columns: [ { key: Person, header: Parent, type: text, sub: Phone }, { key: Course, type: tag }, { key: Status, header: Call, type: badge }, { key: Sentiment, type: badge }, { key: Concern, type: truncate }, { key: Retry_At, header: Retry, type: date, priority: low }, { key: Called_At, header: Time, type: date, time: true } ]
+      search: [Person, Concern, Summary]
+      filters: [Sentiment, Status]
+
+  - id: messages
+    covers: [R36, R34]
+    route: /messages
+    label: WhatsApp
+    subtitle: Every template the agents and the office sent, with delivery status
+    icon: MessageCircle
+    group: Communication
+    entity: messages
+    roles: [admin, office, counsellor]
+    read_only: "Messages are logged by the flows; a new message to a parent starts from the Students page (one, a batch or everyone)"
+    kpis:
+      - { metric: messages_today }
+      - { label: Delivered, formula: "count where Status in [Delivered, Read] and Sent_At in last 7 days", icon: CheckCheck }
+      - { label: Read, formula: "count where Status=Read and Sent_At in last 7 days", icon: Eye }
+      - { metric: messages_failed, filter: "Status=Failed" }
+    table:
+      segments: { column: Type, all: All messages }
+      period: { column: Sent_At, presets: [today, 7d, 30d, all], default: 7d }
+      columns: [ { key: To_Name, header: To, type: text, sub: To_Phone }, { key: Type, type: tag }, { key: Agent, type: tag }, { key: Preview, type: truncate }, { key: Status, type: badge }, { key: Sent_At, header: Sent, type: date, time: true } ]
+      search: [To_Name, To_Phone, Preview]
+      filters: [Agent, Status]
+
+  - id: team
+    covers: [R4, R6, R17, R22]
+    route: /team
+    label: Team
+    subtitle: Counsellors, mentors and office staff — their WhatsApp numbers receive the agents' alerts
+    icon: Contact
+    group: Setup
+    entity: team
+    roles: [admin]
+    table:
+      columns: [ { key: Name, type: text, sub: Email }, { key: Role, type: tag }, { key: Phone, type: text }, { key: Courses, type: text }, { key: Active, type: badge } ]
+      search: [Name, Phone, Email]
+      filters: [Role]
+    modals:
+      - { id: add_member, kind: create, title: Add team member, direct: insert, columns: 2, fields: [ { key: Name, label: Name, type: text, required: true }, { key: Role, label: Role, type: select, options: [Director, Office Admin, Counsellor, Mentor], required: true }, { key: Phone, label: WhatsApp number, type: text, required: true }, { key: Email, label: Email, type: text }, { key: Courses, label: Courses, type: text, placeholder: "JEE Mains, NEET" }, { key: Active, label: Active, type: select, options: ["true", "false"], default: "true" } ] }
+      - { id: edit_member, kind: edit, title: Edit team member, direct: patch, summary: [Name, Role], fields: [ { key: Phone, label: WhatsApp number, type: text }, { key: Courses, label: Courses, type: text }, { key: Active, label: Active, type: select, options: ["true", "false"] } ] }
+    actions: { header: [add_member], row: [edit_member] }
+
+  - id: settings
+    kind: settings
+    route: /settings
+    label: Settings
+    icon: Settings
+    desc: Profile, password, flow webhook URLs
+    roles: [admin, office, counsellor, mentor]
+
+design:
+  shell: sidebar
+  direction: "A coaching office on laptops and phones: one indigo accent, status colour only where a fee, an absence or a parent needs attention"
+  sidebar: { action: { label: Add lead, page: leads, modal: add_lead } }
+
+rules_in_code:
+  - "HOT needs grade HOT and score ≥ 80, else WARM; HOT sets Next_Followup_At = now + 48 h (ADMISSION_CALL code)"
+  - "HOT lead with no counsellor → the counsellor (team, Role Counsellor) with the fewest open HOT leads for that course"
+  - "Absence: Absences_This_Week counted in code; below call_from_absence (2) → WhatsApp only, else the AI call (ABSENCE.absent)"
+  - "Present marks are direct inserts (no flow, no credits); one mark per student per date (unique Date + Student_ID)"
+  - "Attendance_Pct over the last 30 days, Last_Score, Avg_Score, Class_Rank, Performance_Trend (last 3 tests), Strong/Weak subjects — nightly ROLLUP"
+  - "Student Status: Critical when Attendance_Pct < 60 or Avg_Score < 40; At Risk when < 75 or < 60; else Active (ROLLUP)"
+  - "Fee Balance_INR = Amount_INR − Paid_INR (computed on every write); Days_Overdue and Status Due → Overdue from the day after Due_Date (FEE_RUN)"
+  - "Fee reminder calls on day 1, 7 and 15 overdue; WhatsApp link 3 days before Due_Date (FEE_RUN)"
+  - "At-risk queue: Attendance_Pct < 75 or Last_Score < 60, worst first, at most 50 a week (ACADEMIC_RUN)"
+  - "Friday: report to every active parent, call only At Risk / Critical; Monday: one retry for last Friday's No Answer (PARENT_RUN)"
+  - "Alerts raised once while one is open for the same record and kind (ROLLUP and the agents)"
+  - "Every number in a WhatsApp template comes from the record, never from a model"

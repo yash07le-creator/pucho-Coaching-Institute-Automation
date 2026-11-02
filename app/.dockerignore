@@ -1,0 +1,11 @@
+node_modules
+.next
+dist
+.git
+*.log
+*.tsbuildinfo
+nul
+# secrets never go into the image — the platform supplies the environment
+.env
+.env.*
+!.env.example
