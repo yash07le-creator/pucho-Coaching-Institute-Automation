@@ -36,3 +36,12 @@ Authored (not generated). `docs/04-ui-ux.md` is a generated file, so these notes
 Observed (local server, Office admin): Batch C — Weekend, Arjun and Sneha absent → database shows one `AS-2026-0007` row (6 total, 4 present, 2 absent, absentee ids) and six attendance rows carrying that session id, under one audit row `ATTENDANCE.save_batch`. Not exercised live: a refused save (the rollback path follows the kernel's transaction; the sheet restores the toggles on any error).
 
 **Kernel defect found (for the skill owner):** removing a validation rule from os.yaml (the old `one_of` course / batch lists) leaves its Postgres CHECK constraint in the database — `db:migrate` drops a constraint only when its expression changes. On a live institute this would reject every new course after a change request. The demo database was recreated to clear it.
+
+## Sidebar jumps back to the first module (owner report, 2 Nov 2026)
+"when i go to last module then click on the last module it is render automentically first module". Reproduced at 1366×768 as
+Director: the menu (`nav[data-os-nav]`, 786 px of items in a 555 px box) was scrolled to the bottom, Users & roles clicked → the
+page opened correctly (`/users`) but the menu was drawn again from the top (scroll 231 → 0), so Overview showed and the open
+module was out of sight. Cause: kernel `components/Sidebar.jsx` renders the menu again on every page change and does not keep
+its scroll — reported to the skill owner. Fix: `app/src/custom/navScroll.js` remembers the menu's scroll (sessionStorage) and,
+when the open page changes, brings its item into view (never while someone scrolls the menu by hand). Verified: Users & roles,
+Team, and a full reload of `/batches` all keep the menu at 231 px with the open module visible.
