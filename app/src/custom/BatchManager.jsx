@@ -89,7 +89,7 @@ export default function BatchManager({ data }) {
                   <p className="text-[12px] text-ink-3 flex items-center gap-1"><Clock className="w-3.5 h-3.5" aria-hidden />{b.Start_Time ? `${t12(b.Start_Time)} – ${t12(b.End_Time)}` : 'No time set'}</p>
                 </div>
                 <div className="flex gap-1" aria-label={`Days: ${days.join(', ') || 'none'}`}>
-                  {DAYS.map((d) => <span key={d} className={`w-9 h-7 inline-flex items-center justify-center rounded-[var(--r-8)] text-[12px] ${days.includes(d) ? 'bg-primary-50 text-primary-600 font-medium' : 'text-ink-4'}`}>{d}</span>)}
+                  {DAYS.map((d) => <span key={d} className={`w-9 h-7 inline-flex items-center justify-center rounded-[var(--r-8)] text-[12px] ${days.includes(d) ? 'bg-primary-50 text-primary-600 font-medium' : 'text-ink-3 border border-dashed border-[color:var(--hair-5)]'}`}>{d}</span>)}
                 </div>
                 <div className="min-w-[140px]"><TagList value={b.Courses} /></div>
                 <StatusBadge status={String(b.Active) === 'false' ? 'Inactive' : 'Active'} size="small" />
