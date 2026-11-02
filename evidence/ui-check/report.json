@@ -1,20 +1,12 @@
 {
   "os": "EduFlow",
-  "status": "fail",
+  "status": "pass",
   "viewport": "desktop",
-  "passed": 974,
-  "failed": 6,
-  "failures": [
-    "role admin: sidebar ['/', '/alerts', '/attendance', '/calls', '/fees', '/leads', '/messages', '/parents', '/scores', '/settings', '/students', '/team', '/users'] \u2260 permitted ['/', '/academic', '/alerts', '/attendance', '/calls', '/fees', '/leads', '/messages', '/parents', '/scores', '/settings', '/students', '/team', '/users']",
-    "role office: sidebar ['/alerts', '/attendance', '/fees', '/messages', '/settings', '/students'] \u2260 permitted ['/alerts', '/attendance', '/fees', '/messages', '/scores', '/settings', '/students']",
-    "role mentor: sidebar ['/attendance', '/calls', '/settings', '/students'] \u2260 permitted ['/academic', '/attendance', '/calls', '/scores', '/settings', '/students']",
-    "leads: board shows 18 cards for 19 records",
-    "pwa: manifest short_name/icons wrong (Pucho, ['/brand/icon.svg', '/brand/icon-192.png', '/brand/icon-512.png'])",
-    "metric `hot_overdue` shows different numbers on different pages: {'leads': '5', 'notifications': '4'}"
-  ],
+  "passed": 939,
+  "failed": 0,
+  "failures": [],
   "warnings": [
-    "students \u203a add_student: U6 10 fields in one form \u2014 split into sections or steps of 7 or fewer",
-    "scores \u203a add_score: U6 10 fields in one form \u2014 split into sections or steps of 7 or fewer"
+    "students \u203a add_student: U6 8 fields in one form \u2014 split into sections or steps of 7 or fewer"
   ],
   "theme": "light",
   "skipped": [],
