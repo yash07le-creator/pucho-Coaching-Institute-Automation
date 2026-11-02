@@ -1,0 +1,48 @@
+requirements:
+  - { id: R1, text: "The office admin adds a lead with name, phone, email, course interest and source" }
+  - { id: R2, text: "A new lead gets an AI qualification call as soon as the lead is saved" }
+  - { id: R3, text: "A lead is graded HOT, WARM or COLD with a score and a qualification summary from the call" }
+  - { id: R4, text: "A counsellor is alerted on WhatsApp when a lead is graded HOT" }
+  - { id: R5, text: "A counsellor reads the call transcript and the next action on the lead" }
+  - { id: R6, text: "The director assigns a lead to a counsellor" }
+  - { id: R7, text: "A counsellor starts a fresh AI call to a lead with one click" }
+  - { id: R8, text: "A counsellor moves a COLD lead to nurture" }
+  - { id: R9, text: "The director sees HOT leads that no counsellor has followed up within 48 hours" }
+  - { id: R10, text: "The office admin enrols a student with parent name and phone, course, batch, fee amount and fee due date" }
+  - { id: R11, text: "A parent of a newly enrolled student gets a welcome message on WhatsApp" }
+  - { id: R12, text: "The office admin filters students by course, batch and status" }
+  - { id: R13, text: "The director opens a student profile with attendance, last test, rank, strong and weak subjects and parent info" }
+  - { id: R14, text: "The office admin marks each student of a batch present or absent for a date" }
+  - { id: R15, text: "A parent gets an AI call asking the reason when the student is marked absent" }
+  - { id: R16, text: "The office admin sees the reason and category collected by the call against each absence" }
+  - { id: R17, text: "A counsellor is alerted on WhatsApp when an absence needs follow-up" }
+  - { id: R18, text: "The director sees students below 75% attendance as critical" }
+  - { id: R19, text: "The office admin records each student's test score per subject" }   # ⚑ confirm at step 2
+  - { id: R20, text: "A student below 75% attendance or 60% score joins the at-risk queue every Monday at 11 AM" }
+  - { id: R21, text: "An at-risk student gets an AI counselling call that records the issue type and main issue" }
+  - { id: R22, text: "A mentor is alerted on WhatsApp when the call says the student needs a mentor" }
+  - { id: R23, text: "The director assigns a mentor or counsellor to an at-risk student" }
+  - { id: R24, text: "A parent with an overdue fee gets a reminder call and a WhatsApp payment link on the 10 AM run" }
+  - { id: R25, text: "The office admin sends one parent a payment link with one click" }
+  - { id: R26, text: "The office admin records a fee payment received" }
+  - { id: R27, text: "A parent gets a reminder 3 days before a fee falls due" }
+  - { id: R28, text: "The director sees fees collected this month, total overdue and the overdue students" }
+  - { id: R29, text: "A parent gets a weekly performance update call on Friday at 5 PM" }
+  - { id: R30, text: "A parent gets the weekly performance summary on WhatsApp with attendance, score and trend" }
+  - { id: R31, text: "The director gets a management alert when a parent raises a concern on the call" }
+  - { id: R32, text: "The director sees parent sentiment counts: happy, neutral and concerned" }
+  - { id: R33, text: "A parent who did not answer gets a retry call" }
+  - { id: R34, text: "The office admin sends a WhatsApp template to one parent, a batch or all parents" }
+  - { id: R35, text: "The director sees every AI call from all agents in one log, with outcome and transcript" }
+  - { id: R36, text: "The director sees every WhatsApp message with its delivery status" }
+  - { id: R37, text: "The director sees action-required alerts with severity and marks them read" }
+  - { id: R38, text: "The director searches students, leads, phones and courses from anywhere" }
+  - { id: R39, text: "The director exports a list to CSV" }
+  - { id: R40, text: "The director sees the institute dashboard: students, new leads this week, fees overdue, average attendance" }
+not_in_v1:
+  - { text: "A parent or student login portal — parents are reached by call and WhatsApp only, and nobody outside the staff logs in", covers: [] }   # X1
+  - { text: "An online test engine — scores are entered or imported (R19)", covers: [] }   # X2
+  - { text: "Timetable, faculty attendance and payroll — not in either source", covers: [] }   # X3
+  - { text: "Handling inbound WhatsApp replies with AI", covers: [] }   # X4
+  - { text: "Multi-branch institutes in one deployment — a product is one deployment per institute", covers: [] }   # X5
+  - { text: "The \"AI Agents Status\" page and n8n links — replaced by the kernel's flow health and Settings → Flow webhook URLs", covers: [] }   # X6

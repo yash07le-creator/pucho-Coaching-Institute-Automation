@@ -1,0 +1,122 @@
+name: Pucho EduFlow OS — large buyer, recommended policy (G2/G3)
+client: Pucho EduFlow OS (product) — large buyer
+volumes:
+  students:
+    per_month: 1000
+    quote: ⚑ assumed — large buyer, scaled from the typical buyer
+  leads:
+    per_month: 350
+    quote: ⚑ assumed — large buyer, scaled from the typical buyer
+  absences:
+    per_month: 3380
+    quote: ⚑ assumed — large buyer, scaled from the typical buyer
+  overdue_students:
+    per_month: 70
+    quote: ⚑ assumed — large buyer, scaled from the typical buyer
+  at_risk_students:
+    per_month: 433
+    quote: ⚑ assumed — large buyer, scaled from the typical buyer
+  fees_due:
+    per_month: 150
+    quote: ⚑ assumed — large buyer, scaled from the typical buyer
+  enrolments: 90
+  manual_sends: 167
+  days: 30
+  weeks: 4.33
+actions:
+- workflow: ADMISSION_CALL
+  name: qualify
+  trigger: Lead saved / Call now
+  per: leads
+  ratio: 1
+  model: standard
+  sends: whatsapp
+  voice_minutes: 3.5
+- workflow: ACADEMIC_CALL
+  name: counsel
+  trigger: Monday 11:00 at-risk run
+  per: at_risk_students
+  ratio: 1
+  model: standard
+  sends: whatsapp
+  voice_minutes: 4.5
+- workflow: SEND_WHATSAPP
+  name: welcome
+  trigger: Student enrolled
+  per: enrolments
+  ratio: 1
+  model: none
+  sends: whatsapp
+- workflow: SEND_WHATSAPP
+  name: manual
+  trigger: Office admin sends a template
+  per: manual_sends
+  ratio: 1
+  model: none
+  sends: whatsapp
+- workflow: DISPATCH
+  name: academic_run
+  trigger: schedule Mon 11:00
+  per: weeks
+  ratio: 1
+  model: none
+- workflow: FEE_REMINDER
+  name: call_and_link
+  trigger: Overdue on day 1, 7 and 15
+  per: overdue_students
+  ratio: 3
+  model: standard
+  sends: whatsapp
+  voice_minutes: 2
+  quote: '⚑ G2-style policy: 3 calls per overdue cycle instead of daily'
+- workflow: FEE_REMINDER
+  name: due_soon
+  trigger: 3 days before due (WhatsApp only)
+  per: fees_due
+  ratio: 1
+  model: none
+  sends: whatsapp
+- workflow: ABSENCE_ALERT
+  name: whatsapp
+  trigger: Student marked absent (WhatsApp only)
+  per: absences
+  ratio: 1
+  model: none
+  sends: whatsapp
+- workflow: ABSENCE_CALL
+  name: reason
+  trigger: 2nd absence in a week
+  per: absences
+  ratio: 0.3
+  model: standard
+  sends: whatsapp
+  voice_minutes: 2
+  quote: '⚑ G2: call only from the 2nd absence in a week (~30 % of absences)'
+- workflow: PARENT_UPDATE
+  name: weekly_report
+  trigger: Friday 17:00 all parents (WhatsApp only)
+  per: students
+  ratio: 4.33
+  model: none
+  sends: whatsapp
+- workflow: PARENT_UPDATE
+  name: weekly_call
+  trigger: Friday 17:00 at-risk parents only
+  per: at_risk_students
+  ratio: 1
+  model: standard
+  sends: whatsapp
+  voice_minutes: 4
+  quote: '⚑ G3: call only parents of at-risk students'
+- workflow: DISPATCH
+  name: fee_run
+  trigger: schedule daily 10:00
+  per: days
+  ratio: 1
+  model: none
+- workflow: DISPATCH
+  name: parent_run
+  trigger: schedule Fri 17:00
+  per: weeks
+  ratio: 1
+  model: none

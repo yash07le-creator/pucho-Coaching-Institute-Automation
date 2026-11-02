@@ -1,0 +1,100 @@
+name: Pucho EduFlow OS — typical buyer, n8n policy (as designed)
+client: Pucho EduFlow OS (product) — typical buyer
+volumes:
+  students:
+    per_month: 342
+    quote: '"342 enrolled students" [html L750]'
+  leads:
+    per_month: 120
+    quote: '"28 New Leads This Week" [html L486] × 4.3'
+  absences:
+    per_month: 1144
+    quote: '"44 Absent Today" [html L849] × 26 class days'
+  overdue_students:
+    per_month: 23
+    quote: '"23 Overdue Students" [html L941]'
+  at_risk_students:
+    per_month: 147
+    quote: '"34 AI Counseling Calls" [html L1005] (per week)'
+  fees_due:
+    per_month: 52
+    quote: '"12 students ki fee is week due hogi" [html L985] × 4.3'
+  enrolments: 30
+  manual_sends: 57
+  days: 30
+  weeks: 4.33
+actions:
+- workflow: ADMISSION_CALL
+  name: qualify
+  trigger: Lead saved / Call now
+  per: leads
+  ratio: 1
+  model: standard
+  sends: whatsapp
+  voice_minutes: 3.5
+- workflow: ACADEMIC_CALL
+  name: counsel
+  trigger: Monday 11:00 at-risk run
+  per: at_risk_students
+  ratio: 1
+  model: standard
+  sends: whatsapp
+  voice_minutes: 4.5
+- workflow: SEND_WHATSAPP
+  name: welcome
+  trigger: Student enrolled
+  per: enrolments
+  ratio: 1
+  model: none
+  sends: whatsapp
+- workflow: SEND_WHATSAPP
+  name: manual
+  trigger: Office admin sends a template
+  per: manual_sends
+  ratio: 1
+  model: none
+  sends: whatsapp
+- workflow: DISPATCH
+  name: academic_run
+  trigger: schedule Mon 11:00
+  per: weeks
+  ratio: 1
+  model: none
+- workflow: FEE_REMINDER
+  name: call_and_link
+  trigger: Daily 10:00 overdue run
+  per: overdue_students
+  ratio: 30
+  model: standard
+  sends: whatsapp
+  voice_minutes: 2
+  quote: n8n "Daily Schedule - Fee Check" calls every overdue student every day
+- workflow: ABSENCE_CALL
+  name: reason
+  trigger: Student marked absent
+  per: absences
+  ratio: 1
+  model: standard
+  sends: whatsapp
+  voice_minutes: 2
+- workflow: PARENT_UPDATE
+  name: weekly_call
+  trigger: Friday 17:00 all active students
+  per: students
+  ratio: 4.33
+  model: standard
+  sends: whatsapp
+  voice_minutes: 4
+  quote: n8n "Get All Active Students" — every parent, every Friday
+- workflow: DISPATCH
+  name: fee_run
+  trigger: schedule daily 10:00
+  per: days
+  ratio: 1
+  model: none
+- workflow: DISPATCH
+  name: parent_run
+  trigger: schedule Fri 17:00
+  per: weeks
+  ratio: 1
+  model: none

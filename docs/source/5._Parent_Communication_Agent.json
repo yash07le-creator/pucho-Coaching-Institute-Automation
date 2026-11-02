@@ -1,0 +1,2330 @@
+{
+  "name": "5. Parent Communication Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "new-lead",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "4bac1647-ff57-410e-a69e-31f63037a744",
+      "name": "New Lead Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -4912,
+        48
+      ],
+      "webhookId": "4bb59db3-18d2-4887-b58a-ec6bb84a9241"
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "lead_name",
+              "type": "string"
+            },
+            {
+              "name": "lead_phone",
+              "type": "string"
+            },
+            {
+              "name": "lead_email",
+              "type": "string"
+            },
+            {
+              "name": "course_interest",
+              "type": "string"
+            },
+            {
+              "name": "lead_id",
+              "type": "string"
+            },
+            {
+              "name": "timestamp",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2c395d7e-e5bd-4459-8df8-f09652cf0ad4",
+      "name": "Extract Lead Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        -4688,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_OPENAI_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "b38a0b3a-6658-4980-8ba3-3a4eac0e6e32",
+      "name": "AI - Generate Call Script",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -4464,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vapi.ai/call/phone",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_VAPI_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "a473fb51-297a-468e-a7fb-a1f59937f803",
+      "name": "AI Voice Call - VAPI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -4240,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "minutes"
+      },
+      "id": "4317bedc-6123-49f3-9576-7d6b83ab53a4",
+      "name": "Wait 3 Minutes",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        -4016,
+        48
+      ],
+      "webhookId": "a54b6578-6a90-44c0-bd5b-7208143e4a99"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.vapi.ai/call/{{ $('AI Voice Call - VAPI').item.json.body.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_VAPI_API_KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c82fb12c-7f0c-464a-9ca3-e41aca706a99",
+      "name": "Get Call Result",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -3792,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_OPENAI_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "aa05fe47-2c3b-4275-8de5-9b0ffddaaa91",
+      "name": "AI - Qualify Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -3568,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiResponse = $input.item.json.choices[0].message.content;\nlet qualification;\ntry {\n  qualification = JSON.parse(aiResponse.replace(/```json|```/g, '').trim());\n} catch(e) {\n  qualification = { status: 'WARM', reason: 'Parse error - manual review needed', next_action: 'Manual follow-up' };\n}\n\nreturn [{\n  json: {\n    ...qualification,\n    lead_id: $('Extract Lead Data').item.json.lead_id,\n    lead_name: $('Extract Lead Data').item.json.lead_name,\n    lead_phone: $('Extract Lead Data').item.json.lead_phone,\n    lead_email: $('Extract Lead Data').item.json.lead_email,\n    course_interest: $('Extract Lead Data').item.json.course_interest\n  }\n}];"
+      },
+      "id": "c31fe839-9017-4df0-b7c0-49e56b2f56b0",
+      "name": "Parse Qualification",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3344,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.status }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "HOT"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "e4fc9a4c-5435-4bf8-a7f4-799cd1fc9a39",
+      "name": "Is HOT Lead?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -3120,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v18.0/YOUR_PHONE_NUMBER_ID/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_WHATSAPP_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "03b4e60e-6875-44f5-8443-f057bae6f741",
+      "name": "WhatsApp - Alert Counsellor",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -2896,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://YOUR_CRM_API/leads/{{ $json.lead_id }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "a0c3a766-0769-45c3-842d-de1b55f3a716",
+      "name": "CRM - Update HOT Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -2672,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://YOUR_CRM_API/leads/{{ $json.lead_id }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "e3d889ba-742a-4ab5-9460-60605ed69452",
+      "name": "CRM - Update WARM/COLD",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -2672,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"success\": true, \"message\": \"Lead processed successfully\", \"lead_id\": \"{{ $('Extract Lead Data').item.json.lead_id }}\" }",
+        "options": {}
+      },
+      "id": "76ac5b51-cd8b-4f5d-ac56-e7ddf880c662",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -2448,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 10 * * *"
+            }
+          ]
+        }
+      },
+      "id": "5440cf0b-d5c5-4fe6-bbfb-421be3fe862c",
+      "name": "Daily Schedule - Fee Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        -4912,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://YOUR_CRM_API/fees/overdue",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "days_overdue",
+              "value": "1"
+            },
+            {
+              "name": "status",
+              "value": "unpaid"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "197a7277-a3ae-4814-800e-d57770d63758",
+      "name": "Get Overdue Fee Students",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -4688,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "6415b644-8bb6-45d8-bdb3-57bb99737810",
+      "name": "Split Each Student",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -4464,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "student_name",
+              "type": "string"
+            },
+            {
+              "name": "student_phone",
+              "type": "string"
+            },
+            {
+              "name": "parent_phone",
+              "type": "string"
+            },
+            {
+              "name": "amount_due",
+              "type": "number"
+            },
+            {
+              "name": "due_date",
+              "type": "string"
+            },
+            {
+              "name": "days_overdue",
+              "type": "number"
+            },
+            {
+              "name": "student_id",
+              "type": "string"
+            },
+            {
+              "name": "payment_link",
+              "type": "string"
+            },
+            {
+              "name": "course_name",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e6647130-621d-42f9-80d0-d43c68b5e375",
+      "name": "Set Fee Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        -4240,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_OPENAI_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "5c0240a8-f202-4e96-a98c-657bddec4b2b",
+      "name": "AI - Generate Fee Reminder Script",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -4016,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vapi.ai/call/phone",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_VAPI_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "ed521dfa-fad0-4853-9ba7-c94e4f56da6f",
+      "name": "AI Voice Call - Fee Reminder",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -3792,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v18.0/YOUR_PHONE_NUMBER_ID/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_WHATSAPP_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "fcef2532-884d-4919-ab76-372fdb2ab13d",
+      "name": "WhatsApp - Send Payment Link",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -3568,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://YOUR_CRM_API/fees/{{ $('Set Fee Data').item.json.student_id }}/reminder",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "f82feb22-626c-4bf5-b939-c3ae900bafd3",
+      "name": "CRM - Update Reminder Sent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -3344,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "student-absent",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "7aaec3d3-c43a-41d0-a116-01b144412129",
+      "name": "Absence Marked Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -4912,
+        664
+      ],
+      "webhookId": "b83db404-ad6f-4682-98d0-c44dd0890f0a"
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "student_name",
+              "type": "string"
+            },
+            {
+              "name": "student_phone",
+              "type": "string"
+            },
+            {
+              "name": "parent_phone",
+              "type": "string"
+            },
+            {
+              "name": "student_id",
+              "type": "string"
+            },
+            {
+              "name": "class_name",
+              "type": "string"
+            },
+            {
+              "name": "date",
+              "type": "string"
+            },
+            {
+              "name": "total_absences",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "52431d47-f6e4-46ca-a674-b72eaca4d21a",
+      "name": "Extract Attendance Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        -4688,
+        664
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_OPENAI_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "21747a8f-dfd2-45c3-a8b5-5c6e99b2f061",
+      "name": "AI - Generate Absence Call Script",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -4464,
+        664
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vapi.ai/call/phone",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_VAPI_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "94f0bb80-d1e6-4bf3-bbb8-6e6cd7497db3",
+      "name": "AI Voice Call - Parent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -4240,
+        664
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 4,
+        "unit": "minutes"
+      },
+      "id": "bcfcdbe7-136b-41f5-a4e5-d920f8a5e1e3",
+      "name": "Wait 4 Minutes",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        -4016,
+        664
+      ],
+      "webhookId": "6bb9a79f-f83a-48ab-9503-a0e074f75dda"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.vapi.ai/call/{{ $('AI Voice Call - Parent').item.json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_VAPI_API_KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ba5c2ff4-5565-4e2b-b17b-f3fd1110f948",
+      "name": "Get Call Transcript",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -3792,
+        664
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_OPENAI_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "d4497f24-75a4-4445-9a7e-f9be719e9510",
+      "name": "AI - Extract Absence Reason",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -3568,
+        664
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.item.json.choices[0].message.content;\nlet result;\ntry {\n  result = JSON.parse(raw.replace(/```json|```/g, '').trim());\n} catch(e) {\n  result = { reason: 'Unable to extract - review manually', category: 'OTHER', needs_followup: true };\n}\nreturn [{ json: {\n  ...result,\n  student_id: $('Extract Attendance Data').item.json.student_id,\n  student_name: $('Extract Attendance Data').item.json.student_name,\n  date: $('Extract Attendance Data').item.json.date,\n  class_name: $('Extract Attendance Data').item.json.class_name\n}}];"
+      },
+      "id": "527e8324-b67c-46ce-885d-69038d072fee",
+      "name": "Parse Absence Reason",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3344,
+        664
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://YOUR_CRM_API/attendance/{{ $json.student_id }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "1543666f-dfe2-45f8-b8ab-31edfe6f6f6f",
+      "name": "Update Attendance System",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -3120,
+        664
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "leftValue": "={{ $json.needs_followup }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          }
+        },
+        "options": {}
+      },
+      "id": "35fa3a4a-3bea-409e-88dd-8dd575c03c8b",
+      "name": "Needs Follow-up?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -2896,
+        664
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v18.0/YOUR_PHONE_NUMBER_ID/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_WHATSAPP_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "041717d8-0edb-46dc-8fa2-8516d918bcfa",
+      "name": "Alert Counsellor",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -2672,
+        592
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"success\": true, \"message\": \"Attendance processed\" }",
+        "options": {}
+      },
+      "id": "e8873edf-016c-48b1-8619-5e9fc1e1cbd4",
+      "name": "Webhook Response - Attendance",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -2448,
+        664
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 11 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "e7ecd769-84ec-4d1b-b731-d3292f8f1e8d",
+      "name": "Weekly Academic Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        -4912,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://YOUR_CRM_API/students/at-risk",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "min_attendance",
+              "value": "75"
+            },
+            {
+              "name": "max_test_score",
+              "value": "60"
+            },
+            {
+              "name": "limit",
+              "value": "50"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3457070d-824e-4b3c-a373-bf14423d9c6b",
+      "name": "Get Low Performance Students",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -4688,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "student_name",
+              "type": "string"
+            },
+            {
+              "name": "student_phone",
+              "type": "string"
+            },
+            {
+              "name": "student_id",
+              "type": "string"
+            },
+            {
+              "name": "attendance_pct",
+              "type": "number"
+            },
+            {
+              "name": "last_test_score",
+              "type": "number"
+            },
+            {
+              "name": "weak_subjects",
+              "type": "string"
+            },
+            {
+              "name": "course_name",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2acf7ec4-7940-4610-9711-f8932e7e07b4",
+      "name": "Set Academic Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        -4240,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_OPENAI_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "90a823ad-9679-45a3-8e51-e932b637a97c",
+      "name": "AI - Generate Academic Concern Script",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -4016,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vapi.ai/call/phone",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_VAPI_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "e112d7a0-e482-4281-8e63-b5452544e332",
+      "name": "AI Voice Call - Academic",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -3792,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 5,
+        "unit": "minutes"
+      },
+      "id": "02043c42-70fd-4bc3-bdbf-b7407db573e8",
+      "name": "Wait 5 Minutes",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        -3568,
+        960
+      ],
+      "webhookId": "e91e12c0-550a-4206-b520-341034d176c4"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.vapi.ai/call/{{ $('AI Voice Call - Academic').item.json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_VAPI_API_KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e5c27f8c-1a65-4ee8-8b19-4614a24066d8",
+      "name": "Get Academic Call Transcript",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -3344,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_OPENAI_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "3f01df2e-0ae6-4be0-9adf-a4842af2e19d",
+      "name": "AI - Analyze Issues & Escalate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -3120,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.item.json.choices[0].message.content;\nlet result;\ntry {\n  result = JSON.parse(raw.replace(/```json|```/g, '').trim());\n} catch(e) {\n  result = { issue_type: 'OTHER', main_issue: 'Unable to analyze', needs_mentor: true, needs_counsellor: false, action_summary: 'Manual review needed' };\n}\nreturn [{ json: {\n  ...result,\n  student_id: $('Set Academic Data').item.json.student_id,\n  student_name: $('Set Academic Data').item.json.student_name,\n  student_phone: $('Set Academic Data').item.json.student_phone,\n  weak_subjects: $('Set Academic Data').item.json.weak_subjects,\n  course_name: $('Set Academic Data').item.json.course_name\n}}];"
+      },
+      "id": "61cb0a69-8fab-45d6-bc3f-e3874f85c5b7",
+      "name": "Parse Academic Analysis",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2896,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "leftValue": "={{ $json.needs_mentor || $json.needs_counsellor }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          }
+        },
+        "options": {}
+      },
+      "id": "7c618442-ae22-4b8b-beea-39daefed6405",
+      "name": "Needs Mentor/Counsellor?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -2672,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v18.0/YOUR_PHONE_NUMBER_ID/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_WHATSAPP_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "6f8aa14a-5cb7-4044-b149-8de773bab05f",
+      "name": "WhatsApp - Escalate to Mentor",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -2448,
+        888
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://YOUR_CRM_API/students/{{ $json.student_id }}/academic-followup",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "2b18f2f4-8f1b-4ec8-94a7-27cdc9015d60",
+      "name": "CRM - Update Academic Record",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -2224,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "86ff34ee-c551-47d8-862c-7d9744ab87fe",
+      "name": "Split Each Student1",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -4464,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 17 * * 5"
+            }
+          ]
+        }
+      },
+      "id": "b0bce858-4292-4283-b2de-6ca9ff1dd618",
+      "name": "Weekly Parent Update",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        -4912,
+        1256
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://YOUR_CRM_API/students/active",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "include_performance",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c1d1a6f2-8ccc-4ef9-bfb3-da9aa67b95da",
+      "name": "Get All Active Students",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -4688,
+        1256
+      ]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "student_name",
+              "type": "string"
+            },
+            {
+              "name": "parent_name",
+              "type": "string"
+            },
+            {
+              "name": "parent_phone",
+              "type": "string"
+            },
+            {
+              "name": "student_id",
+              "type": "string"
+            },
+            {
+              "name": "course_name",
+              "type": "string"
+            },
+            {
+              "name": "attendance_pct",
+              "type": "number"
+            },
+            {
+              "name": "last_test_score",
+              "type": "number"
+            },
+            {
+              "name": "test_rank",
+              "type": "string"
+            },
+            {
+              "name": "performance_trend",
+              "type": "string"
+            },
+            {
+              "name": "strong_subjects",
+              "type": "string"
+            },
+            {
+              "name": "weak_subjects",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "15654419-01f6-4a60-b099-c712eae75182",
+      "name": "Set Student + Parent Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        -4240,
+        1256
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_OPENAI_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "8b5953b3-393f-47c9-abd0-55a001c1e33b",
+      "name": "AI - Generate Parent Update Script",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -4016,
+        1256
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vapi.ai/call/phone",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_VAPI_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "6d2f7982-4808-4fcb-a74d-7be1e518ace7",
+      "name": "AI Voice Call - Parent Update",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -3792,
+        1256
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 6,
+        "unit": "minutes"
+      },
+      "id": "ff05dec7-c805-424d-9845-cf5c73761fd4",
+      "name": "Wait 6 Minutes",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        -3568,
+        1256
+      ],
+      "webhookId": "8ebc10c3-b4a8-403e-b2aa-8bc082646aaa"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.vapi.ai/call/{{ $('AI Voice Call - Parent Update').item.json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_VAPI_API_KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "afcd53e5-aa28-420f-95e2-ec88ba264a1e",
+      "name": "Get Parent Call Transcript",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -3344,
+        1256
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_OPENAI_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "00a432b4-c127-4871-ae16-c67171dd6012",
+      "name": "AI - Extract Parent Feedback",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -3120,
+        1256
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.item.json.choices[0].message.content;\nlet result;\ntry {\n  result = JSON.parse(raw.replace(/```json|```/g, '').trim());\n} catch(e) {\n  result = { parent_sentiment: 'NO_ANSWER', feedback: 'N/A', concerns: 'N/A', needs_escalation: false, escalation_reason: '' };\n}\nreturn [{ json: {\n  ...result,\n  student_id: $('Set Student + Parent Data').item.json.student_id,\n  student_name: $('Set Student + Parent Data').item.json.student_name,\n  parent_phone: $('Set Student + Parent Data').item.json.parent_phone,\n  parent_name: $('Set Student + Parent Data').item.json.parent_name,\n  course_name: $('Set Student + Parent Data').item.json.course_name,\n  attendance_pct: $('Set Student + Parent Data').item.json.attendance_pct,\n  last_test_score: $('Set Student + Parent Data').item.json.last_test_score,\n  test_rank: $('Set Student + Parent Data').item.json.test_rank,\n  performance_trend: $('Set Student + Parent Data').item.json.performance_trend,\n  strong_subjects: $('Set Student + Parent Data').item.json.strong_subjects,\n  weak_subjects: $('Set Student + Parent Data').item.json.weak_subjects\n}}];"
+      },
+      "id": "5a3cebe9-c079-4879-96f0-af9b86a2978d",
+      "name": "Parse Parent Feedback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2896,
+        1256
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v18.0/YOUR_PHONE_NUMBER_ID/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_WHATSAPP_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "3842d571-1672-4e17-bc5a-5a4b5168017c",
+      "name": "WhatsApp - Send Performance Summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -2672,
+        1256
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "leftValue": "={{ $json.needs_escalation }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          }
+        },
+        "options": {}
+      },
+      "id": "f32f83e6-32b1-4910-9de5-2808bfba6b01",
+      "name": "Needs Escalation?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -2448,
+        1256
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v18.0/YOUR_PHONE_NUMBER_ID/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_WHATSAPP_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "2a27c66a-6be9-43d6-94a9-7062f3b66e07",
+      "name": "Alert Management - Parent Concern",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -2224,
+        1184
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://YOUR_CRM_API/students/{{ $json.student_id }}/parent-feedback",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "36e653e7-0ada-410c-aa9c-3fc2a3f7375a",
+      "name": "CRM - Save Parent Feedback",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -2000,
+        1256
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "41727862-6c43-48c7-bdc5-58dd04ce0240",
+      "name": "Split Each Student2",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -4464,
+        1256
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "New Lead Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Lead Data": {
+      "main": [
+        [
+          {
+            "node": "AI - Generate Call Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Generate Call Script": {
+      "main": [
+        [
+          {
+            "node": "AI Voice Call - VAPI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Voice Call - VAPI": {
+      "main": [
+        [
+          {
+            "node": "Wait 3 Minutes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 3 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Get Call Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Call Result": {
+      "main": [
+        [
+          {
+            "node": "AI - Qualify Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Qualify Lead": {
+      "main": [
+        [
+          {
+            "node": "Parse Qualification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Qualification": {
+      "main": [
+        [
+          {
+            "node": "Is HOT Lead?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is HOT Lead?": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp - Alert Counsellor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CRM - Update WARM/COLD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp - Alert Counsellor": {
+      "main": [
+        [
+          {
+            "node": "CRM - Update HOT Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM - Update HOT Lead": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM - Update WARM/COLD": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Schedule - Fee Check": {
+      "main": [
+        [
+          {
+            "node": "Get Overdue Fee Students",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Overdue Fee Students": {
+      "main": [
+        [
+          {
+            "node": "Split Each Student",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Each Student": {
+      "main": [
+        [
+          {
+            "node": "Set Fee Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Fee Data": {
+      "main": [
+        [
+          {
+            "node": "AI - Generate Fee Reminder Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Generate Fee Reminder Script": {
+      "main": [
+        [
+          {
+            "node": "AI Voice Call - Fee Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Voice Call - Fee Reminder": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp - Send Payment Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp - Send Payment Link": {
+      "main": [
+        [
+          {
+            "node": "CRM - Update Reminder Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Absence Marked Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Attendance Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Attendance Data": {
+      "main": [
+        [
+          {
+            "node": "AI - Generate Absence Call Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Generate Absence Call Script": {
+      "main": [
+        [
+          {
+            "node": "AI Voice Call - Parent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Voice Call - Parent": {
+      "main": [
+        [
+          {
+            "node": "Wait 4 Minutes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 4 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Get Call Transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Call Transcript": {
+      "main": [
+        [
+          {
+            "node": "AI - Extract Absence Reason",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Extract Absence Reason": {
+      "main": [
+        [
+          {
+            "node": "Parse Absence Reason",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Absence Reason": {
+      "main": [
+        [
+          {
+            "node": "Update Attendance System",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Attendance System": {
+      "main": [
+        [
+          {
+            "node": "Needs Follow-up?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Follow-up?": {
+      "main": [
+        [
+          {
+            "node": "Alert Counsellor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Webhook Response - Attendance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert Counsellor": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response - Attendance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Academic Check": {
+      "main": [
+        [
+          {
+            "node": "Get Low Performance Students",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Low Performance Students": {
+      "main": [
+        [
+          {
+            "node": "Split Each Student1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Academic Data": {
+      "main": [
+        [
+          {
+            "node": "AI - Generate Academic Concern Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Generate Academic Concern Script": {
+      "main": [
+        [
+          {
+            "node": "AI Voice Call - Academic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Voice Call - Academic": {
+      "main": [
+        [
+          {
+            "node": "Wait 5 Minutes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 5 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Get Academic Call Transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Academic Call Transcript": {
+      "main": [
+        [
+          {
+            "node": "AI - Analyze Issues & Escalate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Analyze Issues & Escalate": {
+      "main": [
+        [
+          {
+            "node": "Parse Academic Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Academic Analysis": {
+      "main": [
+        [
+          {
+            "node": "Needs Mentor/Counsellor?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Mentor/Counsellor?": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp - Escalate to Mentor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CRM - Update Academic Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp - Escalate to Mentor": {
+      "main": [
+        [
+          {
+            "node": "CRM - Update Academic Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Each Student1": {
+      "main": [
+        [
+          {
+            "node": "Set Academic Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Parent Update": {
+      "main": [
+        [
+          {
+            "node": "Get All Active Students",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Active Students": {
+      "main": [
+        [
+          {
+            "node": "Split Each Student2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Student + Parent Data": {
+      "main": [
+        [
+          {
+            "node": "AI - Generate Parent Update Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Generate Parent Update Script": {
+      "main": [
+        [
+          {
+            "node": "AI Voice Call - Parent Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Voice Call - Parent Update": {
+      "main": [
+        [
+          {
+            "node": "Wait 6 Minutes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 6 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Get Parent Call Transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Parent Call Transcript": {
+      "main": [
+        [
+          {
+            "node": "AI - Extract Parent Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Extract Parent Feedback": {
+      "main": [
+        [
+          {
+            "node": "Parse Parent Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Parent Feedback": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp - Send Performance Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp - Send Performance Summary": {
+      "main": [
+        [
+          {
+            "node": "Needs Escalation?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Escalation?": {
+      "main": [
+        [
+          {
+            "node": "Alert Management - Parent Concern",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CRM - Save Parent Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert Management - Parent Concern": {
+      "main": [
+        [
+          {
+            "node": "CRM - Save Parent Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Each Student2": {
+      "main": [
+        [
+          {
+            "node": "Set Student + Parent Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "8729c80e-dc0c-45e3-b75e-563f45587653",
+  "meta": {
+    "instanceId": "a2c8529ed1db4fdaeb0467a2ab7db18ff101845640ddf50c2634a24befb8832f"
+  },
+  "id": "OMv2lbYMBQf1M7hi",
+  "tags": []
+}

@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduFlow CRM — Coaching Institute Management</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:        #4F46E5;
+    --brand-light:  #EEF2FF;
+    --brand-mid:    #818CF8;
+    --success:      #10B981;
+    --success-bg:   #ECFDF5;
+    --warn:         #F59E0B;
+    --warn-bg:      #FFFBEB;
+    --danger:       #EF4444;
+    --danger-bg:    #FEF2F2;
+    --info:         #0EA5E9;
+    --info-bg:      #F0F9FF;
+    --purple:       #8B5CF6;
+    --purple-bg:    #F5F3FF;
+    --bg:           #F8FAFC;
+    --surface:      #FFFFFF;
+    --border:       #E2E8F0;
+    --border-dark:  #CBD5E1;
+    --text-primary: #0F172A;
+    --text-secondary:#64748B;
+    --text-muted:   #94A3B8;
+    --nav-w:        240px;
+    --header-h:     60px;
+    --radius:       12px;
+    --radius-sm:    8px;
+    --shadow-sm:    0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    --shadow:       0 4px 16px rgba(0,0,0,.07);
+    --shadow-lg:    0 8px 32px rgba(0,0,0,.10);
+  }
+
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text-primary);
+         display:flex; flex-direction:column; min-height:100vh; font-size:14px; }
+
+  /* ───── TOP NAV BAR ───── */
+  .topbar {
+    height:var(--header-h); background:var(--surface); border-bottom:1px solid var(--border);
+    display:flex; align-items:center; padding:0 20px 0 0;
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    box-shadow:var(--shadow-sm);
+  }
+  .topbar .logo {
+    width:var(--nav-w); display:flex; align-items:center; gap:10px;
+    padding:0 20px; flex-shrink:0; border-right:1px solid var(--border);
+    height:100%;
+  }
+  .logo-icon {
+    width:34px; height:34px; background:var(--brand); border-radius:10px;
+    display:flex; align-items:center; justify-content:center; color:#fff;
+    font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:16px;
+  }
+  .logo-text { font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:15px; color:var(--text-primary); }
+  .logo-text span { color:var(--brand); }
+
+  .topbar-center { flex:1; display:flex; align-items:center; padding:0 24px; }
+  .search-wrap { position:relative; max-width:360px; width:100%; }
+  .search-wrap input {
+    width:100%; padding:8px 12px 8px 36px; border:1px solid var(--border); border-radius:var(--radius-sm);
+    font-size:13px; color:var(--text-primary); background:var(--bg); outline:none;
+    transition:.2s;
+  }
+  .search-wrap input:focus { border-color:var(--brand); background:#fff; }
+  .search-wrap svg { position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--text-muted); }
+
+  .topbar-right { display:flex; align-items:center; gap:8px; }
+  .icon-btn {
+    width:36px; height:36px; border-radius:var(--radius-sm); border:1px solid var(--border);
+    background:var(--surface); display:flex; align-items:center; justify-content:center;
+    color:var(--text-secondary); cursor:pointer; position:relative; transition:.15s;
+  }
+  .icon-btn:hover { background:var(--bg); border-color:var(--brand-mid); color:var(--brand); }
+  .notif-badge {
+    position:absolute; top:-4px; right:-4px; width:16px; height:16px;
+    background:var(--danger); border-radius:50%; font-size:9px; color:#fff;
+    display:flex; align-items:center; justify-content:center; font-weight:700; border:2px solid #fff;
+  }
+  .ai-status {
+    display:flex; align-items:center; gap:6px; padding:5px 12px; border-radius:20px;
+    background:var(--success-bg); border:1px solid #A7F3D0; cursor:pointer;
+  }
+  .ai-dot { width:7px; height:7px; border-radius:50%; background:var(--success); animation:pulse 2s infinite; }
+  .ai-status span { font-size:12px; font-weight:600; color:var(--success); }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.7;transform:scale(1.15);} }
+  .avatar {
+    width:34px; height:34px; border-radius:50%; background:var(--brand);
+    display:flex; align-items:center; justify-content:center; color:#fff;
+    font-weight:700; font-size:13px; cursor:pointer; margin-left:4px;
+  }
+
+  /* ───── SIDEBAR ───── */
+  .sidebar {
+    width:var(--nav-w); background:var(--surface); border-right:1px solid var(--border);
+    position:fixed; left:0; top:var(--header-h); bottom:0; overflow-y:auto;
+    display:flex; flex-direction:column; z-index:50;
+  }
+  .sidebar::-webkit-scrollbar { width:4px; }
+  .sidebar::-webkit-scrollbar-thumb { background:var(--border-dark); border-radius:2px; }
+
+  .nav-section { padding:20px 12px 8px; }
+  .nav-label { font-size:10.5px; font-weight:700; color:var(--text-muted); letter-spacing:.08em;
+               text-transform:uppercase; padding:0 8px; margin-bottom:4px; }
+  .nav-item {
+    display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:var(--radius-sm);
+    color:var(--text-secondary); cursor:pointer; font-size:13.5px; font-weight:500;
+    transition:.15s; position:relative; margin-bottom:2px;
+  }
+  .nav-item svg { flex-shrink:0; }
+  .nav-item:hover { background:var(--bg); color:var(--text-primary); }
+  .nav-item.active { background:var(--brand-light); color:var(--brand); font-weight:600; }
+  .nav-item.active svg { color:var(--brand); }
+  .nav-badge {
+    margin-left:auto; background:var(--danger); color:#fff;
+    font-size:10px; font-weight:700; padding:1px 6px; border-radius:10px; min-width:20px; text-align:center;
+  }
+  .nav-badge.green { background:var(--success); }
+  .nav-badge.orange { background:var(--warn); }
+
+  .sidebar-footer { margin-top:auto; padding:12px; border-top:1px solid var(--border); }
+  .agent-card {
+    background:var(--brand-light); border-radius:var(--radius-sm); padding:12px;
+  }
+  .agent-card .ac-title { font-size:12px; font-weight:700; color:var(--brand); margin-bottom:4px; }
+  .agent-card .ac-sub { font-size:11px; color:var(--brand-mid); }
+  .agent-rows { margin-top:8px; display:flex; flex-direction:column; gap:4px; }
+  .agent-row {
+    display:flex; align-items:center; justify-content:space-between; padding:4px 6px;
+    background:#fff; border-radius:6px; font-size:11px;
+  }
+  .agent-row .label { color:var(--text-secondary); font-weight:500; }
+  .agent-dot { width:7px; height:7px; border-radius:50%; background:var(--success); }
+  .agent-dot.idle { background:var(--border-dark); }
+
+  /* ───── MAIN CONTENT ───── */
+  .main { margin-left:var(--nav-w); margin-top:var(--header-h); flex:1; }
+  .page { display:none; padding:28px; animation:fadeIn .2s ease; }
+  .page.active { display:block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px);} to{opacity:1;transform:none;} }
+
+  .page-header { margin-bottom:24px; display:flex; align-items:flex-start; justify-content:space-between; }
+  .page-title { font-family:'Plus Jakarta Sans',sans-serif; font-size:22px; font-weight:800; color:var(--text-primary); }
+  .page-sub { font-size:13px; color:var(--text-secondary); margin-top:3px; }
+  .btn {
+    padding:9px 18px; border-radius:var(--radius-sm); font-size:13px; font-weight:600;
+    cursor:pointer; border:none; transition:.15s; display:inline-flex; align-items:center; gap:7px;
+  }
+  .btn-primary { background:var(--brand); color:#fff; }
+  .btn-primary:hover { background:#4338CA; }
+  .btn-secondary { background:var(--surface); color:var(--text-primary); border:1px solid var(--border); }
+  .btn-secondary:hover { background:var(--bg); }
+  .btn-success { background:var(--success); color:#fff; }
+  .btn-danger  { background:var(--danger);  color:#fff; }
+  .btn-sm { padding:6px 12px; font-size:12px; }
+
+  /* ───── STAT CARDS ───── */
+  .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:24px; }
+  .stat-card {
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:20px; box-shadow:var(--shadow-sm); transition:.2s;
+  }
+  .stat-card:hover { box-shadow:var(--shadow); transform:translateY(-1px); }
+  .stat-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .stat-icon {
+    width:40px; height:40px; border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .stat-change { font-size:11.5px; font-weight:600; }
+  .stat-change.up { color:var(--success); }
+  .stat-change.down { color:var(--danger); }
+  .stat-val { font-family:'Plus Jakarta Sans',sans-serif; font-size:28px; font-weight:800; color:var(--text-primary); line-height:1; }
+  .stat-label { font-size:12.5px; color:var(--text-secondary); margin-top:4px; }
+
+  /* ───── TABLES ───── */
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-sm); overflow:hidden; }
+  .card-header { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .card-title { font-size:14px; font-weight:700; color:var(--text-primary); }
+  .card-body { padding:0; }
+  .table { width:100%; border-collapse:collapse; }
+  .table th { padding:11px 16px; text-align:left; font-size:11.5px; font-weight:700; color:var(--text-muted); letter-spacing:.05em; text-transform:uppercase; border-bottom:1px solid var(--border); background:var(--bg); }
+  .table td { padding:13px 16px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-primary); vertical-align:middle; }
+  .table tr:last-child td { border-bottom:none; }
+  .table tr:hover td { background:#FAFBFF; }
+  .table-actions { display:flex; gap:6px; }
+
+  /* ───── BADGES / PILLS ───── */
+  .badge {
+    display:inline-flex; align-items:center; gap:4px; padding:3px 9px;
+    border-radius:20px; font-size:11.5px; font-weight:600; white-space:nowrap;
+  }
+  .badge-hot     { background:#FEF9C3; color:#92400E; border:1px solid #FDE68A; }
+  .badge-hot.hot { background:#FEE2E2; color:#B91C1C; border:1px solid #FECACA; }
+  .badge-warm    { background:var(--warn-bg); color:#92400E; border:1px solid #FDE68A; }
+  .badge-cold    { background:#F1F5F9; color:var(--text-secondary); border:1px solid var(--border); }
+  .badge-success { background:var(--success-bg); color:#065F46; border:1px solid #A7F3D0; }
+  .badge-danger  { background:var(--danger-bg); color:#991B1B; border:1px solid #FECACA; }
+  .badge-warn    { background:var(--warn-bg); color:#92400E; border:1px solid #FDE68A; }
+  .badge-info    { background:var(--info-bg); color:#0C4A6E; border:1px solid #BAE6FD; }
+  .badge-purple  { background:var(--purple-bg); color:#5B21B6; border:1px solid #DDD6FE; }
+
+  /* ───── AVATAR + NAME ───── */
+  .student-name { display:flex; align-items:center; gap:10px; }
+  .stu-avatar { width:32px; height:32px; border-radius:50%; font-weight:700; font-size:12px; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+  /* ───── PROGRESS BAR ───── */
+  .prog-wrap { width:100%; background:var(--border); border-radius:4px; height:6px; overflow:hidden; }
+  .prog-bar { height:100%; border-radius:4px; transition:.4s; }
+
+  /* ───── MODAL ───── */
+  .modal-overlay { position:fixed; inset:0; background:rgba(15,23,42,.45); backdrop-filter:blur(2px); z-index:200; display:none; align-items:center; justify-content:center; }
+  .modal-overlay.open { display:flex; }
+  .modal { background:var(--surface); border-radius:16px; width:min(580px,92vw); max-height:85vh; overflow-y:auto; box-shadow:var(--shadow-lg); animation:modalIn .2s ease; }
+  @keyframes modalIn { from{opacity:0;transform:scale(.95);} to{opacity:1;transform:scale(1);} }
+  .modal-head { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:#fff; z-index:1; }
+  .modal-title { font-family:'Plus Jakarta Sans',sans-serif; font-size:17px; font-weight:800; }
+  .modal-close { width:30px; height:30px; border-radius:8px; border:1px solid var(--border); background:var(--bg); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:18px; color:var(--text-secondary); }
+  .modal-body  { padding:24px; }
+  .form-row    { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+  .form-group  { display:flex; flex-direction:column; gap:6px; }
+  .form-group label { font-size:12px; font-weight:600; color:var(--text-secondary); }
+  .form-group input, .form-group select, .form-group textarea {
+    padding:9px 12px; border:1px solid var(--border); border-radius:var(--radius-sm);
+    font-size:13px; color:var(--text-primary); outline:none; font-family:inherit; transition:.15s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:var(--brand); }
+  .form-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; gap:10px; justify-content:flex-end; }
+
+  /* ───── FILTER BAR ───── */
+  .filter-bar { display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; align-items:center; }
+  .filter-input { padding:8px 12px; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:13px; outline:none; transition:.15s; }
+  .filter-input:focus { border-color:var(--brand); }
+  .filter-select { padding:8px 12px; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:13px; outline:none; background:var(--surface); cursor:pointer; }
+  .filter-label { font-size:12px; font-weight:600; color:var(--text-secondary); }
+
+  /* ───── CALL LOG CARDS ───── */
+  .call-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+  .call-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow-sm); }
+  .call-card-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .call-card-name { font-weight:700; font-size:14px; }
+  .call-card-sub  { font-size:11.5px; color:var(--text-secondary); }
+  .call-meta { display:flex; flex-direction:column; gap:6px; margin-top:10px; }
+  .call-meta-row { display:flex; justify-content:space-between; font-size:12px; color:var(--text-secondary); }
+  .call-meta-row strong { color:var(--text-primary); }
+  .call-actions { margin-top:14px; display:flex; gap:8px; }
+
+  /* ───── AGENT PIPELINE ───── */
+  .pipeline-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:16px; }
+  .pipeline-col { background:var(--bg); border-radius:var(--radius); padding:12px; min-height:300px; }
+  .pipeline-col-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .pipeline-col-title { font-size:12.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.05em; }
+  .pipeline-count { background:var(--border); border-radius:10px; font-size:11px; font-weight:700; padding:1px 7px; color:var(--text-secondary); }
+  .pipeline-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:11px; margin-bottom:8px; cursor:pointer; transition:.15s; }
+  .pipeline-card:hover { box-shadow:var(--shadow); border-color:var(--brand-mid); }
+  .pipeline-card-name { font-size:13px; font-weight:600; margin-bottom:4px; }
+  .pipeline-card-sub { font-size:11px; color:var(--text-secondary); }
+  .pipeline-card-footer { margin-top:8px; display:flex; align-items:center; justify-content:space-between; }
+
+  /* ───── DASHBOARD EXTRAS ───── */
+  .two-col { display:grid; grid-template-columns:2fr 1fr; gap:20px; }
+  .three-col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+  .activity-list { display:flex; flex-direction:column; gap:0; }
+  .activity-item { display:flex; align-items:flex-start; gap:12px; padding:13px 20px; border-bottom:1px solid var(--border); }
+  .activity-item:last-child { border-bottom:none; }
+  .activity-dot { width:8px; height:8px; border-radius:50%; margin-top:5px; flex-shrink:0; }
+  .activity-text { font-size:13px; color:var(--text-primary); line-height:1.5; }
+  .activity-time { font-size:11.5px; color:var(--text-muted); margin-top:2px; }
+  .activity-icon { width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+  .alert-list { display:flex; flex-direction:column; gap:0; }
+  .alert-item { display:flex; align-items:center; gap:12px; padding:12px 20px; border-bottom:1px solid var(--border); cursor:pointer; transition:.1s; }
+  .alert-item:hover { background:var(--bg); }
+  .alert-item:last-child { border-bottom:none; }
+  .alert-icon { width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+  .alert-content { flex:1; }
+  .alert-title { font-size:13px; font-weight:600; }
+  .alert-sub   { font-size:11.5px; color:var(--text-secondary); margin-top:1px; }
+  .alert-time  { font-size:11px; color:var(--text-muted); white-space:nowrap; }
+
+  .quick-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:20px; }
+  .qs-item { background:var(--surface); padding:16px 20px; }
+  .qs-val { font-family:'Plus Jakarta Sans',sans-serif; font-size:24px; font-weight:800; }
+  .qs-label { font-size:11px; color:var(--text-secondary); margin-top:2px; }
+
+  /* ───── ATTENDANCE TABLE EXTRAS ───── */
+  .att-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+  .att-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; }
+  .att-card-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .att-percent { font-family:'Plus Jakarta Sans',sans-serif; font-size:26px; font-weight:800; }
+  .att-label { font-size:11px; color:var(--text-secondary); }
+
+  /* ───── TABS ───── */
+  .tabs { display:flex; border-bottom:2px solid var(--border); margin-bottom:20px; gap:4px; }
+  .tab { padding:10px 18px; font-size:13.5px; font-weight:600; color:var(--text-secondary); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; border-radius:6px 6px 0 0; transition:.15s; }
+  .tab:hover { color:var(--text-primary); }
+  .tab.active { color:var(--brand); border-bottom-color:var(--brand); }
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+
+  /* ───── MINI CHART BARS ───── */
+  .mini-chart { display:flex; align-items:flex-end; gap:3px; height:40px; }
+  .mini-bar { flex:1; border-radius:3px 3px 0 0; opacity:.85; }
+
+  /* ───── TOOLTIP ───── */
+  [data-tip] { position:relative; }
+  [data-tip]:hover::after { content:attr(data-tip); position:absolute; bottom:calc(100%+4px); left:50%; transform:translateX(-50%); background:var(--text-primary); color:#fff; padding:4px 8px; border-radius:6px; font-size:11px; white-space:nowrap; z-index:10; }
+
+  /* ───── SCROLLBAR ───── */
+  .main::-webkit-scrollbar { width:5px; }
+  .main::-webkit-scrollbar-thumb { background:var(--border-dark); border-radius:3px; }
+
+  /* ───── TOAST ───── */
+  .toast-container { position:fixed; bottom:24px; right:24px; z-index:300; display:flex; flex-direction:column; gap:8px; }
+  .toast { background:#0F172A; color:#fff; padding:12px 18px; border-radius:10px; font-size:13px; font-weight:500; box-shadow:var(--shadow-lg); animation:slideUp .25s ease; display:flex; align-items:center; gap:10px; max-width:320px; }
+  .toast.success { border-left:3px solid var(--success); }
+  .toast.warn    { border-left:3px solid var(--warn); }
+  .toast.error   { border-left:3px solid var(--danger); }
+  @keyframes slideUp { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:none;} }
+</style>
+</head>
+<body>
+
+<!-- ══════════ TOP BAR ══════════ -->
+<header class="topbar">
+  <div class="logo">
+    <div class="logo-icon">EF</div>
+    <div class="logo-text">Edu<span>Flow</span> CRM</div>
+  </div>
+  <div class="topbar-center">
+    <div class="search-wrap">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" placeholder="Student, lead, phone ya course search karo…" id="globalSearch">
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="ai-status" onclick="showToast('5 AI Agents active hain — VAPI + OpenAI connected ✅','success')">
+      <div class="ai-dot"></div>
+      <span>AI Agents Live</span>
+    </div>
+    <div class="icon-btn" onclick="showToast('4 naye notifications hain','warn')" data-tip="Notifications">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <div class="notif-badge">4</div>
+    </div>
+    <div class="icon-btn" onclick="showToast('Settings page coming soon!','warn')" data-tip="Settings">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    </div>
+    <div class="avatar" onclick="showToast('Admin: Dev Dabi — Replora Institute','')">DD</div>
+  </div>
+</header>
+
+<!-- ══════════ SIDEBAR ══════════ -->
+<nav class="sidebar">
+  <div class="nav-section">
+    <div class="nav-label">Overview</div>
+    <div class="nav-item active" onclick="showPage('dashboard',this)">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item" onclick="showPage('alerts',this)">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+      Alerts &amp; Escalations
+      <span class="nav-badge">7</span>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Admissions</div>
+    <div class="nav-item" onclick="showPage('leads',this)">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      Leads Pipeline
+      <span class="nav-badge">12</span>
+    </div>
+    <div class="nav-item" onclick="showPage('calllog',this)">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81 19.79 19.79 0 01.01 2.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+      AI Call Log
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Students</div>
+    <div class="nav-item" onclick="showPage('students',this)">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+      All Students
+    </div>
+    <div class="nav-item" onclick="showPage('attendance',this)">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Attendance
+      <span class="nav-badge orange">3</span>
+    </div>
+    <div class="nav-item" onclick="showPage('academic',this)">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Academic Performance
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Finance</div>
+    <div class="nav-item" onclick="showPage('fees',this)">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      Fee Management
+      <span class="nav-badge">5</span>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Communication</div>
+    <div class="nav-item" onclick="showPage('parents',this)">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Parent Updates
+    </div>
+    <div class="nav-item" onclick="showPage('whatsapp',this)">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      WhatsApp Messages
+      <span class="nav-badge green">24</span>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Automation</div>
+    <div class="nav-item" onclick="showPage('agents',this)">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      AI Agents Status
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="agent-card">
+      <div class="ac-title">🤖 n8n Automation</div>
+      <div class="ac-sub">5 workflows active</div>
+      <div class="agent-rows">
+        <div class="agent-row"><span class="label">Lead Agent</span><div class="agent-dot"></div></div>
+        <div class="agent-row"><span class="label">Fee Agent</span><div class="agent-dot"></div></div>
+        <div class="agent-row"><span class="label">Attendance</span><div class="agent-dot"></div></div>
+        <div class="agent-row"><span class="label">Academic</span><div class="agent-dot"></div></div>
+        <div class="agent-row"><span class="label">Parent Comm</span><div class="agent-dot"></div></div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════ MAIN CONTENT ══════════ -->
+<div class="main">
+
+<!-- ── PAGE: DASHBOARD ── -->
+<div id="page-dashboard" class="page active">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Institute Dashboard</div>
+      <div class="page-sub">August 2026 — Replora Coaching Institute, Bhopal</div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-secondary btn-sm" onclick="showToast('Report download ho rahi hai...','success')">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Export
+      </button>
+      <button class="btn btn-primary btn-sm" onclick="openModal('addStudentModal')">+ Add Student</button>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-icon" style="background:#EEF2FF;">
+          <svg width="20" height="20" fill="none" stroke="#4F46E5" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
+        <span class="stat-change up">↑ 14%</span>
+      </div>
+      <div class="stat-val">342</div>
+      <div class="stat-label">Total Students</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-icon" style="background:#ECFDF5;">
+          <svg width="20" height="20" fill="none" stroke="#10B981" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
+        <span class="stat-change up">↑ 8%</span>
+      </div>
+      <div class="stat-val">28</div>
+      <div class="stat-label">New Leads This Week</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-icon" style="background:#FEE2E2;">
+          <svg width="20" height="20" fill="none" stroke="#EF4444" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        </div>
+        <span class="stat-change down">↓ 3%</span>
+      </div>
+      <div class="stat-val">₹4.2L</div>
+      <div class="stat-label">Fees Overdue</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-icon" style="background:#FFFBEB;">
+          <svg width="20" height="20" fill="none" stroke="#F59E0B" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        </div>
+        <span class="stat-change down">↓ 2%</span>
+      </div>
+      <div class="stat-val">87%</div>
+      <div class="stat-label">Avg Attendance</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-icon" style="background:#F5F3FF;">
+          <svg width="20" height="20" fill="none" stroke="#8B5CF6" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2A19.79 19.79 0 012.18 4.18 2 2 0 014 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        </div>
+        <span class="stat-change up">↑ 22%</span>
+      </div>
+      <div class="stat-val">156</div>
+      <div class="stat-label">AI Calls This Week</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-icon" style="background:#F0F9FF;">
+          <svg width="20" height="20" fill="none" stroke="#0EA5E9" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <span class="stat-change up">↑ 5%</span>
+      </div>
+      <div class="stat-val">73%</div>
+      <div class="stat-label">Avg Test Score</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📊 Recent Activity</div>
+        <button class="btn btn-secondary btn-sm" onclick="showPage('calllog',document.querySelector('.nav-item:nth-of-type(2)'))">View All</button>
+      </div>
+      <div class="activity-list">
+        <div class="activity-item">
+          <div class="activity-icon" style="background:#F5F3FF;"><span style="font-size:16px;">🤖</span></div>
+          <div>
+            <div class="activity-text"><strong>Rahul Sharma</strong> ko AI call ki gayi — <span class="badge badge-hot hot" style="padding:1px 6px;font-size:10px;">HOT LEAD</span></div>
+            <div class="activity-time">2 min ago • Admission Agent</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background:#ECFDF5;"><span style="font-size:16px;">💰</span></div>
+          <div>
+            <div class="activity-text"><strong>Priya Gupta</strong> ka ₹12,000 fee reminder bheja • WhatsApp link sent</div>
+            <div class="activity-time">18 min ago • Fee Agent</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background:#FFFBEB;"><span style="font-size:16px;">📞</span></div>
+          <div>
+            <div class="activity-text"><strong>Amit Verma</strong> absent — parent ko AI call ki gayi • Reason: Sick</div>
+            <div class="activity-time">41 min ago • Attendance Agent</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background:#EEF2FF;"><span style="font-size:16px;">📚</span></div>
+          <div>
+            <div class="activity-text"><strong>Sneha Joshi</strong> — low score detected • Mentor escalation done</div>
+            <div class="activity-time">1h 12min ago • Academic Agent</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background:#F0F9FF;"><span style="font-size:16px;">👨‍👩‍👧</span></div>
+          <div>
+            <div class="activity-text"><strong>Rohan Mehra</strong> ke parent ko weekly report call ki gayi • HAPPY sentiment</div>
+            <div class="activity-time">2h ago • Parent Comm Agent</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background:#FEE2E2;"><span style="font-size:16px;">🚨</span></div>
+          <div>
+            <div class="activity-text"><strong>Management Alert:</strong> Kavya Patel ke parent ne concern raise kiya</div>
+            <div class="activity-time">3h ago • Parent Comm Agent</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="card">
+        <div class="card-header"><div class="card-title">🚨 Urgent Alerts</div></div>
+        <div class="alert-list">
+          <div class="alert-item" onclick="showPage('attendance',document.querySelector('.nav-item'))">
+            <div class="alert-icon" style="background:#FEE2E2;">⚠️</div>
+            <div class="alert-content">
+              <div class="alert-title">3 Students — Low Attendance</div>
+              <div class="alert-sub">Below 75% threshold this week</div>
+            </div>
+            <span class="alert-time">Now</span>
+          </div>
+          <div class="alert-item" onclick="showPage('fees',document.querySelector('.nav-item'))">
+            <div class="alert-icon" style="background:#FFFBEB;">💰</div>
+            <div class="alert-content">
+              <div class="alert-title">5 Fee Overdue — 15+ Days</div>
+              <div class="alert-sub">Total ₹2.4L pending</div>
+            </div>
+            <span class="alert-time">Today</span>
+          </div>
+          <div class="alert-item" onclick="showPage('academic',document.querySelector('.nav-item'))">
+            <div class="alert-icon" style="background:#F5F3FF;">📊</div>
+            <div class="alert-content">
+              <div class="alert-title">2 Students — Failing Trend</div>
+              <div class="alert-sub">Last 3 tests below 40%</div>
+            </div>
+            <span class="alert-time">Yesterday</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">📈 Lead Conversion</div></div>
+        <div style="padding:16px;">
+          <div style="margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:12px;color:var(--text-secondary);">HOT Leads</span><span style="font-size:12px;font-weight:700;color:var(--danger);">8 leads</span></div>
+            <div class="prog-wrap"><div class="prog-bar" style="width:67%;background:var(--danger);"></div></div>
+          </div>
+          <div style="margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:12px;color:var(--text-secondary);">WARM Leads</span><span style="font-size:12px;font-weight:700;color:var(--warn);">14 leads</span></div>
+            <div class="prog-wrap"><div class="prog-bar" style="width:47%;background:var(--warn);"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:12px;color:var(--text-secondary);">Converted</span><span style="font-size:12px;font-weight:700;color:var(--success);">23 enrolled</span></div>
+            <div class="prog-wrap"><div class="prog-bar" style="width:82%;background:var(--success);"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: LEADS ── -->
+<div id="page-leads" class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Leads Pipeline</div>
+      <div class="page-sub">AI Admission Agent — VAPI + OpenAI powered calling</div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-secondary btn-sm" onclick="showToast('AI Agent sab pending leads ko call kar rahi hai...','success')">🤖 Trigger AI Calls</button>
+      <button class="btn btn-primary btn-sm" onclick="openModal('addLeadModal')">+ Add Lead</button>
+    </div>
+  </div>
+  <div class="quick-stats">
+    <div class="qs-item"><div class="qs-val" style="color:var(--danger);">8</div><div class="qs-label">🔥 HOT Leads</div></div>
+    <div class="qs-item"><div class="qs-val" style="color:var(--warn);">14</div><div class="qs-label">🟡 WARM Leads</div></div>
+    <div class="qs-item"><div class="qs-val" style="color:var(--text-secondary);">6</div><div class="qs-label">❄️ COLD Leads</div></div>
+  </div>
+  <div class="filter-bar">
+    <input type="text" class="filter-input" placeholder="Search lead..." id="leadSearch" oninput="filterTable('leadsTable',this.value)">
+    <select class="filter-select" onchange="filterLeadStatus(this.value)">
+      <option value="">All Status</option>
+      <option>HOT</option><option>WARM</option><option>COLD</option>
+    </select>
+    <select class="filter-select">
+      <option value="">All Courses</option>
+      <option>JEE Mains</option><option>NEET</option><option>CA Foundation</option><option>UPSC</option>
+    </select>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">All Leads (28)</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="showToast('CSV export ho raha hai...','success')">Export CSV</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="table" id="leadsTable">
+        <thead>
+          <tr><th>Name</th><th>Phone</th><th>Course</th><th>Source</th><th>Status</th><th>AI Call</th><th>Score</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#4F46E5;">RS</div>Rahul Sharma</div></td>
+            <td>+91 98765 43210</td><td>JEE Mains</td><td>Instagram</td>
+            <td><span class="badge badge-hot hot">🔥 HOT</span></td>
+            <td><span class="badge badge-success">Completed</span></td>
+            <td>94/100</td>
+            <td><div class="table-actions">
+              <button class="btn btn-primary btn-sm" onclick="showToast('Counsellor ko HOT lead assign kiya — Rahul Sharma','success')">Assign</button>
+              <button class="btn btn-secondary btn-sm" onclick="openModal('leadDetailModal')">View</button>
+            </div></td>
+          </tr>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#10B981;">PG</div>Priya Gupta</div></td>
+            <td>+91 87654 32109</td><td>NEET</td><td>WhatsApp</td>
+            <td><span class="badge badge-warm">🟡 WARM</span></td>
+            <td><span class="badge badge-success">Completed</span></td>
+            <td>62/100</td>
+            <td><div class="table-actions">
+              <button class="btn btn-secondary btn-sm" onclick="showToast('Follow-up call schedule ho rahi hai...','success')">Follow-up</button>
+              <button class="btn btn-secondary btn-sm" onclick="openModal('leadDetailModal')">View</button>
+            </div></td>
+          </tr>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#F59E0B;">AV</div>Amit Verma</div></td>
+            <td>+91 76543 21098</td><td>CA Foundation</td><td>Google Ads</td>
+            <td><span class="badge badge-hot hot">🔥 HOT</span></td>
+            <td><span class="badge badge-warn">In Progress</span></td>
+            <td>88/100</td>
+            <td><div class="table-actions">
+              <button class="btn btn-primary btn-sm" onclick="showToast('Counsellor ko assign kiya — Amit Verma','success')">Assign</button>
+              <button class="btn btn-secondary btn-sm" onclick="openModal('leadDetailModal')">View</button>
+            </div></td>
+          </tr>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#8B5CF6;">SJ</div>Sneha Joshi</div></td>
+            <td>+91 65432 10987</td><td>UPSC</td><td>Referral</td>
+            <td><span class="badge badge-cold">❄️ COLD</span></td>
+            <td><span class="badge badge-success">Completed</span></td>
+            <td>28/100</td>
+            <td><div class="table-actions">
+              <button class="btn btn-secondary btn-sm" onclick="showToast('Cold lead ko nurture sequence mein add kiya','success')">Nurture</button>
+              <button class="btn btn-secondary btn-sm" onclick="openModal('leadDetailModal')">View</button>
+            </div></td>
+          </tr>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#EF4444;">RM</div>Rohan Mehra</div></td>
+            <td>+91 54321 09876</td><td>JEE Mains</td><td>Website</td>
+            <td><span class="badge badge-warm">🟡 WARM</span></td>
+            <td><span class="badge badge-info">Scheduled</span></td>
+            <td>—</td>
+            <td><div class="table-actions">
+              <button class="btn btn-secondary btn-sm" onclick="showToast('AI call ab trigger ho rahi hai...','success')">🤖 Call Now</button>
+              <button class="btn btn-secondary btn-sm" onclick="openModal('leadDetailModal')">View</button>
+            </div></td>
+          </tr>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#0EA5E9;">KP</div>Kavya Patel</div></td>
+            <td>+91 43210 98765</td><td>NEET</td><td>Instagram</td>
+            <td><span class="badge badge-hot hot">🔥 HOT</span></td>
+            <td><span class="badge badge-success">Completed</span></td>
+            <td>91/100</td>
+            <td><div class="table-actions">
+              <button class="btn btn-primary btn-sm" onclick="showToast('Kavya Patel ko counsellor se connect kiya','success')">Assign</button>
+              <button class="btn btn-secondary btn-sm" onclick="openModal('leadDetailModal')">View</button>
+            </div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: STUDENTS ── -->
+<div id="page-students" class="page">
+  <div class="page-header">
+    <div><div class="page-title">All Students</div><div class="page-sub">342 enrolled students — August 2026</div></div>
+    <button class="btn btn-primary btn-sm" onclick="openModal('addStudentModal')">+ Enroll Student</button>
+  </div>
+  <div class="filter-bar">
+    <input type="text" class="filter-input" placeholder="Search student..." oninput="filterTable('studentsTable',this.value)">
+    <select class="filter-select">
+      <option>All Courses</option><option>JEE Mains</option><option>NEET</option><option>CA Foundation</option><option>UPSC</option>
+    </select>
+    <select class="filter-select">
+      <option>All Batches</option><option>Batch A — Morning</option><option>Batch B — Evening</option><option>Batch C — Weekend</option>
+    </select>
+    <select class="filter-select">
+      <option>All Status</option><option>Active</option><option>At Risk</option><option>Inactive</option>
+    </select>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Students Directory (342)</div></div>
+    <div style="overflow-x:auto;">
+      <table class="table" id="studentsTable">
+        <thead>
+          <tr><th>Student</th><th>Course</th><th>Batch</th><th>Attendance</th><th>Last Score</th><th>Fee Status</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#4F46E5;">RS</div><div><div style="font-weight:600;">Rahul Sharma</div><div style="font-size:11px;color:var(--text-muted);">+91 98765 43210</div></div></div></td>
+            <td>JEE Mains</td><td>Batch A</td>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="prog-wrap" style="width:70px;"><div class="prog-bar" style="width:92%;background:var(--success);"></div></div><span style="font-size:12px;font-weight:600;">92%</span></div></td>
+            <td><span style="font-weight:700;">78%</span></td>
+            <td><span class="badge badge-success">Paid</span></td>
+            <td><span class="badge badge-success">Active</span></td>
+            <td><div class="table-actions"><button class="btn btn-secondary btn-sm" onclick="openModal('studentDetailModal')">View</button><button class="btn btn-secondary btn-sm" onclick="showToast('AI call Rahul ko ki ja rahi hai...','success')">📞 Call</button></div></td>
+          </tr>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#10B981;">PG</div><div><div style="font-weight:600;">Priya Gupta</div><div style="font-size:11px;color:var(--text-muted);">+91 87654 32109</div></div></div></td>
+            <td>NEET</td><td>Batch B</td>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="prog-wrap" style="width:70px;"><div class="prog-bar" style="width:68%;background:var(--warn);"></div></div><span style="font-size:12px;font-weight:600;">68%</span></div></td>
+            <td><span style="font-weight:700;">54%</span></td>
+            <td><span class="badge badge-danger">Overdue</span></td>
+            <td><span class="badge badge-warn">At Risk</span></td>
+            <td><div class="table-actions"><button class="btn btn-secondary btn-sm" onclick="openModal('studentDetailModal')">View</button><button class="btn btn-danger btn-sm" onclick="showToast('Fee reminder + parent call trigger ho rahi hai!','warn')">⚠️ Alert</button></div></td>
+          </tr>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#8B5CF6;">AV</div><div><div style="font-weight:600;">Amit Verma</div><div style="font-size:11px;color:var(--text-muted);">+91 76543 21098</div></div></div></td>
+            <td>CA Foundation</td><td>Batch A</td>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="prog-wrap" style="width:70px;"><div class="prog-bar" style="width:85%;background:var(--success);"></div></div><span style="font-size:12px;font-weight:600;">85%</span></div></td>
+            <td><span style="font-weight:700;">71%</span></td>
+            <td><span class="badge badge-success">Paid</span></td>
+            <td><span class="badge badge-success">Active</span></td>
+            <td><div class="table-actions"><button class="btn btn-secondary btn-sm" onclick="openModal('studentDetailModal')">View</button><button class="btn btn-secondary btn-sm" onclick="showToast('AI call Amit ko ki ja rahi hai...','success')">📞 Call</button></div></td>
+          </tr>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#EF4444;">SJ</div><div><div style="font-weight:600;">Sneha Joshi</div><div style="font-size:11px;color:var(--text-muted);">+91 65432 10987</div></div></div></td>
+            <td>UPSC</td><td>Batch C</td>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="prog-wrap" style="width:70px;"><div class="prog-bar" style="width:72%;background:var(--warn);"></div></div><span style="font-size:12px;font-weight:600;">72%</span></div></td>
+            <td><span style="font-weight:700;">38%</span></td>
+            <td><span class="badge badge-warn">Partial</span></td>
+            <td><span class="badge badge-warn">At Risk</span></td>
+            <td><div class="table-actions"><button class="btn btn-secondary btn-sm" onclick="openModal('studentDetailModal')">View</button><button class="btn btn-danger btn-sm" onclick="showToast('Academic escalation trigger ho rahi hai!','warn')">📚 Escalate</button></div></td>
+          </tr>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#0EA5E9;">RM</div><div><div style="font-weight:600;">Rohan Mehra</div><div style="font-size:11px;color:var(--text-muted);">+91 54321 09876</div></div></div></td>
+            <td>JEE Mains</td><td>Batch A</td>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="prog-wrap" style="width:70px;"><div class="prog-bar" style="width:96%;background:var(--success);"></div></div><span style="font-size:12px;font-weight:600;">96%</span></div></td>
+            <td><span style="font-weight:700;">89%</span></td>
+            <td><span class="badge badge-success">Paid</span></td>
+            <td><span class="badge badge-success">Active</span></td>
+            <td><div class="table-actions"><button class="btn btn-secondary btn-sm" onclick="openModal('studentDetailModal')">View</button><button class="btn btn-secondary btn-sm" onclick="showToast('Parent report call schedule ho rahi hai...','success')">📞 Call</button></div></td>
+          </tr>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#F59E0B;">KP</div><div><div style="font-weight:600;">Kavya Patel</div><div style="font-size:11px;color:var(--text-muted);">+91 43210 98765</div></div></div></td>
+            <td>NEET</td><td>Batch B</td>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="prog-wrap" style="width:70px;"><div class="prog-bar" style="width:58%;background:var(--danger);"></div></div><span style="font-size:12px;font-weight:600;color:var(--danger);">58%</span></div></td>
+            <td><span style="font-weight:700;">42%</span></td>
+            <td><span class="badge badge-danger">Overdue</span></td>
+            <td><span class="badge badge-danger">Critical</span></td>
+            <td><div class="table-actions"><button class="btn btn-secondary btn-sm" onclick="openModal('studentDetailModal')">View</button><button class="btn btn-danger btn-sm" onclick="showToast('Emergency: Parent ko call + management alert gaya!','warn')">🚨 Critical</button></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: ATTENDANCE ── -->
+<div id="page-attendance" class="page">
+  <div class="page-header">
+    <div><div class="page-title">Attendance Management</div><div class="page-sub">AI Attendance Agent — Auto parent call on absence</div></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-secondary btn-sm" onclick="showToast('Today ka attendance report download ho raha hai...','success')">📊 Report</button>
+      <button class="btn btn-primary btn-sm" onclick="openModal('markAttendanceModal')">✅ Mark Attendance</button>
+    </div>
+  </div>
+  <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+    <div class="stat-card">
+      <div class="stat-top"><div class="stat-icon" style="background:#ECFDF5;"><span style="font-size:18px;">✅</span></div><span class="stat-change up">↑ 3%</span></div>
+      <div class="stat-val">298</div><div class="stat-label">Present Today</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top"><div class="stat-icon" style="background:#FEE2E2;"><span style="font-size:18px;">❌</span></div><span class="stat-change down">↓ 3%</span></div>
+      <div class="stat-val">44</div><div class="stat-label">Absent Today</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top"><div class="stat-icon" style="background:#FFFBEB;"><span style="font-size:18px;">⚠️</span></div></div>
+      <div class="stat-val">3</div><div class="stat-label">Below 75% (Critical)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top"><div class="stat-icon" style="background:#F5F3FF;"><span style="font-size:18px;">🤖</span></div><span class="stat-change up">↑ 100%</span></div>
+      <div class="stat-val">44</div><div class="stat-label">AI Calls Triggered</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-header"><div class="card-title">⚠️ Critical — Below 75% Attendance</div><span class="badge badge-danger">3 Students</span></div>
+    <div style="overflow-x:auto;">
+      <table class="table">
+        <thead><tr><th>Student</th><th>Course</th><th>Attendance %</th><th>Total Absent</th><th>Last Absent</th><th>Parent Called</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#EF4444;">PG</div>Priya Gupta</div></td>
+            <td>NEET</td>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="prog-wrap" style="width:80px;"><div class="prog-bar" style="width:68%;background:var(--danger);"></div></div><span style="color:var(--danger);font-weight:700;">68%</span></div></td>
+            <td>18 days</td><td>Today</td>
+            <td><span class="badge badge-success">✅ Called</span></td>
+            <td><button class="btn btn-danger btn-sm" onclick="showToast('Escalation alert management ko gaya!','warn')">Escalate</button></td>
+          </tr>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#F59E0B;">KP</div>Kavya Patel</div></td>
+            <td>NEET</td>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="prog-wrap" style="width:80px;"><div class="prog-bar" style="width:58%;background:var(--danger);"></div></div><span style="color:var(--danger);font-weight:700;">58%</span></div></td>
+            <td>24 days</td><td>Today</td>
+            <td><span class="badge badge-warn">📞 Calling</span></td>
+            <td><button class="btn btn-danger btn-sm" onclick="showToast('Critical escalation management ko gaya!','warn')">Escalate</button></td>
+          </tr>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#8B5CF6;">VP</div>Vikram Pal</div></td>
+            <td>UPSC</td>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="prog-wrap" style="width:80px;"><div class="prog-bar" style="width:72%;background:var(--warn);"></div></div><span style="color:var(--warn);font-weight:700;">72%</span></div></td>
+            <td>14 days</td><td>Yesterday</td>
+            <td><span class="badge badge-success">✅ Called</span></td>
+            <td><button class="btn btn-secondary btn-sm" onclick="showToast('Follow-up call schedule ho rahi hai...','success')">Follow-up</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-title">📋 Today's Absent List — AI Calls Auto-Triggered</div></div>
+    <div style="overflow-x:auto;">
+      <table class="table">
+        <thead><tr><th>Student</th><th>Course</th><th>Absence #</th><th>AI Call Status</th><th>Reason Collected</th><th>Category</th><th>Needs Follow-up</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#10B981;">AM</div>Anjali Mishra</div></td>
+            <td>JEE Mains</td><td>#3 this month</td>
+            <td><span class="badge badge-success">Call Done</span></td>
+            <td>Sick — Fever</td><td><span class="badge badge-info">SICK</span></td>
+            <td><span class="badge badge-cold">No</span></td>
+          </tr>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#4F46E5;">DS</div>Dev Singh</div></td>
+            <td>CA Foundation</td><td>#1 this month</td>
+            <td><span class="badge badge-success">Call Done</span></td>
+            <td>Family function</td><td><span class="badge badge-purple">FAMILY</span></td>
+            <td><span class="badge badge-cold">No</span></td>
+          </tr>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#EF4444;">NK</div>Neha Kumar</div></td>
+            <td>NEET</td><td>#7 this month</td>
+            <td><span class="badge badge-warn">Calling...</span></td>
+            <td>Pending</td><td>—</td>
+            <td><span class="badge badge-danger">Yes — Critical</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: FEES ── -->
+<div id="page-fees" class="page">
+  <div class="page-header">
+    <div><div class="page-title">Fee Management</div><div class="page-sub">AI Fee Reminder Agent — Daily 10 AM auto-call + WhatsApp link</div></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-secondary btn-sm" onclick="showToast('Fee report generate ho raha hai...','success')">📊 Report</button>
+      <button class="btn btn-primary btn-sm" onclick="showToast('AI calling sab overdue students ko kar rahi hai...','success')">🤖 Trigger All Reminders</button>
+    </div>
+  </div>
+  <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon" style="background:#ECFDF5;"><span style="font-size:18px;">✅</span></div><span class="stat-change up">↑ 12%</span></div><div class="stat-val">₹28.4L</div><div class="stat-label">Collected This Month</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon" style="background:#FEE2E2;"><span style="font-size:18px;">⏰</span></div><span class="stat-change down">↓ 5%</span></div><div class="stat-val">₹4.2L</div><div class="stat-label">Total Overdue</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon" style="background:#FFFBEB;"><span style="font-size:18px;">👤</span></div></div><div class="stat-val">23</div><div class="stat-label">Overdue Students</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon" style="background:#F0F9FF;"><span style="font-size:18px;">📱</span></div><span class="stat-change up">↑ 8%</span></div><div class="stat-val">18</div><div class="stat-label">Reminders Sent Today</div></div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this,'tab-overdue')">⏰ Overdue (5)</div>
+    <div class="tab" onclick="switchTab(this,'tab-upcoming')">📅 Due This Week (12)</div>
+    <div class="tab" onclick="switchTab(this,'tab-paid')">✅ Paid This Month</div>
+  </div>
+  <div id="tab-overdue" class="tab-content active">
+    <div class="card">
+      <div style="overflow-x:auto;">
+        <table class="table">
+          <thead><tr><th>Student</th><th>Course</th><th>Amount</th><th>Due Date</th><th>Days Overdue</th><th>AI Call</th><th>WhatsApp</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><div class="student-name"><div class="stu-avatar" style="background:#EF4444;">PG</div>Priya Gupta</div></td>
+              <td>NEET</td><td style="font-weight:700;">₹18,000</td><td>Aug 1, 2026</td>
+              <td><span class="badge badge-danger">19 Days</span></td>
+              <td><span class="badge badge-success">3 Calls</span></td>
+              <td><span class="badge badge-success">3 Sent</span></td>
+              <td><div class="table-actions"><button class="btn btn-primary btn-sm" onclick="showToast('Razorpay link WhatsApp par bheja — Priya Gupta','success')">Send Link</button><button class="btn btn-secondary btn-sm" onclick="showToast('Manual fee entry ho rahi hai...','success')">Record</button></div></td>
+            </tr>
+            <tr>
+              <td><div class="student-name"><div class="stu-avatar" style="background:#F59E0B;">KP</div>Kavya Patel</div></td>
+              <td>NEET</td><td style="font-weight:700;">₹18,000</td><td>Aug 1, 2026</td>
+              <td><span class="badge badge-danger">19 Days</span></td>
+              <td><span class="badge badge-success">2 Calls</span></td>
+              <td><span class="badge badge-success">2 Sent</span></td>
+              <td><div class="table-actions"><button class="btn btn-primary btn-sm" onclick="showToast('Payment link sent — Kavya Patel','success')">Send Link</button><button class="btn btn-secondary btn-sm" onclick="showToast('Fee recorded!','success')">Record</button></div></td>
+            </tr>
+            <tr>
+              <td><div class="student-name"><div class="stu-avatar" style="background:#8B5CF6;">VP</div>Vikram Pal</div></td>
+              <td>UPSC</td><td style="font-weight:700;">₹22,000</td><td>Aug 5, 2026</td>
+              <td><span class="badge badge-warn">15 Days</span></td>
+              <td><span class="badge badge-success">1 Call</span></td>
+              <td><span class="badge badge-success">2 Sent</span></td>
+              <td><div class="table-actions"><button class="btn btn-primary btn-sm" onclick="showToast('Payment link sent — Vikram Pal','success')">Send Link</button><button class="btn btn-secondary btn-sm" onclick="showToast('Fee recorded!','success')">Record</button></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div id="tab-upcoming" class="tab-content">
+    <div class="card"><div class="card-body" style="padding:20px;text-align:center;color:var(--text-secondary);">12 students ki fee is week due hogi — Auto reminder 3 days pehle jayega 🤖</div></div>
+  </div>
+  <div id="tab-paid" class="tab-content">
+    <div class="card"><div class="card-body" style="padding:20px;text-align:center;color:var(--success);">✅ 319 students ne is mahine fee pay ki — ₹28.4L collected</div></div>
+  </div>
+</div>
+
+<!-- ── PAGE: ACADEMIC ── -->
+<div id="page-academic" class="page">
+  <div class="page-header">
+    <div><div class="page-title">Academic Performance</div><div class="page-sub">AI Academic Agent — Weekly low-score students ko auto-call + mentor escalation</div></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-secondary btn-sm" onclick="showToast('Weekly academic report generate ho raha hai...','success')">📊 Weekly Report</button>
+      <button class="btn btn-primary btn-sm" onclick="showToast('Sab at-risk students ko AI call trigger ho rahi hai!','success')">🤖 Trigger Academic Calls</button>
+    </div>
+  </div>
+  <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon" style="background:#ECFDF5;"><span style="font-size:18px;">⭐</span></div></div><div class="stat-val">73%</div><div class="stat-label">Avg Test Score</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon" style="background:#FEE2E2;"><span style="font-size:18px;">⚠️</span></div></div><div class="stat-val">18</div><div class="stat-label">Below 60% Score</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon" style="background:#F5F3FF;"><span style="font-size:18px;">👨‍🏫</span></div></div><div class="stat-val">6</div><div class="stat-label">Mentor Sessions This Week</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon" style="background:#FFFBEB;"><span style="font-size:18px;">🤖</span></div><span class="stat-change up">↑ 30%</span></div><div class="stat-val">34</div><div class="stat-label">AI Counseling Calls</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">🎯 At-Risk Students — AI Follow-up Queue</div></div>
+    <div style="overflow-x:auto;">
+      <table class="table">
+        <thead><tr><th>Student</th><th>Course</th><th>Attendance</th><th>Last Score</th><th>Weak Subjects</th><th>Issue Type</th><th>AI Call</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#EF4444;">SJ</div>Sneha Joshi</div></td>
+            <td>UPSC</td>
+            <td><span style="color:var(--warn);font-weight:700;">72%</span></td>
+            <td><span style="color:var(--danger);font-weight:700;">38%</span></td>
+            <td>History, Polity</td>
+            <td><span class="badge badge-info">ACADEMIC</span></td>
+            <td><span class="badge badge-success">Done</span></td>
+            <td><div class="table-actions"><button class="btn btn-primary btn-sm" onclick="showToast('Mentor session schedule kiya — Sneha Joshi','success')">Assign Mentor</button><button class="btn btn-secondary btn-sm" onclick="openModal('studentDetailModal')">View</button></div></td>
+          </tr>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#F59E0B;">NK</div>Nikhil Kumar</div></td>
+            <td>JEE Mains</td>
+            <td><span style="color:var(--success);font-weight:700;">88%</span></td>
+            <td><span style="color:var(--danger);font-weight:700;">42%</span></td>
+            <td>Chemistry, Maths</td>
+            <td><span class="badge badge-warn">PERSONAL</span></td>
+            <td><span class="badge badge-warn">Calling</span></td>
+            <td><div class="table-actions"><button class="btn btn-secondary btn-sm" onclick="showToast('Counsellor ko assign kiya — Nikhil Kumar','success')">Counsellor</button><button class="btn btn-secondary btn-sm" onclick="openModal('studentDetailModal')">View</button></div></td>
+          </tr>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#8B5CF6;">KP</div>Kavya Patel</div></td>
+            <td>NEET</td>
+            <td><span style="color:var(--danger);font-weight:700;">58%</span></td>
+            <td><span style="color:var(--danger);font-weight:700;">42%</span></td>
+            <td>Biology, Chemistry</td>
+            <td><span class="badge badge-danger">CRITICAL</span></td>
+            <td><span class="badge badge-success">Done</span></td>
+            <td><div class="table-actions"><button class="btn btn-danger btn-sm" onclick="showToast('Director ko emergency alert gaya — Kavya Patel!','warn')">🚨 Escalate</button><button class="btn btn-secondary btn-sm" onclick="openModal('studentDetailModal')">View</button></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: PARENTS ── -->
+<div id="page-parents" class="page">
+  <div class="page-header">
+    <div><div class="page-title">Parent Communication</div><div class="page-sub">AI Parent Agent — Weekly Friday 5PM auto performance update call</div></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-secondary btn-sm" onclick="showToast('Weekly parent report generate ho raha hai...','success')">📊 Report</button>
+      <button class="btn btn-primary btn-sm" onclick="showToast('Sab parents ko weekly update call trigger ho rahi hai!','success')">🤖 Trigger Weekly Calls</button>
+    </div>
+  </div>
+  <div class="quick-stats">
+    <div class="qs-item"><div class="qs-val" style="color:var(--success);">284</div><div class="qs-label">😊 Happy Parents</div></div>
+    <div class="qs-item"><div class="qs-val" style="color:var(--warn);">41</div><div class="qs-label">😐 Neutral</div></div>
+    <div class="qs-item"><div class="qs-val" style="color:var(--danger);">17</div><div class="qs-label">😟 Concerned</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">📞 Last Week's Parent Call Log</div></div>
+    <div style="overflow-x:auto;">
+      <table class="table">
+        <thead><tr><th>Student</th><th>Parent Name</th><th>Course</th><th>Call Status</th><th>Sentiment</th><th>Concern Raised</th><th>Escalated</th><th>WhatsApp</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#4F46E5;">RS</div>Rahul Sharma</div></td>
+            <td>Mr. R.K. Sharma</td><td>JEE Mains</td>
+            <td><span class="badge badge-success">Completed</span></td>
+            <td><span class="badge badge-success">😊 Happy</span></td>
+            <td>—</td><td><span class="badge badge-cold">No</span></td>
+            <td><span class="badge badge-success">✅ Sent</span></td>
+          </tr>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#EF4444;">KP</div>Kavya Patel</div></td>
+            <td>Mrs. M. Patel</td><td>NEET</td>
+            <td><span class="badge badge-success">Completed</span></td>
+            <td><span class="badge badge-danger">😟 Concerned</span></td>
+            <td>Low attendance + score</td><td><span class="badge badge-danger">Yes ⚠️</span></td>
+            <td><span class="badge badge-success">✅ Sent</span></td>
+          </tr>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#10B981;">AV</div>Amit Verma</div></td>
+            <td>Mr. S. Verma</td><td>CA Foundation</td>
+            <td><span class="badge badge-success">Completed</span></td>
+            <td><span class="badge badge-success">😊 Happy</span></td>
+            <td>—</td><td><span class="badge badge-cold">No</span></td>
+            <td><span class="badge badge-success">✅ Sent</span></td>
+          </tr>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#8B5CF6;">SJ</div>Sneha Joshi</div></td>
+            <td>Mr. A. Joshi</td><td>UPSC</td>
+            <td><span class="badge badge-success">Completed</span></td>
+            <td><span class="badge badge-warn">😐 Neutral</span></td>
+            <td>Wants more tests</td><td><span class="badge badge-cold">No</span></td>
+            <td><span class="badge badge-success">✅ Sent</span></td>
+          </tr>
+          <tr>
+            <td><div class="student-name"><div class="stu-avatar" style="background:#F59E0B;">RM</div>Rohan Mehra</div></td>
+            <td>Mrs. P. Mehra</td><td>JEE Mains</td>
+            <td><span class="badge badge-info">No Answer</span></td>
+            <td>—</td><td>—</td><td><span class="badge badge-cold">No</span></td>
+            <td><span class="badge badge-success">✅ Sent</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: CALL LOG ── -->
+<div id="page-calllog" class="page">
+  <div class="page-header">
+    <div><div class="page-title">AI Call Log</div><div class="page-sub">VAPI.ai powered calls — All 5 agents combined log</div></div>
+    <button class="btn btn-secondary btn-sm" onclick="showToast('Call log CSV export ho raha hai...','success')">Export</button>
+  </div>
+  <div class="filter-bar">
+    <select class="filter-select">
+      <option>All Agents</option>
+      <option>Admission Agent</option><option>Fee Agent</option><option>Attendance Agent</option><option>Academic Agent</option><option>Parent Agent</option>
+    </select>
+    <select class="filter-select">
+      <option>All Status</option><option>Completed</option><option>No Answer</option><option>In Progress</option>
+    </select>
+    <input type="text" class="filter-input" placeholder="Search by name...">
+  </div>
+  <div class="call-grid">
+    <div class="call-card">
+      <div class="call-card-top">
+        <div><div class="call-card-name">Rahul Sharma</div><div class="call-card-sub">Admission Lead — JEE Mains</div></div>
+        <span class="badge badge-success">✅ Completed</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;"><span class="badge badge-purple" style="font-size:10px;">Admission Agent</span><span class="badge badge-hot hot" style="font-size:10px;">HOT Lead</span></div>
+      <div class="call-meta">
+        <div class="call-meta-row"><span>Duration</span><strong>3m 42s</strong></div>
+        <div class="call-meta-row"><span>Time</span><strong>Today, 10:23 AM</strong></div>
+        <div class="call-meta-row"><span>Outcome</span><strong>Counsellor Assigned</strong></div>
+        <div class="call-meta-row"><span>AI Score</span><strong>94/100</strong></div>
+      </div>
+      <div class="call-actions">
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Call transcript show ho raha hai...','success')">📄 Transcript</button>
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Rahul ko follow-up call schedule ki!','success')">📞 Follow-up</button>
+      </div>
+    </div>
+    <div class="call-card">
+      <div class="call-card-top">
+        <div><div class="call-card-name">Priya Gupta (Parent)</div><div class="call-card-sub">Fee Reminder — NEET — ₹18,000</div></div>
+        <span class="badge badge-success">✅ Completed</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;"><span class="badge badge-warn" style="font-size:10px;">Fee Agent</span></div>
+      <div class="call-meta">
+        <div class="call-meta-row"><span>Duration</span><strong>1m 58s</strong></div>
+        <div class="call-meta-row"><span>Time</span><strong>Today, 10:47 AM</strong></div>
+        <div class="call-meta-row"><span>Outcome</span><strong>Payment link sent</strong></div>
+        <div class="call-meta-row"><span>Response</span><strong>Will pay by Friday</strong></div>
+      </div>
+      <div class="call-actions">
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Transcript load ho raha hai...','success')">📄 Transcript</button>
+        <button class="btn btn-primary btn-sm" onclick="showToast('WhatsApp reminder sent!','success')">💬 WhatsApp</button>
+      </div>
+    </div>
+    <div class="call-card">
+      <div class="call-card-top">
+        <div><div class="call-card-name">Amit Verma (Parent)</div><div class="call-card-sub">Absence — CA Foundation</div></div>
+        <span class="badge badge-success">✅ Completed</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;"><span class="badge badge-info" style="font-size:10px;">Attendance Agent</span></div>
+      <div class="call-meta">
+        <div class="call-meta-row"><span>Duration</span><strong>2m 11s</strong></div>
+        <div class="call-meta-row"><span>Time</span><strong>Today, 9:15 AM</strong></div>
+        <div class="call-meta-row"><span>Reason</span><strong>Sick — Fever</strong></div>
+        <div class="call-meta-row"><span>Follow-up</span><strong>Not Required</strong></div>
+      </div>
+      <div class="call-actions">
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Transcript load ho raha hai...','success')">📄 Transcript</button>
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Attendance update ho gayi!','success')">✅ Update</button>
+      </div>
+    </div>
+    <div class="call-card">
+      <div class="call-card-top">
+        <div><div class="call-card-name">Sneha Joshi</div><div class="call-card-sub">Academic Follow-up — UPSC</div></div>
+        <span class="badge badge-success">✅ Completed</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;"><span class="badge badge-success" style="font-size:10px;">Academic Agent</span></div>
+      <div class="call-meta">
+        <div class="call-meta-row"><span>Duration</span><strong>4m 33s</strong></div>
+        <div class="call-meta-row"><span>Time</span><strong>Yesterday, 11 AM</strong></div>
+        <div class="call-meta-row"><span>Issue</span><strong>Personal stress</strong></div>
+        <div class="call-meta-row"><span>Action</span><strong>Mentor assigned</strong></div>
+      </div>
+      <div class="call-actions">
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Transcript load ho raha hai...','success')">📄 Transcript</button>
+        <button class="btn btn-primary btn-sm" onclick="showToast('Mentor ko notification gaya!','success')">👨‍🏫 Mentor</button>
+      </div>
+    </div>
+    <div class="call-card">
+      <div class="call-card-top">
+        <div><div class="call-card-name">Rohan Mehra (Parent)</div><div class="call-card-sub">Weekly Update — JEE Mains</div></div>
+        <span class="badge badge-info">📵 No Answer</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;"><span class="badge badge-purple" style="font-size:10px;">Parent Agent</span></div>
+      <div class="call-meta">
+        <div class="call-meta-row"><span>Duration</span><strong>0m (No answer)</strong></div>
+        <div class="call-meta-row"><span>Time</span><strong>Fri, Aug 16, 5 PM</strong></div>
+        <div class="call-meta-row"><span>WhatsApp</span><strong>Report sent ✅</strong></div>
+        <div class="call-meta-row"><span>Retry</span><strong>Scheduled for Mon</strong></div>
+      </div>
+      <div class="call-actions">
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Retry call schedule ho rahi hai...','success')">🔄 Retry</button>
+        <button class="btn btn-secondary btn-sm" onclick="showToast('WhatsApp report bheja!','success')">💬 WhatsApp</button>
+      </div>
+    </div>
+    <div class="call-card">
+      <div class="call-card-top">
+        <div><div class="call-card-name">Kavya Patel (Parent)</div><div class="call-card-sub">Weekly Update — NEET</div></div>
+        <span class="badge badge-danger">🚨 Escalated</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;"><span class="badge badge-purple" style="font-size:10px;">Parent Agent</span></div>
+      <div class="call-meta">
+        <div class="call-meta-row"><span>Duration</span><strong>6m 12s</strong></div>
+        <div class="call-meta-row"><span>Time</span><strong>Fri, Aug 16, 5 PM</strong></div>
+        <div class="call-meta-row"><span>Sentiment</span><strong style="color:var(--danger);">😟 Concerned</strong></div>
+        <div class="call-meta-row"><span>Concern</span><strong>Low score + attendance</strong></div>
+      </div>
+      <div class="call-actions">
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Transcript load ho raha hai...','success')">📄 Transcript</button>
+        <button class="btn btn-danger btn-sm" onclick="showToast('Management alert gaya — Kavya Patel case!','warn')">🚨 Escalate</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: WHATSAPP ── -->
+<div id="page-whatsapp" class="page">
+  <div class="page-header">
+    <div><div class="page-title">WhatsApp Messages</div><div class="page-sub">Meta Business API — Auto-sent by all 5 AI Agents</div></div>
+    <button class="btn btn-primary btn-sm" onclick="openModal('sendWhatsappModal')">+ Send Message</button>
+  </div>
+  <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon" style="background:#ECFDF5;"><span style="font-size:18px;">💬</span></div></div><div class="stat-val">24</div><div class="stat-label">Sent Today</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon" style="background:#F0F9FF;"><span style="font-size:18px;">✅</span></div></div><div class="stat-val">22</div><div class="stat-label">Delivered</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon" style="background:#F5F3FF;"><span style="font-size:18px;">👁️</span></div></div><div class="stat-val">19</div><div class="stat-label">Read</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon" style="background:#FFFBEB;"><span style="font-size:18px;">↩️</span></div></div><div class="stat-val">6</div><div class="stat-label">Replies Received</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">📱 Recent WhatsApp Messages</div></div>
+    <div style="overflow-x:auto;">
+      <table class="table">
+        <thead><tr><th>Recipient</th><th>Message Type</th><th>Agent</th><th>Time</th><th>Status</th><th>Content Preview</th></tr></thead>
+        <tbody>
+          <tr><td>Priya Gupta (Parent)</td><td><span class="badge badge-danger">Fee Reminder</span></td><td>Fee Agent</td><td>10:47 AM</td><td><span class="badge badge-success">✅ Read</span></td><td style="font-size:12px;color:var(--text-secondary);">💰 Fee Due: Rs.18,000 | Link: razorpay.me/...</td></tr>
+          <tr><td>Mr. R.K. Sharma</td><td><span class="badge badge-info">Performance Report</span></td><td>Parent Agent</td><td>Fri 5:02 PM</td><td><span class="badge badge-success">✅ Read</span></td><td style="font-size:12px;color:var(--text-secondary);">📊 Rahul ka weekly report: Attendance 92%...</td></tr>
+          <tr><td>Kavya Patel (Parent)</td><td><span class="badge badge-danger">Escalation Alert</span></td><td>Parent Agent</td><td>Fri 5:09 PM</td><td><span class="badge badge-success">✅ Read</span></td><td style="font-size:12px;color:var(--text-secondary);">🚨 Parent concern raised — management notified</td></tr>
+          <tr><td>Mrs. P. Mehra</td><td><span class="badge badge-info">Performance Report</span></td><td>Parent Agent</td><td>Fri 5:14 PM</td><td><span class="badge badge-warn">📤 Delivered</span></td><td style="font-size:12px;color:var(--text-secondary);">📊 Rohan ka weekly report: Attendance 96%...</td></tr>
+          <tr><td>Neha Kumar (Parent)</td><td><span class="badge badge-warn">Attendance Alert</span></td><td>Attendance Agent</td><td>9:45 AM</td><td><span class="badge badge-success">✅ Read</span></td><td style="font-size:12px;color:var(--text-secondary);">⚠️ Neha aaj absent hai — Reason pending...</td></tr>
+          <tr><td>Management (Director)</td><td><span class="badge badge-danger">Critical Alert</span></td><td>All Agents</td><td>6:30 PM</td><td><span class="badge badge-success">✅ Delivered</span></td><td style="font-size:12px;color:var(--text-secondary);">🚨 3 students critical — action needed today!</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: AGENTS ── -->
+<div id="page-agents" class="page">
+  <div class="page-header">
+    <div><div class="page-title">AI Agents Status</div><div class="page-sub">n8n + VAPI.ai + OpenAI powered — 5 automation workflows</div></div>
+    <button class="btn btn-secondary btn-sm" onclick="showToast('n8n dashboard open ho raha hai...','success')">Open n8n →</button>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px;">
+    <div class="card">
+      <div class="card-header" style="background:#F5F3FF;">
+        <div>
+          <div style="font-size:16px;margin-bottom:3px;">🤖 Admission Lead Agent</div>
+          <div style="font-size:11px;color:var(--purple);">Webhook → AI Script → VAPI Call → Qualify → CRM Update</div>
+        </div>
+        <span class="badge badge-success">🟢 Active</span>
+      </div>
+      <div style="padding:16px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+          <div style="background:var(--bg);padding:10px;border-radius:8px;"><div style="font-size:20px;font-weight:800;color:var(--purple);">156</div><div style="font-size:11px;color:var(--text-secondary);">Calls this week</div></div>
+          <div style="background:var(--bg);padding:10px;border-radius:8px;"><div style="font-size:20px;font-weight:800;color:var(--success);">28%</div><div style="font-size:11px;color:var(--text-secondary);">HOT conversion</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">Trigger: POST /new-lead webhook</div>
+        <div style="font-size:12px;color:var(--text-secondary);">Stack: VAPI.ai + GPT-4o-mini + Meta WhatsApp</div>
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button class="btn btn-secondary btn-sm" onclick="showToast('Test lead bheja gaya!','success')">Test Trigger</button>
+          <button class="btn btn-secondary btn-sm" onclick="showToast('Logs open ho rahe hain...','success')">View Logs</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" style="background:#FFFBEB;">
+        <div>
+          <div style="font-size:16px;margin-bottom:3px;">💰 Fee Collection Agent</div>
+          <div style="font-size:11px;color:var(--warn);">Daily 10AM → Overdue Fetch → AI Call → WhatsApp Link</div>
+        </div>
+        <span class="badge badge-success">🟢 Active</span>
+      </div>
+      <div style="padding:16px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+          <div style="background:var(--bg);padding:10px;border-radius:8px;"><div style="font-size:20px;font-weight:800;color:var(--warn);">23</div><div style="font-size:11px;color:var(--text-secondary);">Reminders today</div></div>
+          <div style="background:var(--bg);padding:10px;border-radius:8px;"><div style="font-size:20px;font-weight:800;color:var(--success);">₹1.8L</div><div style="font-size:11px;color:var(--text-secondary);">Recovered this week</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">Trigger: Cron 0 10 * * * (daily 10 AM)</div>
+        <div style="font-size:12px;color:var(--text-secondary);">Stack: VAPI.ai + GPT-4o-mini + Meta WhatsApp</div>
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button class="btn btn-secondary btn-sm" onclick="showToast('Manual trigger ho gaya!','success')">Manual Run</button>
+          <button class="btn btn-secondary btn-sm" onclick="showToast('Fee agent logs open hain...','success')">View Logs</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" style="background:#FEE2E2;">
+        <div>
+          <div style="font-size:16px;margin-bottom:3px;">📋 Attendance Agent</div>
+          <div style="font-size:11px;color:var(--danger);">Webhook → AI Script → Parent Call → Reason → Update</div>
+        </div>
+        <span class="badge badge-success">🟢 Active</span>
+      </div>
+      <div style="padding:16px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+          <div style="background:var(--bg);padding:10px;border-radius:8px;"><div style="font-size:20px;font-weight:800;color:var(--danger);">44</div><div style="font-size:11px;color:var(--text-secondary);">Calls today</div></div>
+          <div style="background:var(--bg);padding:10px;border-radius:8px;"><div style="font-size:20px;font-weight:800;color:var(--success);">93%</div><div style="font-size:11px;color:var(--text-secondary);">Reason collected</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">Trigger: POST /student-absent webhook</div>
+        <div style="font-size:12px;color:var(--text-secondary);">Stack: VAPI.ai + GPT-4o-mini + Attendance CRM</div>
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button class="btn btn-secondary btn-sm" onclick="showToast('Test absence trigger bheja!','success')">Test Trigger</button>
+          <button class="btn btn-secondary btn-sm" onclick="showToast('Attendance logs open hain...','success')">View Logs</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" style="background:#ECFDF5;">
+        <div>
+          <div style="font-size:16px;margin-bottom:3px;">📚 Academic Agent</div>
+          <div style="font-size:11px;color:var(--success);">Monday 11AM → At-Risk Fetch → AI Call → Mentor Escalate</div>
+        </div>
+        <span class="badge badge-success">🟢 Active</span>
+      </div>
+      <div style="padding:16px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+          <div style="background:var(--bg);padding:10px;border-radius:8px;"><div style="font-size:20px;font-weight:800;color:var(--success);">34</div><div style="font-size:11px;color:var(--text-secondary);">Calls this week</div></div>
+          <div style="background:var(--bg);padding:10px;border-radius:8px;"><div style="font-size:20px;font-weight:800;color:var(--brand);">6</div><div style="font-size:11px;color:var(--text-secondary);">Mentor sessions</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">Trigger: Cron 0 11 * * 1 (Monday 11 AM)</div>
+        <div style="font-size:12px;color:var(--text-secondary);">Stack: VAPI.ai + GPT-4o-mini + Mentor WhatsApp</div>
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button class="btn btn-secondary btn-sm" onclick="showToast('Academic check manual trigger!','success')">Manual Run</button>
+          <button class="btn btn-secondary btn-sm" onclick="showToast('Academic logs open hain...','success')">View Logs</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" style="background:#EEF2FF;">
+        <div>
+          <div style="font-size:16px;margin-bottom:3px;">👨‍👩‍👧 Parent Communication Agent</div>
+          <div style="font-size:11px;color:var(--brand);">Friday 5PM → All Students → AI Call → Feedback → WhatsApp</div>
+        </div>
+        <span class="badge badge-success">🟢 Active</span>
+      </div>
+      <div style="padding:16px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+          <div style="background:var(--bg);padding:10px;border-radius:8px;"><div style="font-size:20px;font-weight:800;color:var(--brand);">342</div><div style="font-size:11px;color:var(--text-secondary);">Calls last Friday</div></div>
+          <div style="background:var(--bg);padding:10px;border-radius:8px;"><div style="font-size:20px;font-weight:800;color:var(--success);">83%</div><div style="font-size:11px;color:var(--text-secondary);">Happy parents</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">Trigger: Cron 0 17 * * 5 (Friday 5 PM)</div>
+        <div style="font-size:12px;color:var(--text-secondary);">Stack: VAPI.ai + GPT-4o-mini + Meta WhatsApp API</div>
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button class="btn btn-secondary btn-sm" onclick="showToast('Parent call cycle manual trigger!','success')">Manual Run</button>
+          <button class="btn btn-secondary btn-sm" onclick="showToast('Parent agent logs open hain...','success')">View Logs</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: ALERTS ── -->
+<div id="page-alerts" class="page">
+  <div class="page-header">
+    <div><div class="page-title">Alerts & Escalations</div><div class="page-sub">Action-required items from all AI agents</div></div>
+    <button class="btn btn-secondary btn-sm" onclick="showToast('Sab alerts mark as read ho gaye!','success')">Mark All Read</button>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">🚨 Active Alerts (7)</div></div>
+    <div class="alert-list">
+      <div class="alert-item" onclick="showPage('fees',document.querySelector('.nav-item'))">
+        <div class="alert-icon" style="background:#FEE2E2;font-size:20px;">💰</div>
+        <div class="alert-content">
+          <div class="alert-title">Fee Overdue — Kavya Patel — ₹18,000 — 19 Days</div>
+          <div class="alert-sub">3 AI calls done, 3 WhatsApp sent — no payment received. Management intervention needed.</div>
+        </div>
+        <span class="badge badge-danger">CRITICAL</span>
+      </div>
+      <div class="alert-item">
+        <div class="alert-icon" style="background:#FEE2E2;font-size:20px;">⚠️</div>
+        <div class="alert-content">
+          <div class="alert-title">Parent Concern — Kavya Patel — NEET Batch</div>
+          <div class="alert-sub">Mrs. M. Patel ne concern raise kiya — low attendance 58% + score 42%</div>
+        </div>
+        <span class="badge badge-danger">HIGH</span>
+      </div>
+      <div class="alert-item">
+        <div class="alert-icon" style="background:#FFFBEB;font-size:20px;">📋</div>
+        <div class="alert-content">
+          <div class="alert-title">Critical Attendance — 3 Students Below 75%</div>
+          <div class="alert-sub">Priya Gupta (68%), Kavya Patel (58%), Vikram Pal (72%) — Immediate action needed</div>
+        </div>
+        <span class="badge badge-warn">HIGH</span>
+      </div>
+      <div class="alert-item">
+        <div class="alert-icon" style="background:#F5F3FF;font-size:20px;">📚</div>
+        <div class="alert-content">
+          <div class="alert-title">Academic Risk — Sneha Joshi — 3 Consecutive Fails</div>
+          <div class="alert-sub">38% score, UPSC History weak — Mentor session assigned, monitoring required</div>
+        </div>
+        <span class="badge badge-warn">MEDIUM</span>
+      </div>
+      <div class="alert-item">
+        <div class="alert-icon" style="background:#EEF2FF;font-size:20px;">🤖</div>
+        <div class="alert-content">
+          <div class="alert-title">Lead Not Converting — 4 HOT Leads Pending 48hrs</div>
+          <div class="alert-sub">Rahul Sharma, Kavya Patel aur 2 aur — counsellor follow-up pending</div>
+        </div>
+        <span class="badge badge-info">MEDIUM</span>
+      </div>
+      <div class="alert-item">
+        <div class="alert-icon" style="background:#FFFBEB;font-size:20px;">💰</div>
+        <div class="alert-content">
+          <div class="alert-title">Fee Collection — 5 Students Overdue 15+ Days</div>
+          <div class="alert-sub">Total ₹2.4L pending — escalation to director recommended</div>
+        </div>
+        <span class="badge badge-warn">MEDIUM</span>
+      </div>
+      <div class="alert-item">
+        <div class="alert-icon" style="background:#ECFDF5;font-size:20px;">📞</div>
+        <div class="alert-content">
+          <div class="alert-title">Parent No-Answer — 8 Parents Unreachable Last Week</div>
+          <div class="alert-sub">Rohan Mehra aur 7 aur — WhatsApp report sent, retry scheduled Monday</div>
+        </div>
+        <span class="badge badge-info">LOW</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end .main -->
+
+<!-- ══════════ MODALS ══════════ -->
+
+<!-- Add Lead Modal -->
+<div class="modal-overlay" id="addLeadModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">➕ Add New Lead</div>
+      <div class="modal-close" onclick="closeModal('addLeadModal')">×</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Full Name *</label><input type="text" placeholder="e.g. Rahul Sharma"></div>
+        <div class="form-group"><label>Phone *</label><input type="text" placeholder="98765 43210"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Email</label><input type="email" placeholder="rahul@email.com"></div>
+        <div class="form-group"><label>Course Interest *</label>
+          <select><option>JEE Mains</option><option>NEET</option><option>CA Foundation</option><option>UPSC</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Lead Source</label>
+          <select><option>Instagram</option><option>WhatsApp</option><option>Google Ads</option><option>Referral</option><option>Website</option></select>
+        </div>
+        <div class="form-group"><label>Assigned To</label>
+          <select><option>Auto (AI Agent)</option><option>Counsellor A</option><option>Counsellor B</option></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea rows="2" placeholder="Koi extra information..."></textarea>
+      </div>
+      <div style="background:var(--brand-light);border-radius:8px;padding:12px;margin-top:8px;font-size:12px;color:var(--brand);">
+        🤖 <strong>AI Agent</strong> — Lead save hote hi automatic VAPI call trigger hogi. Script GPT-4o-mini se generate hogi.
+      </div>
+    </div>
+    <div class="form-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addLeadModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal('addLeadModal');showToast('Lead add + AI call trigger ho gayi — Rahul Sharma!','success')">Add Lead & Trigger Call</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Student Modal -->
+<div class="modal-overlay" id="addStudentModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">👨‍🎓 Enroll New Student</div>
+      <div class="modal-close" onclick="closeModal('addStudentModal')">×</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Student Name *</label><input type="text" placeholder="e.g. Arjun Patel"></div>
+        <div class="form-group"><label>Phone *</label><input type="text" placeholder="98765 43210"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Parent Name *</label><input type="text" placeholder="Parent ka naam"></div>
+        <div class="form-group"><label>Parent Phone *</label><input type="text" placeholder="Parent ka phone"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Course *</label>
+          <select><option>JEE Mains</option><option>NEET</option><option>CA Foundation</option><option>UPSC</option></select>
+        </div>
+        <div class="form-group"><label>Batch *</label>
+          <select><option>Batch A — Morning (7-10 AM)</option><option>Batch B — Evening (4-7 PM)</option><option>Batch C — Weekend</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Fee Amount (₹) *</label><input type="number" placeholder="18000"></div>
+        <div class="form-group"><label>Fee Due Date *</label><input type="date"></div>
+      </div>
+      <div class="form-group"><label>Address</label><input type="text" placeholder="Bhopal, MP"></div>
+    </div>
+    <div class="form-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addStudentModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal('addStudentModal');showToast('Student enrolled! Welcome message WhatsApp par bheja gaya 🎉','success')">Enroll Student</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lead Detail Modal -->
+<div class="modal-overlay" id="leadDetailModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">👤 Lead Details — Rahul Sharma</div>
+      <div class="modal-close" onclick="closeModal('leadDetailModal')">×</div>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+        <div style="background:var(--bg);padding:12px;border-radius:8px;"><div style="font-size:11px;color:var(--text-muted);">Course Interest</div><div style="font-weight:700;margin-top:3px;">JEE Mains 2027</div></div>
+        <div style="background:var(--bg);padding:12px;border-radius:8px;"><div style="font-size:11px;color:var(--text-muted);">Lead Status</div><div style="font-weight:700;margin-top:3px;color:var(--danger);">🔥 HOT</div></div>
+        <div style="background:var(--bg);padding:12px;border-radius:8px;"><div style="font-size:11px;color:var(--text-muted);">AI Score</div><div style="font-weight:700;margin-top:3px;">94 / 100</div></div>
+        <div style="background:var(--bg);padding:12px;border-radius:8px;"><div style="font-size:11px;color:var(--text-muted);">Source</div><div style="font-weight:700;margin-top:3px;">Instagram Ads</div></div>
+      </div>
+      <div style="background:var(--brand-light);border-radius:8px;padding:14px;margin-bottom:14px;">
+        <div style="font-size:12px;font-weight:700;color:var(--brand);margin-bottom:6px;">🤖 AI Qualification Summary</div>
+        <div style="font-size:13px;color:var(--text-primary);">Student ready to enroll in JEE batch. Score 95%+ ka goal hai. Parents supportive hain. Fee discussion hogi. Turant callback required.</div>
+        <div style="font-size:11px;color:var(--brand-mid);margin-top:6px;">Next Action: Counsellor ko assign karo, fee demo schedule karo</div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;">AI CALL TRANSCRIPT</div>
+        <div style="background:var(--bg);border-radius:8px;padding:12px;font-size:12px;line-height:1.7;color:var(--text-primary);max-height:150px;overflow-y:auto;">
+          <strong>AI Agent:</strong> Namaste Rahul ji! Main EduFlow Coaching se bol raha hoon. Aapne JEE Mains ke liye inquiry ki thi...<br>
+          <strong>Rahul:</strong> Haan ji, main 2027 mein appear dunga. IIT Delhi mera target hai.<br>
+          <strong>AI Agent:</strong> Bahut achha! Abhi aap kahan tak padh rahe hain? Koi coaching join ki hai?<br>
+          <strong>Rahul:</strong> Abhi self-study kar raha hoon. Proper guidance chahiye Physics mein.<br>
+          <strong>AI Agent:</strong> Perfect. Hamare JEE batch mein experienced faculty hain. Kya aap demo class attend karna chahenge?<br>
+          <strong>Rahul:</strong> Haan bilkul! Kab hogi?
+        </div>
+      </div>
+      <div class="form-group"><label>Assign to Counsellor</label>
+        <select><option>Counsellor A — Priya Ma'am</option><option>Counsellor B — Rahul Sir</option></select>
+      </div>
+    </div>
+    <div class="form-footer">
+      <button class="btn btn-secondary" onclick="closeModal('leadDetailModal')">Close</button>
+      <button class="btn btn-success" onclick="closeModal('leadDetailModal');showToast('Lead assigned to Counsellor A — Rahul Sharma!','success')">✅ Assign Counsellor</button>
+    </div>
+  </div>
+</div>
+
+<!-- Student Detail Modal -->
+<div class="modal-overlay" id="studentDetailModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">👨‍🎓 Student Profile — Rohan Mehra</div>
+      <div class="modal-close" onclick="closeModal('studentDetailModal')">×</div>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+        <div style="background:var(--success-bg);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:24px;font-weight:800;color:var(--success);">96%</div><div style="font-size:11px;color:var(--text-secondary);">Attendance</div></div>
+        <div style="background:var(--info-bg);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:24px;font-weight:800;color:var(--info);">89%</div><div style="font-size:11px;color:var(--text-secondary);">Last Test</div></div>
+        <div style="background:var(--brand-light);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:24px;font-weight:800;color:var(--brand);">#3</div><div style="font-size:11px;color:var(--text-secondary);">Class Rank</div></div>
+      </div>
+      <div style="background:var(--bg);padding:14px;border-radius:8px;margin-bottom:14px;">
+        <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:10px;">STUDENT DETAILS</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;">
+          <div><span style="color:var(--text-secondary);">Course:</span> <strong>JEE Mains</strong></div>
+          <div><span style="color:var(--text-secondary);">Batch:</span> <strong>Batch A</strong></div>
+          <div><span style="color:var(--text-secondary);">Phone:</span> <strong>+91 54321 09876</strong></div>
+          <div><span style="color:var(--text-secondary);">Fee Status:</span> <span class="badge badge-success">Paid</span></div>
+          <div><span style="color:var(--text-secondary);">Strong:</span> <strong>Maths, Physics</strong></div>
+          <div><span style="color:var(--text-secondary);">Weak:</span> <strong>Chemistry</strong></div>
+        </div>
+      </div>
+      <div style="background:var(--bg);padding:14px;border-radius:8px;">
+        <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:10px;">PARENT INFO</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;">
+          <div><span style="color:var(--text-secondary);">Parent:</span> <strong>Mrs. P. Mehra</strong></div>
+          <div><span style="color:var(--text-secondary);">Phone:</span> <strong>+91 54321 00001</strong></div>
+          <div><span style="color:var(--text-secondary);">Last Call:</span> <strong>Fri Aug 16, 5 PM</strong></div>
+          <div><span style="color:var(--text-secondary);">Sentiment:</span> <span class="badge badge-warn">No Answer</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="form-footer">
+      <button class="btn btn-secondary" onclick="closeModal('studentDetailModal')">Close</button>
+      <button class="btn btn-secondary" onclick="closeModal('studentDetailModal');showToast('Parent ko AI call trigger ho rahi hai!','success')">📞 Call Parent</button>
+      <button class="btn btn-primary" onclick="closeModal('studentDetailModal');showToast('Performance report WhatsApp par bheja!','success')">💬 Send Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mark Attendance Modal -->
+<div class="modal-overlay" id="markAttendanceModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">✅ Mark Attendance</div>
+      <div class="modal-close" onclick="closeModal('markAttendanceModal')">×</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Batch</label>
+          <select><option>Batch A — Morning JEE</option><option>Batch B — Evening NEET</option><option>Batch C — Weekend</option></select>
+        </div>
+        <div class="form-group"><label>Date</label><input type="date" value="2026-08-20"></div>
+      </div>
+      <div style="background:var(--bg);border-radius:8px;padding:14px;">
+        <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:10px;">BATCH A — JEE MAINS (Present / Absent)</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:#fff;border-radius:6px;"><span style="font-size:13px;font-weight:500;">Rahul Sharma</span><div style="display:flex;gap:8px;"><button class="btn btn-success btn-sm" onclick="showToast('Present marked!','success')">P</button><button class="btn btn-danger btn-sm" onclick="showToast('Absent marked — AI call trigger hogi!','warn')">A</button></div></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:#fff;border-radius:6px;"><span style="font-size:13px;font-weight:500;">Amit Verma</span><div style="display:flex;gap:8px;"><button class="btn btn-success btn-sm" onclick="showToast('Present marked!','success')">P</button><button class="btn btn-danger btn-sm" onclick="showToast('Absent marked — AI call trigger hogi!','warn')">A</button></div></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:#fff;border-radius:6px;"><span style="font-size:13px;font-weight:500;">Rohan Mehra</span><div style="display:flex;gap:8px;"><button class="btn btn-success btn-sm" onclick="showToast('Present marked!','success')">P</button><button class="btn btn-danger btn-sm" onclick="showToast('Absent marked — AI call trigger hogi!','warn')">A</button></div></div>
+        </div>
+      </div>
+      <div style="background:var(--warn-bg);border-radius:8px;padding:10px;margin-top:10px;font-size:12px;color:#92400E;">
+        ⚡ Absent mark karte hi Attendance Agent automatically parent ko VAPI call karega!
+      </div>
+    </div>
+    <div class="form-footer">
+      <button class="btn btn-secondary" onclick="closeModal('markAttendanceModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal('markAttendanceModal');showToast('Attendance saved! 3 absent students ke parents ko AI call trigger ho rahi hai...','warn')">Save Attendance</button>
+    </div>
+  </div>
+</div>
+
+<!-- Send WhatsApp Modal -->
+<div class="modal-overlay" id="sendWhatsappModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">💬 Send WhatsApp Message</div>
+      <div class="modal-close" onclick="closeModal('sendWhatsappModal')">×</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Send To</label>
+          <select><option>Individual Student</option><option>Batch A — All Parents</option><option>Batch B — All Parents</option><option>All Parents (Broadcast)</option><option>Management Team</option></select>
+        </div>
+        <div class="form-group"><label>Message Type</label>
+          <select><option>General Update</option><option>Fee Reminder</option><option>Performance Report</option><option>Holiday Notice</option><option>Emergency</option></select>
+        </div>
+      </div>
+      <div class="form-group"><label>Message *</label>
+        <textarea rows="4" placeholder="WhatsApp message type karo...">📢 EduFlow Coaching Institute
+Namaskar! Kal (21 Aug) ke liye special announcement hai...</textarea>
+      </div>
+      <div style="background:var(--info-bg);border-radius:8px;padding:10px;font-size:12px;color:#0C4A6E;">
+        ℹ️ Meta WhatsApp Business API se bheja jayega — delivery report available hogi
+      </div>
+    </div>
+    <div class="form-footer">
+      <button class="btn btn-secondary" onclick="closeModal('sendWhatsappModal')">Cancel</button>
+      <button class="btn btn-success" onclick="closeModal('sendWhatsappModal');showToast('WhatsApp broadcast bheja gaya — 342 parents!','success')">Send Message</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TOAST CONTAINER ══════════ -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ── Navigation ──
+function showPage(pageId, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById('page-' + pageId);
+  if (page) page.classList.add('active');
+  if (el) el.classList.add('active');
+}
+
+// ── Modal ──
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if(e.target===o) o.classList.remove('open'); }));
+
+// ── Toast ──
+function showToast(msg, type='') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast' + (type ? ' '+type : '');
+  const icons = { success:'✅', warn:'⚠️', error:'❌', '':'ℹ️' };
+  t.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3600);
+}
+
+// ── Table Filter ──
+function filterTable(tableId, query) {
+  const rows = document.querySelectorAll('#'+tableId+' tbody tr');
+  rows.forEach(r => r.style.display = r.textContent.toLowerCase().includes(query.toLowerCase()) ? '' : 'none');
+}
+
+function filterLeadStatus(status) {
+  const rows = document.querySelectorAll('#leadsTable tbody tr');
+  rows.forEach(r => r.style.display = (!status || r.textContent.includes(status)) ? '' : 'none');
+}
+
+// ── Tabs ──
+function switchTab(el, tabId) {
+  const parent = el.closest('.page');
+  parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  parent.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const tc = document.getElementById(tabId);
+  if (tc) tc.classList.add('active');
+}
+
+// ── Global Search ──
+document.getElementById('globalSearch').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const q = e.target.value.trim();
+    if (q) showToast(`Search: "${q}" — koi match nahi mila (demo mode)`, 'warn');
+  }
+});
+
+// ── Welcome Toast ──
+setTimeout(() => showToast('EduFlow CRM ready hai — 5 AI Agents active! 🤖', 'success'), 600);
+setTimeout(() => showToast('⚠️ 7 alerts action chahte hain — check karo', 'warn'), 2000);
+</script>
+</body>
+</html>

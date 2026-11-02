@@ -1,0 +1,169 @@
+{
+  "total_credits": 152507.3,
+  "range": [
+    106755.10999999999,
+    198259.49
+  ],
+  "rate": 0.3,
+  "rupees": 45752.189999999995,
+  "rows": [
+    {
+      "workflow": "ADMISSION_CALL",
+      "action": "qualify",
+      "trigger": "Lead saved / Call now",
+      "runs": 350.0,
+      "credits_run": 44.0,
+      "model": "standard",
+      "sends": "whatsapp",
+      "source": "table default",
+      "credits_month": 15400.0
+    },
+    {
+      "workflow": "ACADEMIC_CALL",
+      "action": "counsel",
+      "trigger": "Monday 11:00 at-risk run",
+      "runs": 433.0,
+      "credits_run": 54.0,
+      "model": "standard",
+      "sends": "whatsapp",
+      "source": "table default",
+      "credits_month": 23382.0
+    },
+    {
+      "workflow": "SEND_WHATSAPP",
+      "action": "welcome",
+      "trigger": "Student enrolled",
+      "runs": 90.0,
+      "credits_run": 7.0,
+      "model": "none",
+      "sends": "whatsapp",
+      "source": "table default",
+      "credits_month": 630.0
+    },
+    {
+      "workflow": "SEND_WHATSAPP",
+      "action": "manual",
+      "trigger": "Office admin sends a template",
+      "runs": 167.0,
+      "credits_run": 7.0,
+      "model": "none",
+      "sends": "whatsapp",
+      "source": "table default",
+      "credits_month": 1169.0
+    },
+    {
+      "workflow": "DISPATCH",
+      "action": "academic_run",
+      "trigger": "schedule Mon 11:00",
+      "runs": 4.33,
+      "credits_run": 5.0,
+      "model": "none",
+      "sends": null,
+      "source": "table default",
+      "credits_month": 21.65
+    },
+    {
+      "workflow": "FEE_REMINDER",
+      "action": "call_and_link",
+      "trigger": "Overdue on day 1, 7 and 15",
+      "runs": 210.0,
+      "credits_run": 29.0,
+      "model": "standard",
+      "sends": "whatsapp",
+      "source": "table default",
+      "credits_month": 6090.0
+    },
+    {
+      "workflow": "FEE_REMINDER",
+      "action": "due_soon",
+      "trigger": "3 days before due (WhatsApp only)",
+      "runs": 150.0,
+      "credits_run": 7.0,
+      "model": "none",
+      "sends": "whatsapp",
+      "source": "table default",
+      "credits_month": 1050.0
+    },
+    {
+      "workflow": "ABSENCE_ALERT",
+      "action": "whatsapp",
+      "trigger": "Student marked absent (WhatsApp only)",
+      "runs": 3380.0,
+      "credits_run": 7.0,
+      "model": "none",
+      "sends": "whatsapp",
+      "source": "table default",
+      "credits_month": 23660.0
+    },
+    {
+      "workflow": "ABSENCE_CALL",
+      "action": "reason",
+      "trigger": "2nd absence in a week",
+      "runs": 1014.0,
+      "credits_run": 29.0,
+      "model": "standard",
+      "sends": "whatsapp",
+      "source": "table default",
+      "credits_month": 29406.0
+    },
+    {
+      "workflow": "PARENT_UPDATE",
+      "action": "weekly_report",
+      "trigger": "Friday 17:00 all parents (WhatsApp only)",
+      "runs": 4330.0,
+      "credits_run": 7.0,
+      "model": "none",
+      "sends": "whatsapp",
+      "source": "table default",
+      "credits_month": 30310.0
+    },
+    {
+      "workflow": "PARENT_UPDATE",
+      "action": "weekly_call",
+      "trigger": "Friday 17:00 at-risk parents only",
+      "runs": 433.0,
+      "credits_run": 49.0,
+      "model": "standard",
+      "sends": "whatsapp",
+      "source": "table default",
+      "credits_month": 21217.0
+    },
+    {
+      "workflow": "DISPATCH",
+      "action": "fee_run",
+      "trigger": "schedule daily 10:00",
+      "runs": 30.0,
+      "credits_run": 5.0,
+      "model": "none",
+      "sends": null,
+      "source": "table default",
+      "credits_month": 150.0
+    },
+    {
+      "workflow": "DISPATCH",
+      "action": "parent_run",
+      "trigger": "schedule Fri 17:00",
+      "runs": 4.33,
+      "credits_run": 5.0,
+      "model": "none",
+      "sends": null,
+      "source": "table default",
+      "credits_month": 21.65
+    }
+  ],
+  "by_flow": {
+    "ADMISSION_CALL": 15400.0,
+    "ACADEMIC_CALL": 23382.0,
+    "SEND_WHATSAPP": 1799.0,
+    "DISPATCH": 193.3,
+    "FEE_REMINDER": 7140.0,
+    "ABSENCE_ALERT": 23660.0,
+    "ABSENCE_CALL": 29406.0,
+    "PARENT_UPDATE": 51527.0
+  },
+  "unverified_steps": {},
+  "total_month": 152507.3,
+  "declared_month": null,
+  "counted": false,
+  "gap_ratio": null
+}

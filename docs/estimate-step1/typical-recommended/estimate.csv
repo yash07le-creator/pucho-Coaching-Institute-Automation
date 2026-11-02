@@ -1,0 +1,14 @@
+workflow,action,trigger,runs_per_month,credits_per_run,credits_per_month,model,sends,source
+ADMISSION_CALL,qualify,Lead saved / Call now,120,44,5280,standard,whatsapp,table default
+ACADEMIC_CALL,counsel,Monday 11:00 at-risk run,147,54,7938,standard,whatsapp,table default
+SEND_WHATSAPP,welcome,Student enrolled,30,7,210,none,whatsapp,table default
+SEND_WHATSAPP,manual,Office admin sends a template,57,7,399,none,whatsapp,table default
+DISPATCH,academic_run,schedule Mon 11:00,4.33,5,21.65,none,,table default
+FEE_REMINDER,call_and_link,"Overdue on day 1, 7 and 15",69,29,2001,standard,whatsapp,table default
+FEE_REMINDER,due_soon,3 days before due (WhatsApp only),52,7,364,none,whatsapp,table default
+ABSENCE_ALERT,whatsapp,Student marked absent (WhatsApp only),1144,7,8008,none,whatsapp,table default
+ABSENCE_CALL,reason,2nd absence in a week,343.2,29,9952.8,standard,whatsapp,table default
+PARENT_UPDATE,weekly_report,Friday 17:00 all parents (WhatsApp only),1480.86,7,10366,none,whatsapp,table default
+PARENT_UPDATE,weekly_call,Friday 17:00 at-risk parents only,147,49,7203,standard,whatsapp,table default
+DISPATCH,fee_run,schedule daily 10:00,30,5,150,none,,table default
+DISPATCH,parent_run,schedule Fri 17:00,4.33,5,21.65,none,,table default

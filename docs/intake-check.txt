@@ -1,0 +1,1 @@
+intake_check: 40 R-lines (39 quoted, 1 inferred), 7 actors, 6 exclusions, 10 gaps → PASS
