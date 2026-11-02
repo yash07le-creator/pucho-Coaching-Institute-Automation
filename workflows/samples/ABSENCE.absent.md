@@ -10,6 +10,7 @@
   "Parent_Name": "<string>",
   "Parent_Phone": "<string>",
   "Absences_This_Week": 0,
+  "Absences_This_Month": 0,
   "Marked_By": "<string>"
 }
 ```

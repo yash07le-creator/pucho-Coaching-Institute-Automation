@@ -1,34 +1,32 @@
 Att_ID,Date,Batch,Student_ID,Name,Course,Parent_Name,Parent_Phone,Status,Absences_This_Week,Absences_This_Month,Call_Status,Reason,Category,Needs_Followup,Followup_Done,Marked_By
-AT-2026-5101,2026-11-02,Batch B — Evening,ST-2026-0102,Kavya Patel,NEET,Mrs. M. Patel,+914321000002,Absent,2,7,Call Done,"Not feeling well, but has missed classes all week",PERSONAL,Yes,No,Sunita Rao
-AT-2026-5102,2026-11-02,Batch A — Morning,ST-2026-0101,Rohan Mehra,JEE Mains,Mrs. P. Mehra,+915432100001,Present,0,1,Not Needed,,,No,,Sunita Rao
-AT-2026-5103,2026-11-02,Batch C — Weekend,ST-2026-0103,Sneha Joshi,UPSC,Mr. A. Joshi,+916543200003,Absent,1,3,WhatsApp Sent,,,No,,Sunita Rao
-AT-2026-0300,2026-09-15T09:00:00+05:30,Batch B — Evening,ST-2026-0102,Hardik Patel,NEET,Mrs. M. Patel,+914321000002,Present,1,4,Call Done,"Not feeling well, but has missed classes all week",SICK,Yes,No,Sunita Rao
-AT-2026-0299,2026-09-13T08:00:00+05:30,Batch A — Morning,ST-2026-0101,Nirav Mehta,JEE Mains,Mrs. P. Mehra,+915432100001,Absent,0,1,Not Needed,,FAMILY,No,No,Sunita Rao
-AT-2026-0298,2026-09-11T07:00:00+05:30,Batch C — Weekend,ST-2026-0103,Priya Shah,UPSC,Mr. A. Joshi,+916543200003,Present,1,3,WhatsApp Sent,,TRAVEL,No,Yes,Sunita Rao
-AT-2026-0297,2026-09-09T06:00:00+05:30,Batch B — Evening,ST-2026-0102,Ketan Desai,NEET,Mrs. M. Patel,+914321000002,Absent,3,9,Call Done,"Not feeling well, but has missed classes all week",PERSONAL,Yes,No,Sunita Rao
-AT-2026-0296,2026-09-07T05:00:00+05:30,Batch A — Morning,ST-2026-0101,Rupal Joshi,JEE Mains,Mrs. P. Mehra,+915432100001,Present,0,1,Not Needed,,OTHER,No,Yes,Sunita Rao
-AT-2026-0295,2026-09-05T04:00:00+05:30,Batch C — Weekend,ST-2026-0103,Jignesh Patel,UPSC,Mr. A. Joshi,+916543200003,Absent,1,4,WhatsApp Sent,,SICK,No,No,Sunita Rao
-AT-2026-0294,2026-09-03T03:00:00+05:30,Batch B — Evening,ST-2026-0102,Amit Rathod,NEET,Mrs. M. Patel,+914321000002,Present,1,4,Call Done,"Not feeling well, but has missed classes all week",FAMILY,Yes,No,Sunita Rao
-AT-2026-0293,2026-09-01T09:00:00+05:30,Batch A — Morning,ST-2026-0101,Sunil Bansal,JEE Mains,Mrs. P. Mehra,+915432100001,Absent,0,1,Not Needed,,TRAVEL,No,No,Sunita Rao
-AT-2026-0292,2026-08-30T08:00:00+05:30,Batch C — Weekend,ST-2026-0103,Deepa Nair,UPSC,Mr. A. Joshi,+916543200003,Present,1,3,WhatsApp Sent,,PERSONAL,No,Yes,Sunita Rao
-AT-2026-0291,2026-08-28T07:00:00+05:30,Batch B — Evening,ST-2026-0102,Vikram Chauhan,NEET,Mrs. M. Patel,+914321000002,Absent,3,9,Call Done,"Not feeling well, but has missed classes all week",OTHER,Yes,No,Sunita Rao
-AT-2026-0290,2026-08-26T06:00:00+05:30,Batch A — Morning,ST-2026-0101,Manish Trivedi,JEE Mains,Mrs. P. Mehra,+915432100001,Present,0,1,Not Needed,,SICK,No,Yes,Sunita Rao
-AT-2026-0289,2026-08-24T05:00:00+05:30,Batch C — Weekend,ST-2026-0103,Rohit Sethi,UPSC,Mr. A. Joshi,+916543200003,Absent,1,4,WhatsApp Sent,,FAMILY,No,No,Sunita Rao
-AT-2026-0288,2026-08-22T04:00:00+05:30,Batch B — Evening,ST-2026-0102,Anjali Kulkarni,NEET,Mrs. M. Patel,+914321000002,Present,1,4,Call Done,"Not feeling well, but has missed classes all week",TRAVEL,Yes,No,Sunita Rao
-AT-2026-0287,2026-08-20T03:00:00+05:30,Batch A — Morning,ST-2026-0101,Ramesh Desai,JEE Mains,Mrs. P. Mehra,+915432100001,Absent,0,1,Not Needed,,PERSONAL,No,No,Sunita Rao
-AT-2026-0286,2026-08-18T09:00:00+05:30,Batch C — Weekend,ST-2026-0103,Hardik Patel,UPSC,Mr. A. Joshi,+916543200003,Present,1,3,WhatsApp Sent,,OTHER,No,Yes,Sunita Rao
-AT-2026-0285,2026-08-16T08:00:00+05:30,Batch B — Evening,ST-2026-0102,Nirav Mehta,NEET,Mrs. M. Patel,+914321000002,Absent,3,9,Call Done,"Not feeling well, but has missed classes all week",SICK,Yes,No,Sunita Rao
-AT-2026-0284,2026-08-14T07:00:00+05:30,Batch A — Morning,ST-2026-0101,Priya Shah,JEE Mains,Mrs. P. Mehra,+915432100001,Present,0,1,Not Needed,,FAMILY,No,Yes,Sunita Rao
-AT-2026-0283,2026-08-12T06:00:00+05:30,Batch C — Weekend,ST-2026-0103,Ketan Desai,UPSC,Mr. A. Joshi,+916543200003,Absent,1,4,WhatsApp Sent,,TRAVEL,No,No,Sunita Rao
-AT-2026-0282,2026-08-10T05:00:00+05:30,Batch B — Evening,ST-2026-0102,Rupal Joshi,NEET,Mrs. M. Patel,+914321000002,Present,1,4,Call Done,"Not feeling well, but has missed classes all week",PERSONAL,Yes,No,Sunita Rao
-AT-2026-0281,2026-08-08T04:00:00+05:30,Batch A — Morning,ST-2026-0101,Jignesh Patel,JEE Mains,Mrs. P. Mehra,+915432100001,Absent,0,1,Not Needed,,OTHER,No,No,Sunita Rao
-AT-2026-0280,2026-08-06T03:00:00+05:30,Batch C — Weekend,ST-2026-0103,Amit Rathod,UPSC,Mr. A. Joshi,+916543200003,Present,1,3,WhatsApp Sent,,SICK,No,Yes,Sunita Rao
-AT-2026-0279,2026-08-04T09:00:00+05:30,Batch B — Evening,ST-2026-0102,Sunil Bansal,NEET,Mrs. M. Patel,+914321000002,Absent,3,9,Call Done,"Not feeling well, but has missed classes all week",FAMILY,Yes,No,Sunita Rao
-AT-2026-0278,2026-08-02T08:00:00+05:30,Batch A — Morning,ST-2026-0101,Deepa Nair,JEE Mains,Mrs. P. Mehra,+915432100001,Present,0,1,Not Needed,,TRAVEL,No,Yes,Sunita Rao
-AT-2026-0277,2026-07-31T07:00:00+05:30,Batch C — Weekend,ST-2026-0103,Vikram Chauhan,UPSC,Mr. A. Joshi,+916543200003,Absent,1,4,WhatsApp Sent,,PERSONAL,No,No,Sunita Rao
-AT-2026-0276,2026-07-29T06:00:00+05:30,Batch B — Evening,ST-2026-0102,Manish Trivedi,NEET,Mrs. M. Patel,+914321000002,Present,1,4,Call Done,"Not feeling well, but has missed classes all week",OTHER,Yes,No,Sunita Rao
-AT-2026-0275,2026-07-27T05:00:00+05:30,Batch A — Morning,ST-2026-0101,Rohit Sethi,JEE Mains,Mrs. P. Mehra,+915432100001,Absent,0,1,Not Needed,,SICK,No,No,Sunita Rao
-AT-2026-0274,2026-07-25T04:00:00+05:30,Batch C — Weekend,ST-2026-0103,Anjali Kulkarni,UPSC,Mr. A. Joshi,+916543200003,Present,1,3,WhatsApp Sent,,FAMILY,No,Yes,Sunita Rao
-AT-2026-0273,2026-07-23T03:00:00+05:30,Batch B — Evening,ST-2026-0102,Ramesh Desai,NEET,Mrs. M. Patel,+914321000002,Absent,3,9,Call Done,"Not feeling well, but has missed classes all week",TRAVEL,Yes,No,Sunita Rao
-AT-2026-0272,2026-07-21T09:00:00+05:30,Batch A — Morning,ST-2026-0101,Hardik Patel,JEE Mains,Mrs. P. Mehra,+915432100001,Present,0,1,Not Needed,,PERSONAL,No,Yes,Sunita Rao
-AT-2026-0271,2026-07-19T08:00:00+05:30,Batch C — Weekend,ST-2026-0103,Nirav Mehta,UPSC,Mr. A. Joshi,+916543200003,Absent,1,4,WhatsApp Sent,,OTHER,No,No,Sunita Rao
+AT-2026-5101,2026-10-30,Batch B — Evening,ST-2026-0108,Kavya Patel,NEET,Mrs. M. Patel,+919425009611,Absent,1,6,WhatsApp Sent,,,No,,Sunita Rao
+AT-2026-5102,2026-10-31,Batch B — Evening,ST-2026-0112,Mohit Yadav,NEET,Mr. B. Yadav,+919425015103,Absent,1,5,WhatsApp Sent,,,No,,Sunita Rao
+AT-2026-5103,2026-10-31,Batch C — Weekend,ST-2026-0119,Sneha Joshi,UPSC,Mr. A. Joshi,+919425024714,Present,0,0,Not Needed,,,No,,Sunita Rao
+AT-2026-5104,2026-10-31,Batch C — Weekend,ST-2026-0120,Vikram Pal,UPSC,Mr. R. Pal,+919425026087,Present,0,0,Not Needed,,,No,,Sunita Rao
+AT-2026-5105,2026-10-31,Batch C — Weekend,ST-2026-0121,Anjali Mishra,UPSC,Mrs. U. Mishra,+919425027460,Present,0,0,Not Needed,,,No,,Sunita Rao
+AT-2026-5106,2026-10-31,Batch C — Weekend,ST-2026-0122,Saurabh Tiwari,UPSC,Mr. L. Tiwari,+919425028833,Absent,1,3,WhatsApp Sent,,,No,,Sunita Rao
+AT-2026-5107,2026-10-31,Batch C — Weekend,ST-2026-0123,Pallavi Gour,UPSC,Mrs. J. Gour,+919425030206,Present,0,0,Not Needed,,,No,,Sunita Rao
+AT-2026-5108,2026-10-31,Batch C — Weekend,ST-2026-0124,Arjun Thakur,UPSC,Mr. P. Thakur,+919425031579,Present,0,0,Not Needed,,,No,,Sunita Rao
+AT-2026-5109,2026-11-01,Batch C — Weekend,ST-2026-0119,Sneha Joshi,UPSC,Mr. A. Joshi,+919425024714,Absent,1,3,WhatsApp Sent,,,No,,Sunita Rao
+AT-2026-5110,2026-11-01,Batch C — Weekend,ST-2026-0120,Vikram Pal,UPSC,Mr. R. Pal,+919425026087,Present,0,0,Not Needed,,,No,,Sunita Rao
+AT-2026-5111,2026-11-01,Batch C — Weekend,ST-2026-0121,Anjali Mishra,UPSC,Mrs. U. Mishra,+919425027460,Present,0,0,Not Needed,,,No,,Sunita Rao
+AT-2026-5112,2026-11-01,Batch C — Weekend,ST-2026-0122,Saurabh Tiwari,UPSC,Mr. L. Tiwari,+919425028833,Absent,2,4,Call Done,Travelling to Indore for a family wedding; back on Saturday,TRAVEL,No,,Sunita Rao
+AT-2026-5113,2026-11-01,Batch C — Weekend,ST-2026-0123,Pallavi Gour,UPSC,Mrs. J. Gour,+919425030206,Present,0,0,Not Needed,,,No,,Sunita Rao
+AT-2026-5114,2026-11-01,Batch C — Weekend,ST-2026-0124,Arjun Thakur,UPSC,Mr. P. Thakur,+919425031579,Present,0,0,Not Needed,,,No,,Sunita Rao
+AT-2026-5115,2026-11-02,Batch A — Morning,ST-2026-0101,Rohan Mehra,JEE Mains,Mrs. P. Mehra,+919425000000,Present,0,0,Not Needed,,,No,,Sunita Rao
+AT-2026-5116,2026-11-02,Batch A — Morning,ST-2026-0102,Aarav Jain,JEE Mains,Mr. S. Jain,+919425001373,Present,0,0,Not Needed,,,No,,Sunita Rao
+AT-2026-5117,2026-11-02,Batch A — Morning,ST-2026-0103,Ishita Saxena,JEE Mains,Mrs. R. Saxena,+919425002746,Absent,1,1,WhatsApp Sent,,,No,,Sunita Rao
+AT-2026-5118,2026-11-02,Batch A — Morning,ST-2026-0104,Kunal Raghuwanshi,JEE Mains,Mr. V. Raghuwanshi,+919425004119,Present,0,0,Not Needed,,,No,,Sunita Rao
+AT-2026-5119,2026-11-02,Batch A — Morning,ST-2026-0105,Tanvi Dubey,JEE Mains,Mrs. A. Dubey,+919425005492,Present,0,0,Not Needed,,,No,,Sunita Rao
+AT-2026-5120,2026-11-02,Batch A — Morning,ST-2026-0106,Yash Choudhary,JEE Mains,Mr. K. Choudhary,+919425006865,Absent,1,2,WhatsApp Sent,,,No,,Sunita Rao
+AT-2026-5121,2026-11-02,Batch A — Morning,ST-2026-0107,Nikhil Kumar,JEE Mains,Mr. R. Kumar,+919425008238,Present,0,0,Not Needed,,,No,,Sunita Rao
+AT-2026-5122,2026-11-02,Batch B — Evening,ST-2026-0108,Kavya Patel,NEET,Mrs. M. Patel,+919425009611,Absent,2,7,Call Done,"Not feeling well, but has missed classes all week",PERSONAL,Yes,No,Sunita Rao
+AT-2026-5123,2026-11-02,Batch B — Evening,ST-2026-0109,Ananya Shrivastava,NEET,Mrs. S. Shrivastava,+919425010984,Present,0,0,Not Needed,,,No,,Sunita Rao
+AT-2026-5124,2026-11-02,Batch B — Evening,ST-2026-0110,Harsh Rajput,NEET,Mr. D. Rajput,+919425012357,Present,0,0,Not Needed,,,No,,Sunita Rao
+AT-2026-5125,2026-11-02,Batch B — Evening,ST-2026-0111,Sakshi Pandey,NEET,Mrs. K. Pandey,+919425013730,Present,0,0,Not Needed,,,No,,Sunita Rao
+AT-2026-5126,2026-11-02,Batch B — Evening,ST-2026-0112,Mohit Yadav,NEET,Mr. B. Yadav,+919425015103,Absent,2,6,No Answer,,,Yes,No,Sunita Rao
+AT-2026-5127,2026-11-02,Batch B — Evening,ST-2026-0113,Riya Malviya,NEET,Mrs. N. Malviya,+919425016476,Present,0,0,Not Needed,,,No,,Sunita Rao
+AT-2026-5128,2026-11-02,Batch B — Evening,ST-2026-0114,Neha Kumar,NEET,Mrs. G. Kumar,+919425017849,Present,0,0,Not Needed,,,No,,Sunita Rao
+AT-2026-5129,2026-11-02,Batch A — Morning,ST-2026-0115,Dev Singh,CA Foundation,Mr. H. Singh,+919425019222,Present,0,0,Not Needed,,,No,,Sunita Rao
+AT-2026-5130,2026-11-02,Batch A — Morning,ST-2026-0116,Muskan Agrawal,CA Foundation,Mrs. P. Agrawal,+919425020595,Present,0,0,Not Needed,,,No,,Sunita Rao
+AT-2026-5131,2026-11-02,Batch A — Morning,ST-2026-0117,Aditi Soni,CA Foundation,Mr. M. Soni,+919425021968,Present,0,0,Not Needed,,,No,,Sunita Rao

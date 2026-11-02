@@ -28,7 +28,7 @@ _Generated 2026-11-02 from os.yaml._
 - **STUDENT_MANAGE** — trigger `webhook.catch_webhook`; writes students, fees, messages, audit_log
   - `enrol` — model none, ~5s, ~7 credits; payload Name, Phone, Student_Phone, Parent_Name, Parent_Phone, Course, Batch, Fee_Amount_INR, Fee_Due_Date, Address, Counsellor → result 
 - **ABSENCE** — trigger `webhook.catch_webhook`; writes attendance, calls, messages, alerts, audit_log
-  - `absent` — model standard, ~300s, ~14 credits; payload Date, Batch, Student_ID, Name, Course, Parent_Name, Parent_Phone, Absences_This_Week, Marked_By → result reason, category, needs_followup
+  - `absent` — model standard, ~300s, ~14 credits; payload Date, Batch, Student_ID, Name, Course, Parent_Name, Parent_Phone, Absences_This_Week, Absences_This_Month, Marked_By → result reason, category, needs_followup
   - `reason_call` — model standard, ~300s, ~29 credits; payload Att_ID, Date, Batch, Student_ID, Name, Course, Parent_Name, Parent_Phone → result reason, category, needs_followup
 - **ACADEMIC_CALL** — trigger `webhook.catch_webhook`; writes students, calls, alerts, messages, audit_log
   - `counsel` — model standard, ~360s, ~54 credits; payload Student_ID, Name, Student_Phone, Course, Attendance_Pct, Last_Score, Weak_Subjects, Mentor → result issue_type, main_issue, needs_mentor, needs_counsellor

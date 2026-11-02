@@ -2,5 +2,6 @@ Member_ID,Name,Role,Phone,Email,Courses,Active
 TM-001,Dev Dabi,Director,+919826000001,director@replora.example,All,true
 TM-002,Priya Saxena,Counsellor,+919826000002,priya@replora.example,"JEE Mains, NEET",true
 TM-003,Rahul Tiwari,Counsellor,+919826000003,rahul.t@replora.example,"CA Foundation, UPSC",true
-TM-004,Arvind Mishra,Mentor,+919826000004,arvind@replora.example,All,true
+TM-004,Arvind Mishra,Mentor,+919826000004,arvind@replora.example,"JEE Mains, CA Foundation",true
 TM-005,Sunita Rao,Office Admin,+919826000005,office@replora.example,All,true
+TM-006,Neelam Verma,Mentor,+919826000006,neelam@replora.example,"NEET, UPSC",true
