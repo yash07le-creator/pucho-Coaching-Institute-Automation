@@ -2,7 +2,7 @@
   "os": "EduFlow",
   "status": "pass",
   "viewport": "desktop",
-  "passed": 939,
+  "passed": 943,
   "failed": 0,
   "failures": [],
   "warnings": [
@@ -99,6 +99,7 @@
     "evidence\\ui-check\\tab-fees-2.png",
     "evidence\\ui-check\\drawer-fees-tab-2.png",
     "evidence\\ui-check\\tab-fees-3.png",
+    "evidence\\ui-check\\drawer-fees-tab-3.png",
     "evidence\\ui-check\\tab-fees-4.png",
     "evidence\\ui-check\\drawer-fees-tab-4.png",
     "evidence\\ui-check\\drawer-fees-page.png",
