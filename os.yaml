@@ -750,9 +750,9 @@ pages:
       - { metric: fees_overdue, filter: false }
       - { label: Avg attendance, entity: students, formula: "avg Attendance_Pct where Status!=Inactive", format: pct, icon: CalendarCheck }
     queues:
-      - { metric: alerts_open, action: acknowledge, action_label: Acknowledge, sub: Severity, link: /alerts }
-      - { metric: hot_overdue, action: assign, action_label: Assign, sub: Course, link: /leads }
-      - { metric: overdue_15, action: send_link, action_label: Send link, sub: Course, link: /fees }
+      - { metric: alerts_open, action: acknowledge, action_label: Acknowledge, link: /alerts }
+      - { metric: hot_overdue, action: assign, action_label: Assign, link: /leads }
+      - { metric: overdue_15, action: send_link, action_label: Send link, link: /fees }
     charts:
       - { id: lead-funnel, type: funnel, entity: leads, title: Admissions funnel, where: "Stage!=Lost", span: 3, footer: "Leads by stage, with conversion from the previous stage. Lost leads are excluded." }
       - { id: calls-week, type: trend, entity: calls, title: AI calls per week by agent, date: Called_At, series: [Agent], days: 56, bucket: week, span: 3 }
@@ -960,7 +960,7 @@ pages:
           - { metric: absent_today, filter: "Status=Absent" }
           - { metric: followup_needed, filter: "Needs_Followup=Yes" }
           - { metric: low_attendance }
-      - { type: custom, name: AttendanceSheet }
+      - { type: custom, name: AttendanceSheet, flow: ABSENCE, action: absent }   # the sheet: Present = direct insert, Absent = this action
       - type: table
         segments: { column: Status, all: All marks }
         period: { column: Date, presets: [today, yesterday, 7d, 30d], default: today }

@@ -60,7 +60,6 @@ export const PAGES = [
         "metric": "alerts_open",
         "action": "acknowledge",
         "action_label": "Acknowledge",
-        "sub": "Severity",
         "link": "/alerts",
         "entity": "alerts",
         "label": "Open alerts",
@@ -72,7 +71,6 @@ export const PAGES = [
         "metric": "hot_overdue",
         "action": "assign",
         "action_label": "Assign",
-        "sub": "Course",
         "link": "/leads",
         "entity": "leads",
         "label": "HOT leads past 48 h",
@@ -84,7 +82,6 @@ export const PAGES = [
         "metric": "overdue_15",
         "action": "send_link",
         "action_label": "Send link",
-        "sub": "Course",
         "link": "/fees",
         "entity": "fees",
         "label": "Overdue 15+ days",
@@ -1565,6 +1562,8 @@ export const PAGES = [
       {
         "type": "custom",
         "name": "AttendanceSheet",
+        "flow": "ABSENCE",
+        "action": "absent",
         "id": "attendance-custom"
       },
       {
