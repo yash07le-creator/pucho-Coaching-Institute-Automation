@@ -118,3 +118,26 @@ Verified: "Batch D — Night", 7:00–9:00 PM typed into the picker, Mon–Fri +
   refusal toast, save → toast "Successfully recorded scores for 10 students!", 10 rows (49.5/50 → 99 %, Dev Absent "—"), DB:
   TR-2026-0005 10/9/1 avg 78 and 10 tests rows on that run; re-opening the same test → "10 already saved", Save disabled;
   Correct marks opens. The browser's actual file save was not exercised (the click was intercepted to read the file).
+
+## Hybrid parent updates — Friday 5 PM (owner, 3 Nov 2026)
+- `PARENT_RUN` (cron `0 17 * * 1,5`, Asia/Kolkata — Friday and Monday 17:00 in one schedule, the code branches on the weekday):
+  Friday step 1 — every student with Status ≠ Inactive → `PARENT_UPDATE.weekly_report` (WhatsApp template
+  `eduflow_weekly_report`, numbers from the record, no AI; a messages row, Type Weekly Report). Friday step 2 — only Status
+  At Risk / Critical OR Attendance_Pct < 75 OR Last_Score < 60 (code) → `PARENT_UPDATE.update_call`. Monday — Friday's Parent
+  calls with Status No Answer and no Retry_At → Retry_At now, one `update_call` with Is_Retry Yes; a second No Answer is closed
+  ("No answer twice — closed"), never retried.
+- `update_call`: voice context Parent_Name, Name, Course, Attendance_Pct, Last_Score, Class_Rank, Weak_Subjects + constants.call_goal;
+  voiceCall → delay → getCallDetails → ONE CDM extract (sentiment, feedback, concern, needs_escalation). Code: call Status
+  No Answer / Escalated / Completed; Needs_Followup Yes when Concerned or needs_escalation. Writes students Parent_Sentiment /
+  Parent_Concern / Last_Parent_Call_At and one calls row; escalation → alerts (Kind Parent, HIGH, "Parent Concern - {Name} -
+  {Course}", "{Parent_Name}: {concern}", Owner = the team member with Role Director) + staff WhatsApp to that director.
+- No schema change — every column already existed. Simulated effect now inserts the calls row (labelled SIMULATED) and patches
+  the student (Neutral), so the demo shows a call land.
+- Parents page: Concerns tab = `Agent=Parent and Needs_Followup=Yes` (the filter grammar has no "or"; the flow sets
+  Needs_Followup for both triggers); a Feedback column (Summary). Escalated and Concerned badges read red
+  (`custom/badgeTones.*`, renamed from noticeBadges — same hydration-safe approach).
+- Observed (dev server, Director): Parent calls tab with Feedback; Concerns tab → only Mrs. M. Patel (Escalated, Concerned, red);
+  "AI call to parent" on Mohit Yadav → calls CL-2026-2235 (Parent, Completed, Neutral, "SIMULATED — no call was placed") and
+  students.Parent_Sentiment Neutral, Last_Parent_Call_At now. Fresh tab: no console errors.
+- NOT built yet: the Studio workflow JSON (cron, voiceCall, CDM, alerts) — step 6. The estimate still assumes 160 parent calls a
+  month; the wider at-risk rule (attendance < 75 or score < 60) may call more — re-count at step 6.

@@ -5,6 +5,6 @@ import BatchManager from './BatchManager';
 import ScoreBook from './ScoreBook';
 import './popupSlack';   // adapter: clears the kernel's leftover modal padding after a select / date picker closes
 import './navScroll';    // adapter: the sidebar menu keeps its scroll and shows the open module after a page change
-import './noticeBadges'; // adapter: WhatsApp Notice badges in the owner's colours (Present green, WhatsApp Sent indigo)
+import './badgeTones';   // adapter: badge colours the owner asked for (WhatsApp Notice states; escalated parent calls in red)
 
 export const CUSTOM = { AttendanceSheet, BatchManager, ScoreBook };

@@ -1,0 +1,23 @@
+/* badgeTones.css — badge colours the owner asked for (3 Nov 2026); see badgeTones.js for why this is an adapter.
+   Under the Pucho tone a badge is a grey pill with a status dot (Delivered → green dot, Failed → red, from the kernel).
+   A badge whose value is a declared status carries data-os-stage and is repainted here in CSS alone — no DOM change, so the
+   server HTML and React's hydration stay identical:
+     Present   (attendance status) — soft green, the WhatsApp Notice / attendance mark
+     Escalated (calls status)      — red, a parent concern sent to the director (the Concerns tab)
+   The others get a class from badgeTones.js, after React has claimed the node. */
+.badge[data-os-stage="Present"] {
+  --badge-dot: var(--ok);
+  color: var(--ok-text) !important;
+  background: var(--ok-soft) !important;
+}
+.badge[data-os-stage="Escalated"],
+.badge.os-badge-bad {
+  --badge-dot: var(--bad);
+  color: var(--bad-text) !important;
+  background: var(--bad-soft) !important;
+}
+.badge.os-badge-info {
+  --badge-dot: var(--info);
+  color: var(--info-text) !important;
+  background: var(--info-soft) !important;
+}
