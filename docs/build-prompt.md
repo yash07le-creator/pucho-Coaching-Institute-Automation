@@ -4,6 +4,7 @@ The repo in `app/` already runs (`docs/db-setup.md`: a local PostgreSQL, `npm i 
 ## Your job — the custom sections
 Register each in `src/custom/index.js` (`export const CUSTOM = { EnquiryTimeline, MastersTabs }`), one component per file in `src/custom/`:
 - `AttendanceSheet` on attendance
+- `ScoreBook` on scores
 - `BatchManager` on batches
 Props: page-level custom gets `{ data, rows, reload, openModal(id, row) }`; detail-section custom gets `{ row, data, reload, openModal(id) }`. Use the kernel primitives only — every field gets `className="os-control w-full"`, every search/filter row is `<Toolbar>` — `DataTable`, `Modal`, `StatusBadge`, `GlassStatCard`, the primitives in `src/components/ui/primitives.jsx` (Chip, ChipRow, Avatar, Progress, Callout, Tile/Tiles, ScoreRing, IconDisc, ViewToggle, MetaRow, TagList), `renderSection` from `src/module/Sections.jsx`, the `CARD` class from `src/module/Charts.jsx`, antd `Button/Input/Select`, `toast` from sonner, `runAction(spec, payload)` / `callWorkflow(flow, action, payload)` from `src/utils/api.js` (they call the Server Action; the browser never talks to the database or to Studio). Colours come from tokens (`text-ink`, `text-ink-2/3/4`, `bg-surface-2`, `ok/warn/bad/info`, `brand-*`); never a hex literal.
 

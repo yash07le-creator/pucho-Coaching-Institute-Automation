@@ -9,7 +9,7 @@ _Generated 2026-11-03._
 - Students `/students` → `STUDENT_MANAGE.enrol` (Enrol student), direct patch (Assign mentor / counsellor), `PARENT_UPDATE.update_call` (AI call to parent), `PARENT_UPDATE.weekly_report` (Send weekly report), `SEND_WHATSAPP.send_update` (WhatsApp the parent)
 - Attendance `/attendance` → direct patch (Follow-up done), `ABSENCE.absent` (Send absence notice)
 - Academic `/academic` → `ACADEMIC_CALL.counsel` (AI counselling call), direct patch (Assign mentor / counsellor)
-- Test scores `/scores` → direct insert (Add score), direct patch (Correct marks)
+- Test scores `/scores` → direct patch (Correct marks)
 - Fees `/fees` → direct patch (Record payment), `FEE_REMINDER.send_link` (Send payment link), `FEE_REMINDER.remind` (AI reminder call)
 - Parent updates `/parents` → no workflow
 - WhatsApp `/messages` → no workflow
@@ -25,6 +25,8 @@ _Generated 2026-11-03._
   - `call` — model standard, ~240s, ~44 credits; payload Lead_ID, Name, Phone, Course, Notes → result grade, score, summary, next_action
 - **STUDENT_MANAGE** — trigger `webhook.catch_webhook`; writes students, fees, messages, audit_log
   - `enrol` — model none, ~5s, ~7 credits; payload Name, Phone, Student_Phone, Parent_Name, Parent_Phone, Course, Batch, Fee_Amount_INR, Fee_Due_Date, Address, Counsellor → result 
+- **SCORES** — trigger `webhook.catch_webhook`; writes test_runs, tests, audit_log
+  - `save_batch` — model none, ~2s, ~3 credits; payload Test_Date, Test_Name, Batch, Subject, Max_Marks, Total_Count, Scored_Count, Absent_Count, Avg_Pct, Marked_By, lines → result 
 - **ATTENDANCE** — trigger `webhook.catch_webhook`; writes attendance_sessions, attendance, audit_log
   - `save_batch` — model none, ~6s, ~6 credits; payload Date, Batch, Total_Count, Present_Count, Absent_Count, Absentees, Marked_By, lines → result 
 - **ABSENCE** — trigger `webhook.catch_webhook`; writes attendance, messages, alerts, audit_log
@@ -54,6 +56,7 @@ _Generated 2026-11-03._
 | `ADMISSION_CALL.new_lead` | standard | 120 | 44 | 5,280 |
 | `ADMISSION_CALL.call` | standard | 30 | 44 | 1,320 |
 | `STUDENT_MANAGE.enrol` | none | 30 | 7 | 210 |
+| `SCORES.save_batch` | none | 40 | 3 | 120 |
 | `ATTENDANCE.save_batch` | none | 90 | 6 | 540 |
 | `ABSENCE.absent` | none | 1144 | 7 | 8,008 |
 | `ACADEMIC_CALL.counsel` | standard | 147 | 54 | 7,938 |
@@ -66,6 +69,6 @@ _Generated 2026-11-03._
 | `ACADEMIC_RUN.run` | none | 4 | 5 | 20 |
 | `PARENT_RUN.run` | none | 9 | 5 | 45 |
 | `ROLLUP.run` | none | 30 | 5 | 150 |
-| **total** | | | | **44,828** credits ≈ ₹13,448 / month (declared; `docs/estimate.md` is the client page and is re-counted on the built flows at step 6) |
+| **total** | | | | **44,948** credits ≈ ₹13,484 / month (declared; `docs/estimate.md` is the client page and is re-counted on the built flows at step 6) |
 
 Credits are the only unit the client is quoted — no plan fit. Per-step base per `flow/credit-table.md`.

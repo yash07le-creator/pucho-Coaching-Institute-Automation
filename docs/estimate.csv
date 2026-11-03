@@ -2,6 +2,7 @@ workflow,action,trigger,runs_per_month,credits_per_run,credits_per_month,model,s
 ADMISSION_CALL,new_lead,new lead from the OS,120,44,5280,standard,,declared
 ADMISSION_CALL,call,call from the OS,30,44,1320,standard,,declared
 STUDENT_MANAGE,enrol,enrol from the OS,30,7,210,none,whatsapp,declared
+SCORES,save_batch,save batch from the OS,40,3,120,none,,declared
 ATTENDANCE,save_batch,save batch from the OS,90,6,540,none,,declared
 ABSENCE,absent,absent from the OS,1144,7,8008,none,whatsapp,declared
 ACADEMIC_CALL,counsel,counsel from the OS,147,54,7938,standard,,declared

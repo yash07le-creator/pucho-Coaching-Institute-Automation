@@ -90,8 +90,7 @@ export const NAV = [
     "icon": "ClipboardList",
     "desc": "",
     "group": "Students",
-    "kind": "page",
-    "subtitle": "Marks per test and subject — they feed attendance-and-score risk every night"
+    "subtitle": "Marks per test and subject, entered batch-wise — they feed attendance-and-score risk every night"
   },
   {
     "id": "fees",

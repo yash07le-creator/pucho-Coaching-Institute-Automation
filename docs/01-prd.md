@@ -29,6 +29,8 @@ _Generated 2026-11-03 from os.yaml._
   - `call` — model standard, ~240s, ~44 credits; payload Lead_ID, Name, Phone, Course, Notes → result grade, score, summary, next_action
 - **STUDENT_MANAGE** — trigger `webhook.catch_webhook`; writes students, fees, messages, audit_log
   - `enrol` — model none, ~5s, ~7 credits; payload Name, Phone, Student_Phone, Parent_Name, Parent_Phone, Course, Batch, Fee_Amount_INR, Fee_Due_Date, Address, Counsellor → result 
+- **SCORES** — trigger `webhook.catch_webhook`; writes test_runs, tests, audit_log
+  - `save_batch` — model none, ~2s, ~3 credits; payload Test_Date, Test_Name, Batch, Subject, Max_Marks, Total_Count, Scored_Count, Absent_Count, Avg_Pct, Marked_By, lines → result 
 - **ATTENDANCE** — trigger `webhook.catch_webhook`; writes attendance_sessions, attendance, audit_log
   - `save_batch` — model none, ~6s, ~6 credits; payload Date, Batch, Total_Count, Present_Count, Absent_Count, Absentees, Marked_By, lines → result 
 - **ABSENCE** — trigger `webhook.catch_webhook`; writes attendance, messages, alerts, audit_log
@@ -57,7 +59,7 @@ _Generated 2026-11-03 from os.yaml._
 - HOT lead with no counsellor → the counsellor (team, Role Counsellor) with the fewest open HOT leads for that course
 - Absence: every absentee's parent gets the formal WhatsApp notice (ABSENCE.absent), never a call; Absences_This_Week counted in code — from the 2nd in 7 days Needs_Followup Yes and the counsellor is alerted
 - Present marks are direct inserts (no flow, no credits); one mark per student per date (unique Date + Student_ID)
-- Attendance_Pct over the last 30 days, Last_Score, Avg_Score, Class_Rank, Performance_Trend (last 3 tests), Strong/Weak subjects — nightly ROLLUP
+- Attendance_Pct over the last 30 days, Last_Score, Avg_Score, Class_Rank, Performance_Trend (last 3 tests), Strong/Weak subjects — nightly ROLLUP; a tests row with Status Absent has no marks and is left out of every score
 - Student Status: Critical when Attendance_Pct < 60 or Avg_Score < 40; At Risk when < 75 or < 60; else Active (ROLLUP)
 - Fee Balance_INR = Amount_INR − Paid_INR (computed on every write); Days_Overdue and Status Due → Overdue from the day after Due_Date (FEE_RUN)
 - Fee reminder calls on day 1, 7 and 15 overdue; WhatsApp link 3 days before Due_Date (FEE_RUN)

@@ -300,43 +300,44 @@ entities:
     created: Test_Date
     title: Name
     subtitle: [Test_Name, Subject]
-    columns: [Score_ID, Test_Date, Test_Name, Student_ID, Name, Course, Batch, Subject, Marks, Max_Marks, Score_Pct]
+    columns: [Score_ID, Test_Date, Test_Name, Student_ID, Name, Course, Batch, Subject, Marks, Max_Marks, Score_Pct, Status, Run_ID]
     unique_together: [[Test_Name, Student_ID, Subject]]
     fields:
       Marks: { type: number, min: 0 }
       Max_Marks: { type: number, positive: true }
-      Score_Pct: { type: number, computed: "round(Marks * 100 / Max_Marks)" }
+      Score_Pct: { type: number, computed: "round(Marks * 100 / Max_Marks)" }   # empty when Marks is empty (an Absent row)
+      Status: { one_of: [Scored, Absent] }   # Absent: no Marks, left out of every average (ROLLUP)
     seed: 0
     examples:
-      - { Score_ID: "TS-2026-0801", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0101", Name: "Rohan Mehra", Course: "JEE Mains", Batch: "Batch A — Morning", Subject: "Physics", Marks: 89, Max_Marks: 100, Score_Pct: 89 }
-      - { Score_ID: "TS-2026-0802", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0102", Name: "Aarav Jain", Course: "JEE Mains", Batch: "Batch A — Morning", Subject: "Physics", Marks: 81, Max_Marks: 100, Score_Pct: 81 }
-      - { Score_ID: "TS-2026-0803", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0103", Name: "Ishita Saxena", Course: "JEE Mains", Batch: "Batch A — Morning", Subject: "Physics", Marks: 74, Max_Marks: 100, Score_Pct: 74 }
-      - { Score_ID: "TS-2026-0804", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0104", Name: "Kunal Raghuwanshi", Course: "JEE Mains", Batch: "Batch A — Morning", Subject: "Physics", Marks: 77, Max_Marks: 100, Score_Pct: 77 }
-      - { Score_ID: "TS-2026-0805", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0105", Name: "Tanvi Dubey", Course: "JEE Mains", Batch: "Batch A — Morning", Subject: "Physics", Marks: 85, Max_Marks: 100, Score_Pct: 85 }
-      - { Score_ID: "TS-2026-0806", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0106", Name: "Yash Choudhary", Course: "JEE Mains", Batch: "Batch A — Morning", Subject: "Physics", Marks: 68, Max_Marks: 100, Score_Pct: 68 }
-      - { Score_ID: "TS-2026-0807", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0107", Name: "Nikhil Kumar", Course: "JEE Mains", Batch: "Batch A — Morning", Subject: "Physics", Marks: 42, Max_Marks: 100, Score_Pct: 42 }
-      - { Score_ID: "TS-2026-0808", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0108", Name: "Kavya Patel", Course: "NEET", Batch: "Batch B — Evening", Subject: "Biology", Marks: 42, Max_Marks: 100, Score_Pct: 42 }
-      - { Score_ID: "TS-2026-0809", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0109", Name: "Ananya Shrivastava", Course: "NEET", Batch: "Batch B — Evening", Subject: "Biology", Marks: 88, Max_Marks: 100, Score_Pct: 88 }
-      - { Score_ID: "TS-2026-0810", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0110", Name: "Harsh Rajput", Course: "NEET", Batch: "Batch B — Evening", Subject: "Biology", Marks: 52, Max_Marks: 100, Score_Pct: 52 }
-      - { Score_ID: "TS-2026-0811", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0111", Name: "Sakshi Pandey", Course: "NEET", Batch: "Batch B — Evening", Subject: "Biology", Marks: 79, Max_Marks: 100, Score_Pct: 79 }
-      - { Score_ID: "TS-2026-0812", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0112", Name: "Mohit Yadav", Course: "NEET", Batch: "Batch B — Evening", Subject: "Biology", Marks: 36, Max_Marks: 100, Score_Pct: 36 }
-      - { Score_ID: "TS-2026-0813", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0113", Name: "Riya Malviya", Course: "NEET", Batch: "Batch B — Evening", Subject: "Biology", Marks: 71, Max_Marks: 100, Score_Pct: 71 }
-      - { Score_ID: "TS-2026-0814", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0114", Name: "Neha Kumar", Course: "NEET", Batch: "Batch B — Evening", Subject: "Biology", Marks: 66, Max_Marks: 100, Score_Pct: 66 }
-      - { Score_ID: "TS-2026-0815", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0115", Name: "Dev Singh", Course: "CA Foundation", Batch: "Batch A — Morning", Subject: "Accounts", Marks: 82, Max_Marks: 100, Score_Pct: 82 }
-      - { Score_ID: "TS-2026-0816", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0116", Name: "Muskan Agrawal", Course: "CA Foundation", Batch: "Batch A — Morning", Subject: "Accounts", Marks: 76, Max_Marks: 100, Score_Pct: 76 }
-      - { Score_ID: "TS-2026-0817", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0117", Name: "Aditi Soni", Course: "CA Foundation", Batch: "Batch A — Morning", Subject: "Accounts", Marks: 72, Max_Marks: 100, Score_Pct: 72 }
-      - { Score_ID: "TS-2026-0818", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0119", Name: "Sneha Joshi", Course: "UPSC", Batch: "Batch C — Weekend", Subject: "History", Marks: 38, Max_Marks: 100, Score_Pct: 38 }
-      - { Score_ID: "TS-2026-0819", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0120", Name: "Vikram Pal", Course: "UPSC", Batch: "Batch C — Weekend", Subject: "History", Marks: 61, Max_Marks: 100, Score_Pct: 61 }
-      - { Score_ID: "TS-2026-0820", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0121", Name: "Anjali Mishra", Course: "UPSC", Batch: "Batch C — Weekend", Subject: "History", Marks: 78, Max_Marks: 100, Score_Pct: 78 }
-      - { Score_ID: "TS-2026-0821", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0122", Name: "Saurabh Tiwari", Course: "UPSC", Batch: "Batch C — Weekend", Subject: "History", Marks: 58, Max_Marks: 100, Score_Pct: 58 }
-      - { Score_ID: "TS-2026-0822", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0123", Name: "Pallavi Gour", Course: "UPSC", Batch: "Batch C — Weekend", Subject: "History", Marks: 74, Max_Marks: 100, Score_Pct: 74 }
-      - { Score_ID: "TS-2026-0823", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0124", Name: "Arjun Thakur", Course: "UPSC", Batch: "Batch C — Weekend", Subject: "History", Marks: 69, Max_Marks: 100, Score_Pct: 69 }
-      - { Score_ID: "TS-2026-0824", Test_Date: "2026-10-19", Test_Name: "Weekly Test 13", Student_ID: "ST-2026-0108", Name: "Kavya Patel", Course: "NEET", Batch: "Batch B — Evening", Subject: "Biology", Marks: 46, Max_Marks: 100, Score_Pct: 46 }
-      - { Score_ID: "TS-2026-0825", Test_Date: "2026-10-19", Test_Name: "Weekly Test 13", Student_ID: "ST-2026-0112", Name: "Mohit Yadav", Course: "NEET", Batch: "Batch B — Evening", Subject: "Biology", Marks: 38, Max_Marks: 100, Score_Pct: 38 }
-      - { Score_ID: "TS-2026-0826", Test_Date: "2026-10-19", Test_Name: "Weekly Test 13", Student_ID: "ST-2026-0119", Name: "Sneha Joshi", Course: "UPSC", Batch: "Batch C — Weekend", Subject: "History", Marks: 41, Max_Marks: 100, Score_Pct: 41 }
-      - { Score_ID: "TS-2026-0827", Test_Date: "2026-10-19", Test_Name: "Weekly Test 13", Student_ID: "ST-2026-0110", Name: "Harsh Rajput", Course: "NEET", Batch: "Batch B — Evening", Subject: "Biology", Marks: 55, Max_Marks: 100, Score_Pct: 55 }
-      - { Score_ID: "TS-2026-0828", Test_Date: "2026-10-19", Test_Name: "Weekly Test 13", Student_ID: "ST-2026-0107", Name: "Nikhil Kumar", Course: "JEE Mains", Batch: "Batch A — Morning", Subject: "Physics", Marks: 63, Max_Marks: 100, Score_Pct: 63 }
-      - { Score_ID: "TS-2026-0829", Test_Date: "2026-10-19", Test_Name: "Weekly Test 13", Student_ID: "ST-2026-0101", Name: "Rohan Mehra", Course: "JEE Mains", Batch: "Batch A — Morning", Subject: "Physics", Marks: 84, Max_Marks: 100, Score_Pct: 84 }
+      - { Score_ID: "TS-2026-0801", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0101", Name: "Rohan Mehra", Course: "JEE Mains", Batch: "Batch A — Morning", Subject: "Physics", Marks: 89, Max_Marks: 100, Score_Pct: 89, Status: "Scored", Run_ID: "TR-2026-0002" }
+      - { Score_ID: "TS-2026-0802", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0102", Name: "Aarav Jain", Course: "JEE Mains", Batch: "Batch A — Morning", Subject: "Physics", Marks: 81, Max_Marks: 100, Score_Pct: 81, Status: "Scored", Run_ID: "TR-2026-0002" }
+      - { Score_ID: "TS-2026-0803", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0103", Name: "Ishita Saxena", Course: "JEE Mains", Batch: "Batch A — Morning", Subject: "Physics", Marks: 74, Max_Marks: 100, Score_Pct: 74, Status: "Scored", Run_ID: "TR-2026-0002" }
+      - { Score_ID: "TS-2026-0804", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0104", Name: "Kunal Raghuwanshi", Course: "JEE Mains", Batch: "Batch A — Morning", Subject: "Physics", Marks: 77, Max_Marks: 100, Score_Pct: 77, Status: "Scored", Run_ID: "TR-2026-0002" }
+      - { Score_ID: "TS-2026-0805", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0105", Name: "Tanvi Dubey", Course: "JEE Mains", Batch: "Batch A — Morning", Subject: "Physics", Marks: 85, Max_Marks: 100, Score_Pct: 85, Status: "Scored", Run_ID: "TR-2026-0002" }
+      - { Score_ID: "TS-2026-0806", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0106", Name: "Yash Choudhary", Course: "JEE Mains", Batch: "Batch A — Morning", Subject: "Physics", Marks: 68, Max_Marks: 100, Score_Pct: 68, Status: "Scored", Run_ID: "TR-2026-0002" }
+      - { Score_ID: "TS-2026-0807", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0107", Name: "Nikhil Kumar", Course: "JEE Mains", Batch: "Batch A — Morning", Subject: "Physics", Marks: 42, Max_Marks: 100, Score_Pct: 42, Status: "Scored", Run_ID: "TR-2026-0002" }
+      - { Score_ID: "TS-2026-0808", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0108", Name: "Kavya Patel", Course: "NEET", Batch: "Batch B — Evening", Subject: "Biology", Marks: 42, Max_Marks: 100, Score_Pct: 42, Status: "Scored", Run_ID: "TR-2026-0003" }
+      - { Score_ID: "TS-2026-0809", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0109", Name: "Ananya Shrivastava", Course: "NEET", Batch: "Batch B — Evening", Subject: "Biology", Marks: 88, Max_Marks: 100, Score_Pct: 88, Status: "Scored", Run_ID: "TR-2026-0003" }
+      - { Score_ID: "TS-2026-0810", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0110", Name: "Harsh Rajput", Course: "NEET", Batch: "Batch B — Evening", Subject: "Biology", Marks: 52, Max_Marks: 100, Score_Pct: 52, Status: "Scored", Run_ID: "TR-2026-0003" }
+      - { Score_ID: "TS-2026-0811", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0111", Name: "Sakshi Pandey", Course: "NEET", Batch: "Batch B — Evening", Subject: "Biology", Marks: 79, Max_Marks: 100, Score_Pct: 79, Status: "Scored", Run_ID: "TR-2026-0003" }
+      - { Score_ID: "TS-2026-0812", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0112", Name: "Mohit Yadav", Course: "NEET", Batch: "Batch B — Evening", Subject: "Biology", Marks: 36, Max_Marks: 100, Score_Pct: 36, Status: "Scored", Run_ID: "TR-2026-0003" }
+      - { Score_ID: "TS-2026-0813", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0113", Name: "Riya Malviya", Course: "NEET", Batch: "Batch B — Evening", Subject: "Biology", Marks: 71, Max_Marks: 100, Score_Pct: 71, Status: "Scored", Run_ID: "TR-2026-0003" }
+      - { Score_ID: "TS-2026-0814", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0114", Name: "Neha Kumar", Course: "NEET", Batch: "Batch B — Evening", Subject: "Biology", Marks: 66, Max_Marks: 100, Score_Pct: 66, Status: "Scored", Run_ID: "TR-2026-0003" }
+      - { Score_ID: "TS-2026-0815", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0115", Name: "Dev Singh", Course: "CA Foundation", Batch: "Batch A — Morning", Subject: "Accounts", Marks: 82, Max_Marks: 100, Score_Pct: 82, Status: "Scored", Run_ID: "TR-2026-0001" }
+      - { Score_ID: "TS-2026-0816", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0116", Name: "Muskan Agrawal", Course: "CA Foundation", Batch: "Batch A — Morning", Subject: "Accounts", Marks: 76, Max_Marks: 100, Score_Pct: 76, Status: "Scored", Run_ID: "TR-2026-0001" }
+      - { Score_ID: "TS-2026-0817", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0117", Name: "Aditi Soni", Course: "CA Foundation", Batch: "Batch A — Morning", Subject: "Accounts", Marks: 72, Max_Marks: 100, Score_Pct: 72, Status: "Scored", Run_ID: "TR-2026-0001" }
+      - { Score_ID: "TS-2026-0818", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0119", Name: "Sneha Joshi", Course: "UPSC", Batch: "Batch C — Weekend", Subject: "History", Marks: 38, Max_Marks: 100, Score_Pct: 38, Status: "Scored", Run_ID: "TR-2026-0004" }
+      - { Score_ID: "TS-2026-0819", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0120", Name: "Vikram Pal", Course: "UPSC", Batch: "Batch C — Weekend", Subject: "History", Marks: 61, Max_Marks: 100, Score_Pct: 61, Status: "Scored", Run_ID: "TR-2026-0004" }
+      - { Score_ID: "TS-2026-0820", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0121", Name: "Anjali Mishra", Course: "UPSC", Batch: "Batch C — Weekend", Subject: "History", Marks: 78, Max_Marks: 100, Score_Pct: 78, Status: "Scored", Run_ID: "TR-2026-0004" }
+      - { Score_ID: "TS-2026-0821", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0122", Name: "Saurabh Tiwari", Course: "UPSC", Batch: "Batch C — Weekend", Subject: "History", Marks: 58, Max_Marks: 100, Score_Pct: 58, Status: "Scored", Run_ID: "TR-2026-0004" }
+      - { Score_ID: "TS-2026-0822", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0123", Name: "Pallavi Gour", Course: "UPSC", Batch: "Batch C — Weekend", Subject: "History", Marks: 74, Max_Marks: 100, Score_Pct: 74, Status: "Scored", Run_ID: "TR-2026-0004" }
+      - { Score_ID: "TS-2026-0823", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Student_ID: "ST-2026-0124", Name: "Arjun Thakur", Course: "UPSC", Batch: "Batch C — Weekend", Subject: "History", Marks: 69, Max_Marks: 100, Score_Pct: 69, Status: "Scored", Run_ID: "TR-2026-0004" }
+      - { Score_ID: "TS-2026-0824", Test_Date: "2026-10-19", Test_Name: "Weekly Test 13", Student_ID: "ST-2026-0108", Name: "Kavya Patel", Course: "NEET", Batch: "Batch B — Evening", Subject: "Biology", Marks: 46, Max_Marks: 100, Score_Pct: 46, Status: "Scored", Run_ID: "" }
+      - { Score_ID: "TS-2026-0825", Test_Date: "2026-10-19", Test_Name: "Weekly Test 13", Student_ID: "ST-2026-0112", Name: "Mohit Yadav", Course: "NEET", Batch: "Batch B — Evening", Subject: "Biology", Marks: 38, Max_Marks: 100, Score_Pct: 38, Status: "Scored", Run_ID: "" }
+      - { Score_ID: "TS-2026-0826", Test_Date: "2026-10-19", Test_Name: "Weekly Test 13", Student_ID: "ST-2026-0119", Name: "Sneha Joshi", Course: "UPSC", Batch: "Batch C — Weekend", Subject: "History", Marks: 41, Max_Marks: 100, Score_Pct: 41, Status: "Scored", Run_ID: "" }
+      - { Score_ID: "TS-2026-0827", Test_Date: "2026-10-19", Test_Name: "Weekly Test 13", Student_ID: "ST-2026-0110", Name: "Harsh Rajput", Course: "NEET", Batch: "Batch B — Evening", Subject: "Biology", Marks: 55, Max_Marks: 100, Score_Pct: 55, Status: "Scored", Run_ID: "" }
+      - { Score_ID: "TS-2026-0828", Test_Date: "2026-10-19", Test_Name: "Weekly Test 13", Student_ID: "ST-2026-0107", Name: "Nikhil Kumar", Course: "JEE Mains", Batch: "Batch A — Morning", Subject: "Physics", Marks: 63, Max_Marks: 100, Score_Pct: 63, Status: "Scored", Run_ID: "" }
+      - { Score_ID: "TS-2026-0829", Test_Date: "2026-10-19", Test_Name: "Weekly Test 13", Student_ID: "ST-2026-0101", Name: "Rohan Mehra", Course: "JEE Mains", Batch: "Batch A — Morning", Subject: "Physics", Marks: 84, Max_Marks: 100, Score_Pct: 84, Status: "Scored", Run_ID: "" }
 
   - name: calls
     id: { column: Call_ID, prefix: "CL-" }
@@ -495,6 +496,25 @@ entities:
       - { Session_ID: "AS-2026-0005", Date: "2026-11-02", Batch: "Batch A — Morning", Total_Count: 10, Present_Count: 8, Absent_Count: 2, Absentees: "ST-2026-0103, ST-2026-0106", Marked_By: "Sunita Rao", Saved_At: "2026-11-02T08:05:00+05:30" }
       - { Session_ID: "AS-2026-0006", Date: "2026-11-02", Batch: "Batch B — Evening", Total_Count: 7, Present_Count: 5, Absent_Count: 2, Absentees: "ST-2026-0108, ST-2026-0112", Marked_By: "Sunita Rao", Saved_At: "2026-11-02T16:05:00+05:30" }
 
+  - name: test_runs
+    id: { column: Run_ID, prefix: "TR-" }
+    created: Saved_At
+    title: Test_Name
+    subtitle: [Batch, Subject]
+    columns: [Run_ID, Test_Date, Test_Name, Batch, Subject, Max_Marks, Total_Count, Scored_Count, Absent_Count, Avg_Pct, Marked_By, Saved_At]
+    fields:
+      Max_Marks: { type: number, positive: true }
+      Total_Count: { type: number, min: 0, integer: true }
+      Scored_Count: { type: number, min: 0, integer: true }
+      Absent_Count: { type: number, min: 0, integer: true }
+      Avg_Pct: { type: number, min: 0, max: 100 }
+    seed: 0
+    examples:
+      - { Run_ID: "TR-2026-0001", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Batch: "Batch A — Morning", Subject: "Accounts", Max_Marks: 100, Total_Count: 3, Scored_Count: 3, Absent_Count: 0, Avg_Pct: 77, Marked_By: "Sunita Rao", Saved_At: "2026-10-26T18:00:00+05:30" }
+      - { Run_ID: "TR-2026-0002", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Batch: "Batch A — Morning", Subject: "Physics", Max_Marks: 100, Total_Count: 7, Scored_Count: 7, Absent_Count: 0, Avg_Pct: 74, Marked_By: "Sunita Rao", Saved_At: "2026-10-26T18:00:00+05:30" }
+      - { Run_ID: "TR-2026-0003", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Batch: "Batch B — Evening", Subject: "Biology", Max_Marks: 100, Total_Count: 7, Scored_Count: 7, Absent_Count: 0, Avg_Pct: 62, Marked_By: "Sunita Rao", Saved_At: "2026-10-26T18:00:00+05:30" }
+      - { Run_ID: "TR-2026-0004", Test_Date: "2026-10-26", Test_Name: "Weekly Test 14", Batch: "Batch C — Weekend", Subject: "History", Max_Marks: 100, Total_Count: 6, Scored_Count: 6, Absent_Count: 0, Avg_Pct: 63, Marked_By: "Sunita Rao", Saved_At: "2026-10-26T18:00:00+05:30" }
+
   - name: courses
     id: { column: Course_ID, prefix: "CR-" }
     title: Name
@@ -598,6 +618,22 @@ flows:
         credits: 7
         runs_per_month: 30
         effect: { insert: students, fill: { Status: Active, Fee_Status: Due, Enrolled_At: now }, map: { Phone: Student_Phone } }
+
+  - name: SCORES
+    covers: [R19]
+    trigger: { tool: webhook, name: catch_webhook, auth: none }
+    writes: [test_runs, tests]
+    actions:
+      - name: save_batch
+        covers: [R19]
+        via: custom                 # called by the ScoreBook custom section
+        model: none
+        payload: { Test_Date: string, Test_Name: string, Batch: string, Subject: string, Max_Marks: number, Total_Count: number, Scored_Count: number, Absent_Count: number, Avg_Pct: number, Marked_By: string, lines: array }
+        rules: ["One call per batch test: the test_runs row and every student's tests row (its lines: Marks, or Status Absent with no Marks) are written in ONE transaction — a refused row rolls the whole save back", "No AI, no message: a pure write — it needs no Studio workflow; left unwired (no WEBHOOK_SCORES) the app writes it itself", "Marks between 0 and Max_Marks and a mark or Absent for every student are checked by the grid (code); Score_Pct is computed by the server"]
+        typical_seconds: 2
+        credits: 3
+        runs_per_month: 40
+        effect: { insert: test_runs, fill: { Saved_At: now }, lines: { entity: tests, by: Run_ID } }
 
   - name: ATTENDANCE
     covers: [R14, R15]
@@ -1039,20 +1075,17 @@ pages:
     covers: [R19]
     route: /scores
     label: Test scores
-    subtitle: Marks per test and subject — they feed attendance-and-score risk every night
+    subtitle: Marks per test and subject, entered batch-wise — they feed attendance-and-score risk every night
     icon: ClipboardList
     group: Students
     entity: tests
     roles: [admin, office, mentor]
-    table:
-      period: { column: Test_Date, presets: [7d, 30d, month, all], default: 30d }
-      columns: [ { key: Name, header: Student, type: text, sub: Course }, { key: Test_Name, header: Test, type: text }, { key: Subject, type: tag }, { key: Marks, type: number }, { key: Max_Marks, header: Out of, type: number }, { key: Score_Pct, header: Score, type: number, suffix: "%" }, { key: Test_Date, header: Date, type: date } ]
-      search: [Name, Test_Name, Subject]
-      filters: [Course, Batch, Subject]
+    export: false                  # ScoreBook exports the filtered view itself (its columns, its file name)
+    read_only: "Scores are entered a whole batch at a time in the ScoreBook section (one save per test, SCORES.save_batch); one student's marks are corrected with Correct marks, opened from a ScoreBook row"
+    blocks:
+      - { type: custom, name: ScoreBook, flow: SCORES, action: save_batch }
     modals:
-      - { id: add_score, covers: [R19], kind: create, primary: true, title: Add score, direct: insert, columns: 2, fields: [ { key: Test_Name, label: Test, type: text, required: true, placeholder: "Weekly Test 15" }, { key: Test_Date, label: Date, type: date, default: today, required: true }, { key: Name, label: Student, type: select, options_from: students.Name, required: true }, { type: panel, key: who, title: Student, icon: GraduationCap, lookup: { entity: students, match: Name, by: Name }, copy: [Student_ID, Course, Batch], show: [ { key: Course, label: "{v}", badge: true }, { key: Batch, label: Batch } ], empty: "Pick a student to see the course." }, { key: Subject, label: Subject, type: text, required: true }, { key: Marks, label: Marks, type: number, required: true }, { key: Max_Marks, label: Out of, type: number, default: 100, required: true } ] }
-      - { id: edit_score, covers: [R19], kind: edit, title: Correct marks, direct: patch, summary: [Name, Test_Name, Subject], fields: [ { key: Marks, label: Marks, type: number, required: true }, { key: Max_Marks, label: Out of, type: number, required: true } ] }
-    actions: { header: [add_score], row: [edit_score] }
+      - { id: edit_score, covers: [R19], kind: edit, title: Correct marks, direct: patch, summary: [Name, Test_Name, Subject], fields: [ { type: panel, key: who, title: Student, icon: GraduationCap, lookup: { entity: students, match: Student_ID, by: Student_ID }, show: [ { key: Batch, label: "{v}", badge: true }, { key: Course, label: Course } ] }, { key: Marks, label: Marks, type: number, required: true }, { key: Max_Marks, label: Out of, type: number, required: true }, { key: Status, label: Status, type: select, options: [Scored, Absent], default: Scored, help: "Absent leaves the student out of every average" } ] }
 
   - id: fees
     covers: [R24, R25, R26, R27, R28, R39]
@@ -1193,7 +1226,7 @@ rules_in_code:
   - "HOT lead with no counsellor → the counsellor (team, Role Counsellor) with the fewest open HOT leads for that course"
   - "Absence: every absentee's parent gets the formal WhatsApp notice (ABSENCE.absent), never a call; Absences_This_Week counted in code — from the 2nd in 7 days Needs_Followup Yes and the counsellor is alerted"
   - "Present marks are direct inserts (no flow, no credits); one mark per student per date (unique Date + Student_ID)"
-  - "Attendance_Pct over the last 30 days, Last_Score, Avg_Score, Class_Rank, Performance_Trend (last 3 tests), Strong/Weak subjects — nightly ROLLUP"
+  - "Attendance_Pct over the last 30 days, Last_Score, Avg_Score, Class_Rank, Performance_Trend (last 3 tests), Strong/Weak subjects — nightly ROLLUP; a tests row with Status Absent has no marks and is left out of every score"
   - "Student Status: Critical when Attendance_Pct < 60 or Avg_Score < 40; At Risk when < 75 or < 60; else Active (ROLLUP)"
   - "Fee Balance_INR = Amount_INR − Paid_INR (computed on every write); Days_Overdue and Status Due → Overdue from the day after Due_Date (FEE_RUN)"
   - "Fee reminder calls on day 1, 7 and 15 overdue; WhatsApp link 3 days before Due_Date (FEE_RUN)"

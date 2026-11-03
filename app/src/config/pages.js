@@ -1948,92 +1948,22 @@ export const PAGES = [
     ],
     "route": "/scores",
     "label": "Test scores",
-    "subtitle": "Marks per test and subject — they feed attendance-and-score risk every night",
+    "subtitle": "Marks per test and subject, entered batch-wise — they feed attendance-and-score risk every night",
     "icon": "ClipboardList",
     "group": "Students",
     "entity": "tests",
-    "modals": [
+    "export": false,
+    "read_only": "Scores are entered a whole batch at a time in the ScoreBook section (one save per test, SCORES.save_batch); one student's marks are corrected with Correct marks, opened from a ScoreBook row",
+    "blocks": [
       {
-        "id": "add_score",
-        "covers": [
-          "R19"
-        ],
-        "kind": "create",
-        "primary": true,
-        "title": "Add score",
-        "direct": "insert",
-        "columns": 2,
-        "fields": [
-          {
-            "key": "Test_Name",
-            "label": "Test",
-            "type": "text",
-            "required": true,
-            "placeholder": "Weekly Test 15"
-          },
-          {
-            "key": "Test_Date",
-            "label": "Date",
-            "type": "date",
-            "default": "today",
-            "required": true
-          },
-          {
-            "key": "Name",
-            "label": "Student",
-            "type": "select",
-            "options_from": "students.Name",
-            "required": true
-          },
-          {
-            "type": "panel",
-            "key": "who",
-            "title": "Student",
-            "icon": "GraduationCap",
-            "lookup": {
-              "entity": "students",
-              "match": "Name",
-              "by": "Name"
-            },
-            "copy": [
-              "Student_ID",
-              "Course",
-              "Batch"
-            ],
-            "show": [
-              {
-                "key": "Course",
-                "label": "{v}",
-                "badge": true
-              },
-              {
-                "key": "Batch",
-                "label": "Batch"
-              }
-            ],
-            "empty": "Pick a student to see the course."
-          },
-          {
-            "key": "Subject",
-            "label": "Subject",
-            "type": "text",
-            "required": true
-          },
-          {
-            "key": "Marks",
-            "label": "Marks",
-            "type": "number",
-            "required": true
-          },
-          {
-            "key": "Max_Marks",
-            "label": "Out of",
-            "type": "number",
-            "default": 100,
-            "required": true
-          }
-        ]
-      },
+        "type": "custom",
+        "name": "ScoreBook",
+        "flow": "SCORES",
+        "action": "save_batch",
+        "id": "scores-custom"
+      }
+    ],
+    "modals": [
       {
         "id": "edit_score",
         "covers": [
@@ -2049,6 +1979,28 @@ export const PAGES = [
         ],
         "fields": [
           {
+            "type": "panel",
+            "key": "who",
+            "title": "Student",
+            "icon": "GraduationCap",
+            "lookup": {
+              "entity": "students",
+              "match": "Student_ID",
+              "by": "Student_ID"
+            },
+            "show": [
+              {
+                "key": "Batch",
+                "label": "{v}",
+                "badge": true
+              },
+              {
+                "key": "Course",
+                "label": "Course"
+              }
+            ]
+          },
+          {
             "key": "Marks",
             "label": "Marks",
             "type": "number",
@@ -2059,83 +2011,22 @@ export const PAGES = [
             "label": "Out of",
             "type": "number",
             "required": true
+          },
+          {
+            "key": "Status",
+            "label": "Status",
+            "type": "select",
+            "options": [
+              "Scored",
+              "Absent"
+            ],
+            "default": "Scored",
+            "help": "Absent leaves the student out of every average"
           }
         ]
       }
     ],
-    "actions": {
-      "header": [
-        "add_score"
-      ],
-      "row": [
-        "edit_score"
-      ]
-    },
-    "portal": "admin",
-    "blocks": [
-      {
-        "type": "table",
-        "period": {
-          "column": "Test_Date",
-          "presets": [
-            "7d",
-            "30d",
-            "month",
-            "all"
-          ],
-          "default": "30d"
-        },
-        "columns": [
-          {
-            "key": "Name",
-            "header": "Student",
-            "type": "text",
-            "sub": "Course"
-          },
-          {
-            "key": "Test_Name",
-            "header": "Test",
-            "type": "text"
-          },
-          {
-            "key": "Subject",
-            "type": "tag"
-          },
-          {
-            "key": "Marks",
-            "type": "number"
-          },
-          {
-            "key": "Max_Marks",
-            "header": "Out of",
-            "type": "number"
-          },
-          {
-            "key": "Score_Pct",
-            "header": "Score",
-            "type": "number",
-            "suffix": "%"
-          },
-          {
-            "key": "Test_Date",
-            "header": "Date",
-            "type": "date"
-          }
-        ],
-        "search": [
-          "Name",
-          "Test_Name",
-          "Subject"
-        ],
-        "filters": [
-          "Course",
-          "Batch",
-          "Subject"
-        ],
-        "id": "scores-table"
-      }
-    ],
-    "kind": "page"
+    "portal": "admin"
   },
   {
     "id": "fees",

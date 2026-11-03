@@ -21,7 +21,7 @@ Every client requirement and where the OS covers it. `scaffold_os.py` refuses to
 | R16 | The office admin sees whether each absence notice was sent, delivered or failed | page attendance; flow ABSENCE; flow ABSENCE.absent |
 | R17 | A counsellor is alerted on WhatsApp when an absence needs follow-up | page attendance; page attendance › modal followup_done; page team; flow ABSENCE; flow ABSENCE.absent |
 | R18 | The director sees students below 75% attendance as critical | page students; page attendance; flow ROLLUP |
-| R19 | The office admin records each student's test score per subject | page scores; page scores › modal add_score; page scores › modal edit_score |
+| R19 | The office admin records each student's test score per subject | page scores; page scores › modal edit_score; flow SCORES; flow SCORES.save_batch |
 | R20 | A student below 75% attendance or 60% score joins the at-risk queue every Monday at 11 AM | page academic; flow ACADEMIC_CALL; flow ACADEMIC_RUN; flow ROLLUP |
 | R21 | An at-risk student gets an AI counselling call that records the issue type and main issue | page academic; page academic › modal counsel; flow ACADEMIC_CALL |
 | R22 | A mentor is alerted on WhatsApp when the call says the student needs a mentor | page academic; page academic › modal counsel; page team; flow ACADEMIC_CALL |

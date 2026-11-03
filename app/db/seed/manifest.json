@@ -235,7 +235,9 @@
         "Subject",
         "Marks",
         "Max_Marks",
-        "Score_Pct"
+        "Score_Pct",
+        "Status",
+        "Run_ID"
       ],
       "types": {
         "Score_ID": "text",
@@ -248,7 +250,9 @@
         "Subject": "text",
         "Marks": "numeric",
         "Max_Marks": "numeric",
-        "Score_Pct": "numeric"
+        "Score_Pct": "numeric",
+        "Status": "text",
+        "Run_ID": "text"
       },
       "unique": [
         "Student_ID",
@@ -425,6 +429,37 @@
         "Present_Count": "numeric",
         "Absent_Count": "numeric",
         "Absentees": "text",
+        "Marked_By": "text",
+        "Saved_At": "timestamptz"
+      }
+    },
+    {
+      "name": "test_runs",
+      "columns": [
+        "Run_ID",
+        "Test_Date",
+        "Test_Name",
+        "Batch",
+        "Subject",
+        "Max_Marks",
+        "Total_Count",
+        "Scored_Count",
+        "Absent_Count",
+        "Avg_Pct",
+        "Marked_By",
+        "Saved_At"
+      ],
+      "types": {
+        "Run_ID": "text",
+        "Test_Date": "date",
+        "Test_Name": "text",
+        "Batch": "text",
+        "Subject": "text",
+        "Max_Marks": "numeric",
+        "Total_Count": "numeric",
+        "Scored_Count": "numeric",
+        "Absent_Count": "numeric",
+        "Avg_Pct": "numeric",
         "Marked_By": "text",
         "Saved_At": "timestamptz"
       }

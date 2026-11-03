@@ -127,6 +127,8 @@ id: Att_ID (AT-…) · status: Status ['Present', 'Absent']
 | Marks | numeric |
 | Max_Marks | numeric |
 | Score_Pct | numeric |
+| Status | text |
+| Run_ID | text |
 
 id: Score_ID (TS-…) · status: — 
 
@@ -223,6 +225,24 @@ id: Member_ID (TM-…) · status: —
 | Saved_At | timestamptz |
 
 id: Session_ID (AS-…) · status: — 
+
+## test_runs
+| column | type |
+|---|---|
+| Run_ID | text |
+| Test_Date | date |
+| Test_Name | text |
+| Batch | text |
+| Subject | text |
+| Max_Marks | numeric |
+| Total_Count | numeric |
+| Scored_Count | numeric |
+| Absent_Count | numeric |
+| Avg_Pct | numeric |
+| Marked_By | text |
+| Saved_At | timestamptz |
+
+id: Run_ID (TR-…) · status: — 
 
 ## courses
 | column | type |

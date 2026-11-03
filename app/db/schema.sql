@@ -208,6 +208,8 @@ CREATE TABLE IF NOT EXISTS "tests" (
   "marks" numeric,
   "max_marks" numeric,
   "score_pct" numeric,
+  "status" text,
+  "run_id" text,
   _seq bigserial
 );
 CREATE UNIQUE INDEX IF NOT EXISTS "tests_test_name_student_id_subject_uq" ON "tests" ("test_name", "student_id", "subject");
@@ -303,6 +305,23 @@ CREATE TABLE IF NOT EXISTS "attendance_sessions" (
   _seq bigserial
 );
 CREATE INDEX IF NOT EXISTS "attendance_sessions_saved_at_idx" ON "attendance_sessions" ("saved_at");
+
+CREATE TABLE IF NOT EXISTS "test_runs" (
+  "run_id" text PRIMARY KEY,
+  "test_date" date,
+  "test_name" text,
+  "batch" text,
+  "subject" text,
+  "max_marks" numeric,
+  "total_count" numeric,
+  "scored_count" numeric,
+  "absent_count" numeric,
+  "avg_pct" numeric,
+  "marked_by" text,
+  "saved_at" timestamptz,
+  _seq bigserial
+);
+CREATE INDEX IF NOT EXISTS "test_runs_saved_at_idx" ON "test_runs" ("saved_at");
 
 CREATE TABLE IF NOT EXISTS "courses" (
   "course_id" text PRIMARY KEY,
@@ -585,6 +604,8 @@ ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS "subject" text;
 ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS "marks" numeric;
 ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS "max_marks" numeric;
 ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS "score_pct" numeric;
+ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS "status" text;
+ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS "run_id" text;
 ALTER TABLE "tests" ADD COLUMN IF NOT EXISTS _seq bigserial;
 DO $$ DECLARE r record; BEGIN
   FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"tests"'::regclass AND left(conname, 16) = 'tests_marks_v49_' AND conname <> 'tests_marks_v49_814a696b' LOOP
@@ -597,6 +618,12 @@ DO $$ DECLARE r record; BEGIN
     EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'tests', r.conname); END LOOP;
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"tests"'::regclass AND conname = 'tests_max_marks_v49_3e311a57') THEN
     ALTER TABLE "tests" ADD CONSTRAINT "tests_max_marks_v49_3e311a57" CHECK ("max_marks" > 0) NOT VALID; END IF;
+END $$;
+DO $$ DECLARE r record; BEGIN
+  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"tests"'::regclass AND left(conname, 17) = 'tests_status_v49_' AND conname <> 'tests_status_v49_2c0fd0ff' LOOP
+    EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'tests', r.conname); END LOOP;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"tests"'::regclass AND conname = 'tests_status_v49_2c0fd0ff') THEN
+    ALTER TABLE "tests" ADD CONSTRAINT "tests_status_v49_2c0fd0ff" CHECK (("status" IN ('Scored', 'Absent') OR "status" = '')) NOT VALID; END IF;
 END $$;
 ALTER TABLE "calls" ADD COLUMN IF NOT EXISTS "called_at" timestamptz;
 ALTER TABLE "calls" ADD COLUMN IF NOT EXISTS "agent" text;
@@ -763,6 +790,48 @@ DO $$ DECLARE r record; BEGIN
     EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'attendance_sessions', r.conname); END LOOP;
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"attendance_sessions"'::regclass AND conname = 'attendance_sessions_absent_count_v49_7fab2443') THEN
     ALTER TABLE "attendance_sessions" ADD CONSTRAINT "attendance_sessions_absent_count_v49_7fab2443" CHECK ("absent_count" >= 0) NOT VALID; END IF;
+END $$;
+ALTER TABLE "test_runs" ADD COLUMN IF NOT EXISTS "test_date" date;
+ALTER TABLE "test_runs" ADD COLUMN IF NOT EXISTS "test_name" text;
+ALTER TABLE "test_runs" ADD COLUMN IF NOT EXISTS "batch" text;
+ALTER TABLE "test_runs" ADD COLUMN IF NOT EXISTS "subject" text;
+ALTER TABLE "test_runs" ADD COLUMN IF NOT EXISTS "max_marks" numeric;
+ALTER TABLE "test_runs" ADD COLUMN IF NOT EXISTS "total_count" numeric;
+ALTER TABLE "test_runs" ADD COLUMN IF NOT EXISTS "scored_count" numeric;
+ALTER TABLE "test_runs" ADD COLUMN IF NOT EXISTS "absent_count" numeric;
+ALTER TABLE "test_runs" ADD COLUMN IF NOT EXISTS "avg_pct" numeric;
+ALTER TABLE "test_runs" ADD COLUMN IF NOT EXISTS "marked_by" text;
+ALTER TABLE "test_runs" ADD COLUMN IF NOT EXISTS "saved_at" timestamptz;
+ALTER TABLE "test_runs" ADD COLUMN IF NOT EXISTS _seq bigserial;
+DO $$ DECLARE r record; BEGIN
+  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"test_runs"'::regclass AND left(conname, 24) = 'test_runs_max_marks_v49_' AND conname <> 'test_runs_max_marks_v49_3e311a57' LOOP
+    EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'test_runs', r.conname); END LOOP;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"test_runs"'::regclass AND conname = 'test_runs_max_marks_v49_3e311a57') THEN
+    ALTER TABLE "test_runs" ADD CONSTRAINT "test_runs_max_marks_v49_3e311a57" CHECK ("max_marks" > 0) NOT VALID; END IF;
+END $$;
+DO $$ DECLARE r record; BEGIN
+  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"test_runs"'::regclass AND left(conname, 26) = 'test_runs_total_count_v49_' AND conname <> 'test_runs_total_count_v49_4dc25d50' LOOP
+    EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'test_runs', r.conname); END LOOP;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"test_runs"'::regclass AND conname = 'test_runs_total_count_v49_4dc25d50') THEN
+    ALTER TABLE "test_runs" ADD CONSTRAINT "test_runs_total_count_v49_4dc25d50" CHECK ("total_count" >= 0) NOT VALID; END IF;
+END $$;
+DO $$ DECLARE r record; BEGIN
+  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"test_runs"'::regclass AND left(conname, 27) = 'test_runs_scored_count_v49_' AND conname <> 'test_runs_scored_count_v49_22dd3bca' LOOP
+    EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'test_runs', r.conname); END LOOP;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"test_runs"'::regclass AND conname = 'test_runs_scored_count_v49_22dd3bca') THEN
+    ALTER TABLE "test_runs" ADD CONSTRAINT "test_runs_scored_count_v49_22dd3bca" CHECK ("scored_count" >= 0) NOT VALID; END IF;
+END $$;
+DO $$ DECLARE r record; BEGIN
+  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"test_runs"'::regclass AND left(conname, 27) = 'test_runs_absent_count_v49_' AND conname <> 'test_runs_absent_count_v49_7fab2443' LOOP
+    EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'test_runs', r.conname); END LOOP;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"test_runs"'::regclass AND conname = 'test_runs_absent_count_v49_7fab2443') THEN
+    ALTER TABLE "test_runs" ADD CONSTRAINT "test_runs_absent_count_v49_7fab2443" CHECK ("absent_count" >= 0) NOT VALID; END IF;
+END $$;
+DO $$ DECLARE r record; BEGIN
+  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"test_runs"'::regclass AND left(conname, 22) = 'test_runs_avg_pct_v49_' AND conname <> 'test_runs_avg_pct_v49_42b278b5' LOOP
+    EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'test_runs', r.conname); END LOOP;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"test_runs"'::regclass AND conname = 'test_runs_avg_pct_v49_42b278b5') THEN
+    ALTER TABLE "test_runs" ADD CONSTRAINT "test_runs_avg_pct_v49_42b278b5" CHECK ("avg_pct" >= 0 AND "avg_pct" <= 100) NOT VALID; END IF;
 END $$;
 ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "name" text;
 ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "exam" text;
