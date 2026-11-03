@@ -786,6 +786,7 @@ export const PAGES = [
           "Grade"
         ],
         "pass": [
+          "Lead_ID",
           "Name",
           "Phone",
           "Course"
@@ -2154,7 +2155,8 @@ export const PAGES = [
           "Balance_INR",
           "Due_Date",
           "Days_Overdue",
-          "Payment_Link"
+          "Payment_Link",
+          "Reminder_Count"
         ],
         "submit": "Call & send link",
         "success": "Reminder call started — the parent's answer appears here",

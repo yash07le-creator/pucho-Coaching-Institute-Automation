@@ -7,7 +7,7 @@ Shape: trigger → `step_constants` → [`step_router` on action →] `step_<act
 Built by `scripts/build_flows.py` (flow/flowkit.py); the JSON lands beside this file as `FEE_REMINDER.json`; the CHECKLIST carries a test payload per action.
 
 ### `remind`  (model: standard, ~240s, ~29 credits, 69 runs/month)
-payload: `{"Fee_ID": "string", "Student_Name": "string", "Parent_Name": "string", "Parent_Phone": "string", "Course": "string", "Balance_INR": "number", "Due_Date": "string", "Days_Overdue": "number", "Payment_Link": "string"}`
+payload: `{"Fee_ID": "string", "Student_Name": "string", "Parent_Name": "string", "Parent_Phone": "string", "Course": "string", "Balance_INR": "number", "Due_Date": "string", "Days_Overdue": "number", "Payment_Link": "string", "Reminder_Count": "number", "Director": "string"}`
 result: `{"parent_response": "string", "promise_date": "string"}`
 rules: The daily 10:00 FEE_RUN posts each fee on day 1, 7 and 15 of being overdue (recommended policy); voiceCall the parent → delay ~3 min → getCallDetails → CDM extract → WhatsApp template eduflow_fee_payment_link → write; Reminder_Count + 1, Last_Reminder_At now, Promise_Date, Parent_Response (code); Day 15 or later with no promise → alerts row (Kind Fee, CRITICAL) for the director
 

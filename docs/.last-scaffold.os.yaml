@@ -611,7 +611,7 @@ flows:
     actions:
       - name: enrol
         model: none
-        payload: { Name: string, Phone: string, Student_Phone: string, Parent_Name: string, Parent_Phone: string, Course: string, Batch: string, Fee_Amount_INR: number, Fee_Due_Date: string, Address: string, Counsellor: string }
+        payload: { Lead_ID: string, Name: string, Phone: string, Student_Phone: string, Parent_Name: string, Parent_Phone: string, Course: string, Batch: string, Fee_Amount_INR: number, Fee_Due_Date: string, Address: string, Counsellor: string }
         sends: { tool: whatsapp, to: Parent_Phone, template: { name: eduflow_welcome, variables: { "1": "{{Parent_Name}}", "2": "{{Name}}", "3": "{{Course}}", "4": "{{Batch}}" } } }
         rules: ["Inserts the student (Status Active) and the first fees row (Amount_INR = Fee_Amount_INR, Due_Date = Fee_Due_Date, Status Upcoming) in code", "Welcome template to the parent after the write; one messages row (Type Welcome)", "From a lead: the lead's Stage → Enrolled; the lead's Phone becomes Student_Phone"]
         typical_seconds: 5
@@ -704,7 +704,7 @@ flows:
         covers: [R24]
         model: standard
         async: true
-        payload: { Fee_ID: string, Student_Name: string, Parent_Name: string, Parent_Phone: string, Course: string, Balance_INR: number, Due_Date: string, Days_Overdue: number, Payment_Link: string }
+        payload: { Fee_ID: string, Student_Name: string, Parent_Name: string, Parent_Phone: string, Course: string, Balance_INR: number, Due_Date: string, Days_Overdue: number, Payment_Link: string, Reminder_Count: number, Director: string }
         prompt: |
           You read the transcript of a polite fee-reminder call to {{payload.Parent_Name}}, parent of {{payload.Student_Name}} ({{payload.Course}}), about ₹{{payload.Balance_INR}} due on {{payload.Due_Date}}.
           Extract what the parent said and the date they promised to pay, if any.
@@ -918,7 +918,7 @@ pages:
         flow: STUDENT_MANAGE
         action: enrol
         summary: [Name, Course, Grade]
-        pass: [Name, Phone, Course]
+        pass: [Lead_ID, Name, Phone, Course]
         columns: 2
         submit: Enrol & send welcome
         success: "Student enrolled — welcome sent to the parent on WhatsApp"
@@ -1111,7 +1111,7 @@ pages:
     modals:
       - { id: record_payment, covers: [R26], kind: status, primary: true, title: Record payment, direct: patch, summary: [Student_Name, Amount_INR, Balance_INR], fill: { Paid_At: now }, columns: 2, fields: [ { key: Paid_INR, label: "Total paid (₹)", type: number, required: true }, { key: Payment_Mode, label: Mode, type: select, options: [UPI, Cash, Card, Bank Transfer, Cheque], required: true }, { key: Receipt_No, label: Receipt no., type: text }, { key: Status, label: Status, type: select, options: [Paid, Partial], required: true } ] }
       - { id: send_link, covers: [R25], kind: status, title: Send payment link, flow: FEE_REMINDER, action: send_link, summary: [Student_Name, Balance_INR, Due_Date], pass: [Fee_ID, Student_Name, Parent_Name, Parent_Phone, Balance_INR, Due_Date, Payment_Link], submit: Send on WhatsApp, success: "Payment link sent to the parent", fields: [] }
-      - { id: remind, covers: [R24], kind: status, title: AI reminder call, flow: FEE_REMINDER, action: remind, summary: [Student_Name, Balance_INR, Days_Overdue], pass: [Fee_ID, Student_Name, Parent_Name, Parent_Phone, Course, Balance_INR, Due_Date, Days_Overdue, Payment_Link], submit: Call & send link, success: "Reminder call started — the parent's answer appears here", fields: [] }
+      - { id: remind, covers: [R24], kind: status, title: AI reminder call, flow: FEE_REMINDER, action: remind, summary: [Student_Name, Balance_INR, Days_Overdue], pass: [Fee_ID, Student_Name, Parent_Name, Parent_Phone, Course, Balance_INR, Due_Date, Days_Overdue, Payment_Link, Reminder_Count], submit: Call & send link, success: "Reminder call started — the parent's answer appears here", fields: [] }
     actions: { header: [], row: [record_payment, send_link, remind] }
 
   - id: parents

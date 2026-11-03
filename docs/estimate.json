@@ -1,35 +1,35 @@
 {
-  "total_credits": 24295.0,
+  "total_credits": 44948.0,
   "range": [
-    17006.5,
-    31583.5
+    31463.6,
+    58432.4
   ],
   "rate": 0.3,
-  "rupees": 7288.5,
+  "rupees": 13484.4,
   "rows": [
     {
       "workflow": "ADMISSION_CALL",
       "action": "new_lead",
       "trigger": "new lead from the OS",
       "runs": 120.0,
-      "credits_run": 6.0,
+      "credits_run": 44.0,
       "declared_run": 44.0,
       "model": "standard",
       "sends": null,
-      "source": "flow json",
-      "credits_month": 720.0
+      "source": "declared",
+      "credits_month": 5280.0
     },
     {
       "workflow": "ADMISSION_CALL",
       "action": "call",
       "trigger": "call from the OS",
       "runs": 30.0,
-      "credits_run": 6.0,
+      "credits_run": 44.0,
       "declared_run": 44.0,
       "model": "standard",
       "sends": null,
-      "source": "flow json",
-      "credits_month": 180.0
+      "source": "declared",
+      "credits_month": 1320.0
     },
     {
       "workflow": "STUDENT_MANAGE",
@@ -40,7 +40,7 @@
       "declared_run": 7.0,
       "model": "none",
       "sends": "whatsapp",
-      "source": "flow json",
+      "source": "declared",
       "credits_month": 210.0
     },
     {
@@ -48,24 +48,24 @@
       "action": "save_batch",
       "trigger": "save batch from the OS",
       "runs": 40.0,
-      "credits_run": 7.0,
+      "credits_run": 3.0,
       "declared_run": 3.0,
       "model": "none",
       "sends": null,
-      "source": "flow json",
-      "credits_month": 280.0
+      "source": "declared",
+      "credits_month": 120.0
     },
     {
       "workflow": "ATTENDANCE",
       "action": "save_batch",
       "trigger": "save batch from the OS",
       "runs": 90.0,
-      "credits_run": 7.0,
+      "credits_run": 6.0,
       "declared_run": 6.0,
       "model": "none",
       "sends": null,
-      "source": "flow json",
-      "credits_month": 630.0
+      "source": "declared",
+      "credits_month": 540.0
     },
     {
       "workflow": "ABSENCE",
@@ -76,7 +76,7 @@
       "declared_run": 7.0,
       "model": "none",
       "sends": "whatsapp",
-      "source": "flow json",
+      "source": "declared",
       "credits_month": 8008.0
     },
     {
@@ -84,24 +84,24 @@
       "action": "counsel",
       "trigger": "counsel from the OS",
       "runs": 147.0,
-      "credits_run": 6.0,
+      "credits_run": 54.0,
       "declared_run": 54.0,
       "model": "standard",
       "sends": null,
-      "source": "flow json",
-      "credits_month": 882.0
+      "source": "declared",
+      "credits_month": 7938.0
     },
     {
       "workflow": "FEE_REMINDER",
       "action": "remind",
       "trigger": "remind from the OS",
       "runs": 69.0,
-      "credits_run": 6.0,
+      "credits_run": 29.0,
       "declared_run": 29.0,
       "model": "standard",
       "sends": null,
-      "source": "flow json",
-      "credits_month": 414.0
+      "source": "declared",
+      "credits_month": 2001.0
     },
     {
       "workflow": "FEE_REMINDER",
@@ -112,7 +112,7 @@
       "declared_run": 7.0,
       "model": "none",
       "sends": "whatsapp",
-      "source": "flow json",
+      "source": "declared",
       "credits_month": 560.0
     },
     {
@@ -124,7 +124,7 @@
       "declared_run": 7.0,
       "model": "none",
       "sends": "whatsapp",
-      "source": "flow json",
+      "source": "declared",
       "credits_month": 10367.0
     },
     {
@@ -132,12 +132,12 @@
       "action": "update_call",
       "trigger": "update call from the OS",
       "runs": 160.0,
-      "credits_run": 8.0,
+      "credits_run": 49.0,
       "declared_run": 49.0,
       "model": "standard",
       "sends": null,
-      "source": "flow json",
-      "credits_month": 1280.0
+      "source": "declared",
+      "credits_month": 7840.0
     },
     {
       "workflow": "SEND_WHATSAPP",
@@ -148,7 +148,7 @@
       "declared_run": 7.0,
       "model": "none",
       "sends": "whatsapp",
-      "source": "flow json",
+      "source": "declared",
       "credits_month": 399.0
     },
     {
@@ -201,39 +201,23 @@
     }
   ],
   "by_flow": {
-    "ADMISSION_CALL": 900.0,
+    "ADMISSION_CALL": 6600.0,
     "STUDENT_MANAGE": 210.0,
-    "SCORES": 280.0,
-    "ATTENDANCE": 630.0,
+    "SCORES": 120.0,
+    "ATTENDANCE": 540.0,
     "ABSENCE": 8008.0,
-    "ACADEMIC_CALL": 882.0,
-    "FEE_REMINDER": 974.0,
-    "PARENT_UPDATE": 11647.0,
+    "ACADEMIC_CALL": 7938.0,
+    "FEE_REMINDER": 2561.0,
+    "PARENT_UPDATE": 18207.0,
     "SEND_WHATSAPP": 399.0,
     "FEE_RUN": 150.0,
     "ACADEMIC_RUN": 20.0,
     "PARENT_RUN": 45.0,
     "ROLLUP": 150.0
   },
-  "unverified_steps": {
-    "ADMISSION_CALL.new_lead": [
-      "pucho-cdm"
-    ],
-    "ADMISSION_CALL.call": [
-      "pucho-cdm"
-    ],
-    "ACADEMIC_CALL.counsel": [
-      "pucho-cdm"
-    ],
-    "FEE_REMINDER.remind": [
-      "pucho-cdm"
-    ],
-    "PARENT_UPDATE.update_call": [
-      "pucho-cdm"
-    ]
-  },
-  "total_month": 24295.0,
+  "unverified_steps": {},
+  "total_month": 44948.0,
   "declared_month": 44948.0,
-  "counted": true,
-  "gap_ratio": 0.5405134822461511
+  "counted": false,
+  "gap_ratio": 1.0
 }

@@ -1,16 +1,16 @@
 workflow,action,trigger,runs_per_month,credits_per_run,credits_per_month,model,sends,source
-ADMISSION_CALL,new_lead,new lead from the OS,120,6,720,standard,,flow json
-ADMISSION_CALL,call,call from the OS,30,6,180,standard,,flow json
-STUDENT_MANAGE,enrol,enrol from the OS,30,7,210,none,whatsapp,flow json
-SCORES,save_batch,save batch from the OS,40,7,280,none,,flow json
-ATTENDANCE,save_batch,save batch from the OS,90,7,630,none,,flow json
-ABSENCE,absent,absent from the OS,1144,7,8008,none,whatsapp,flow json
-ACADEMIC_CALL,counsel,counsel from the OS,147,6,882,standard,,flow json
-FEE_REMINDER,remind,remind from the OS,69,6,414,standard,,flow json
-FEE_REMINDER,send_link,send link from the OS,80,7,560,none,whatsapp,flow json
-PARENT_UPDATE,weekly_report,weekly report from the OS,1481,7,10367,none,whatsapp,flow json
-PARENT_UPDATE,update_call,update call from the OS,160,8,1280,standard,,flow json
-SEND_WHATSAPP,send_update,send update from the OS,57,7,399,none,whatsapp,flow json
+ADMISSION_CALL,new_lead,new lead from the OS,120,44,5280,standard,,declared
+ADMISSION_CALL,call,call from the OS,30,44,1320,standard,,declared
+STUDENT_MANAGE,enrol,enrol from the OS,30,7,210,none,whatsapp,declared
+SCORES,save_batch,save batch from the OS,40,3,120,none,,declared
+ATTENDANCE,save_batch,save batch from the OS,90,6,540,none,,declared
+ABSENCE,absent,absent from the OS,1144,7,8008,none,whatsapp,declared
+ACADEMIC_CALL,counsel,counsel from the OS,147,54,7938,standard,,declared
+FEE_REMINDER,remind,remind from the OS,69,29,2001,standard,,declared
+FEE_REMINDER,send_link,send link from the OS,80,7,560,none,whatsapp,declared
+PARENT_UPDATE,weekly_report,weekly report from the OS,1481,7,10367,none,whatsapp,declared
+PARENT_UPDATE,update_call,update call from the OS,160,49,7840,standard,,declared
+SEND_WHATSAPP,send_update,send update from the OS,57,7,399,none,whatsapp,declared
 FEE_RUN,run,schedule,30,5,150,none,,declared
 ACADEMIC_RUN,run,schedule,4,5,20,none,,declared
 PARENT_RUN,run,schedule,9,5,45,none,,declared
