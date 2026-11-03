@@ -2,13 +2,13 @@
 // AttendanceSheet — mark a whole batch for one date (R14). Every student starts Present; the office taps Absent for who is
 // missing and saves ONCE: ATTENDANCE.save_batch writes one attendance_sessions row and every student's mark as its lines in a
 // single transaction (a refused mark rolls the whole save back). Only the absentees are then notified (ABSENCE, by the flow):
-// a WhatsApp on a first absence in 7 days, the AI call on a repeat. Present students cost nothing — no workflow, no AI (R15).
-// The repeat counts are computed here from the stored marks (rule zero: code counts, the flow only acts on them).
+// a formal WhatsApp notice to the parent — never a call (owner, 3 Nov 2026). Present students cost nothing — no workflow (R15).
+// The repeat counts and the follow-up flag are computed here from the stored marks (rule zero: code counts, the flow only acts).
 import { useMemo, useState } from 'react';
 import { Button, DatePicker, Input, Select } from 'antd';
 import dayjs from 'dayjs';
 import { toast } from 'sonner';
-import { CalendarDays, CheckCheck, MessageCircle, PhoneCall, Search } from 'lucide-react';
+import { CalendarDays, CheckCheck, MessageCircle, Search, Zap } from 'lucide-react';
 import { Avatar } from '../components/ui/primitives';
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
@@ -17,7 +17,7 @@ import { bizToday } from '../module/Fields';
 import { pickerProps, selectProps } from '../config/popup';
 import { runAction, whoAmI } from '../utils/api';
 
-const CALL_FROM = 2;   // os.yaml ABSENCE.constants.call_from_absence — the absence in 7 days that gets an AI call
+const FOLLOWUP_FROM = 2;   // os.yaml ABSENCE.constants.followup_from_absence — from this absence in 7 days the counsellor follows up
 const day = (v) => String(v ?? '').slice(0, 10);
 const shift = (iso, n) => { const t = new Date(`${iso}T00:00:00Z`); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); };
 const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
@@ -48,21 +48,19 @@ export default function AttendanceSheet({ data }) {
   const absencesBefore = (sid, from) => marks.filter((m) => m.Student_ID === sid && m.Status === 'Absent' && day(m.Date) >= from && day(m.Date) < date).length;
   const weekCount = (sid) => absencesBefore(sid, shift(date, -6)) + 1;
   const monthCount = (sid) => absencesBefore(sid, `${date.slice(0, 8)}01`) + 1;
-  const absentees = pending.filter((s) => absent.has(s.Student_ID));
-  const nCalls = absentees.filter((s) => weekCount(s.Student_ID) >= CALL_FROM).length;
 
   const reset = () => { setAbsent(new Set()); setQ(''); };
   const setOne = (sid, isAbsent) => setAbsent((prev) => { const n = new Set(prev); if (isAbsent) n.add(sid); else n.delete(sid); return n; });
-  const setVisible = (isAbsent) => setAbsent((prev) => { const n = new Set(prev); for (const s of visible) if (!markOf(s.Student_ID)) { if (isAbsent) n.add(s.Student_ID); else n.delete(s.Student_ID); } return n; });
+  const allPresent = () => setAbsent((prev) => { const n = new Set(prev); for (const s of visible) n.delete(s.Student_ID); return n; });
 
   async function save() {
     setConfirming(false);
     const who = whoAmI(); const todo = pending; const ab = new Set(absent);
     const lines = todo.map((s) => {
-      const isAbsent = ab.has(s.Student_ID);
+      const isAbsent = ab.has(s.Student_ID); const wk = isAbsent ? weekCount(s.Student_ID) : 0; const followUp = wk >= FOLLOWUP_FROM;
       return { Date: date, Batch: s.Batch, Student_ID: s.Student_ID, Name: s.Name, Course: s.Course, Parent_Name: s.Parent_Name, Parent_Phone: s.Parent_Phone,
-        Status: isAbsent ? 'Absent' : 'Present', Absences_This_Week: isAbsent ? weekCount(s.Student_ID) : 0, Absences_This_Month: isAbsent ? monthCount(s.Student_ID) : 0,
-        Call_Status: isAbsent ? 'Queued' : 'Not Needed', Needs_Followup: 'No', Marked_By: who };
+        Status: isAbsent ? 'Absent' : 'Present', Absences_This_Week: wk, Absences_This_Month: isAbsent ? monthCount(s.Student_ID) : 0,
+        Call_Status: isAbsent ? 'Queued' : 'Present', Needs_Followup: followUp ? 'Yes' : 'No', Followup_Done: followUp ? 'No' : '', Marked_By: who };
     });
     const absentIds = lines.filter((l) => l.Status === 'Absent').map((l) => l.Student_ID);
     // optimistic: the rows show their new mark at once; on a refusal they go back to the sheet exactly as they were
@@ -73,9 +71,10 @@ export default function AttendanceSheet({ data }) {
         Absentees: absentIds.join(', '), Marked_By: who, lines,
       });
       setAbsent(new Set());
-      const told = absentIds.length ? ` · ${plural(absentIds.length, 'parent')} to be notified` : ' · no parent contacted';
-      toast.success(`${current} saved — ${lines.length - absentIds.length} present, ${absentIds.length} absent${told}`,
-        { description: res?.simulated ? 'Workflows are simulated — the marks are saved, but no WhatsApp or call left the app.' : undefined });
+      const z = absentIds.length;
+      if (!z) toast.success('Attendance saved! Everyone is present — no parent was notified.');
+      else if (res?.simulated) toast.success(`Attendance saved! Formal WhatsApp notice queued for ${plural(z, 'absent parent')}.`, { description: 'Workflows are simulated — the marks are saved, but no WhatsApp left the app.' });
+      else toast.success(`Attendance saved! Formal WhatsApp notice sent to ${plural(z, 'absent parent')}.`);
     } catch (e) {
       const detail = e.errors ? Object.values(e.errors).join(' · ') : e.message;
       toast.error('Attendance not saved — nothing was written, the sheet is as you left it', { description: detail, duration: 12000 });
@@ -105,15 +104,20 @@ export default function AttendanceSheet({ data }) {
         <>
           <div className="flex flex-wrap items-center gap-2 px-4 py-3 border-b border-[color:var(--hair-5)]" data-os-sheet-tools>
             <div className="w-full sm:w-[240px]">
-              <Input aria-label="Search students" value={q} onChange={(e) => setQ(e.target.value)} allowClear placeholder="Search name or ID" prefix={<Search className="w-4 h-4 text-ink-4" aria-hidden />} className="os-control" />
+              <Input aria-label="Search students" value={q} onChange={(e) => setQ(e.target.value)} allowClear placeholder="Search name or roll number" prefix={<Search className="w-4 h-4 text-ink-4" aria-hidden />} className="os-control" />
             </div>
-            <Button onClick={() => setVisible(false)} disabled={saving || !pending.length}>Mark all present</Button>
-            <Button onClick={() => setVisible(true)} disabled={saving || !pending.length}>Mark all absent</Button>
+            <Button onClick={allPresent} disabled={saving || !nAbsent}>Mark all present</Button>
             <p className="ml-auto text-[13px] text-ink-2 tabular" aria-live="polite" data-os-sheet-counter>
-              Total: <b className="text-ink">{pending.length}</b> <span className="text-ink-4">|</span> Present: <b className="text-ok-text">{nPresent}</b> <span className="text-ink-4">|</span> Absent: <b className={nAbsent ? 'text-bad-text' : 'text-ink'}>{nAbsent}</b>
+              Total: <b className="text-ink">{pending.length}</b> <span className="text-ink-3">|</span> Present: <b className="text-ok-text">{nPresent}</b> <span className="text-ink-3">|</span> Absent: <b className={nAbsent ? 'text-bad-text' : 'text-ink'}>{nAbsent}</b>
               {roster.length > pending.length && <span className="text-ink-3"> · {roster.length - pending.length} already marked</span>}
             </p>
           </div>
+
+          {pending.length > 0 && (
+            <p role="note" className="flex items-start gap-2 mx-4 mt-3 px-3 py-2 rounded-[var(--r-8)] bg-info-soft text-info-text text-[13px]" data-os-sheet-notice>
+              <Zap className="w-4 h-4 mt-px shrink-0" aria-hidden /> Saving attendance will automatically send a formal WhatsApp intimation to parents of absent students.
+            </p>
+          )}
 
           <ul className="grid grid-cols-1 lg:grid-cols-2 divide-y divide-[color:var(--hair-5)] lg:divide-y-0" data-os-roster>
             {visible.map((s) => {
@@ -126,7 +130,7 @@ export default function AttendanceSheet({ data }) {
                     <p className="text-[12px] text-ink-3 truncate"><span className="font-mono">{s.Student_ID}</span> · {s.Course}</p>
                     {isAbsent && !done && (
                       <p className="text-[12px] text-ink-3 flex items-center gap-1 mt-0.5" data-os-absent-hint>
-                        {wk >= CALL_FROM ? <><PhoneCall className="w-3.5 h-3.5" aria-hidden /> absence {wk} in 7 days · AI call</> : <><MessageCircle className="w-3.5 h-3.5" aria-hidden /> WhatsApp to parent</>}
+                        <MessageCircle className="w-3.5 h-3.5" aria-hidden /> WhatsApp notice to parent{wk >= FOLLOWUP_FROM ? ` · absence ${wk} in 7 days, counsellor follows up` : ''}
                       </p>
                     )}
                   </div>
@@ -153,23 +157,27 @@ export default function AttendanceSheet({ data }) {
               <p className="flex-1 flex items-center gap-2 text-[13px] text-ink-2" data-os-sheet-done><CheckCheck className="w-4 h-4 text-ok-text" aria-hidden /> {current} is marked for {date === today ? 'today' : dayjs(date).format('D MMM YYYY')}.</p>
             ) : (
               <>
-                <p className="flex-1 text-[13px] text-ink-3">Present marks notify nobody. {nAbsent ? `${plural(nAbsent, 'absent parent')} will be told.` : ''}</p>
-                <Button type="primary" onClick={() => setConfirming(true)} loading={saving} data-os-sheet-save>Save attendance</Button>
+                <p className="flex-1 text-[13px] text-ink-3">Present marks notify nobody. {nAbsent ? `${plural(nAbsent, 'parent')} will get the WhatsApp notice.` : ''}</p>
+                {/* no absentee → nothing is sent, so no confirmation is needed */}
+                <Button type="primary" onClick={() => (nAbsent ? setConfirming(true) : save())} loading={saving} data-os-sheet-save>
+                  {nAbsent ? `Save & Send WhatsApp (${nAbsent})` : 'Save Attendance'}
+                </Button>
               </>
             )}
           </div>
         </>
       )}
 
-      <Modal isOpen={confirming} onClose={() => setConfirming(false)} title="Save attendance?" size="sm">
+      <Modal isOpen={confirming} onClose={() => setConfirming(false)} title={`Ready to save attendance for ${current}?`} size="sm">
         <div className="space-y-4" data-os-sheet-confirm>
-          <p className="text-[14px] text-ink">Confirm saving: <b>{nPresent} Present</b>, <b>{nAbsent} Absent</b> for {current} on {dayjs(date).format('D MMM YYYY')}.</p>
-          <p className="text-[13px] text-ink-2">
-            {nAbsent ? `${plural(nAbsent, 'absent parent')} will be notified — ${nAbsent - nCalls} by WhatsApp${nCalls ? `, ${nCalls} by an AI call (a repeat absence)` : ''}.` : 'No parent will be contacted.'}
-          </p>
+          <ul className="text-[14px] text-ink space-y-1 list-disc pl-5">
+            <li>Present: <b className="text-ok-text">{nPresent}</b></li>
+            <li>Absent: <b className="text-bad-text">{nAbsent}</b></li>
+          </ul>
+          <p className="text-[13px] text-ink-2">{plural(nAbsent, 'parent')} will receive the official absence WhatsApp notice immediately.</p>
           <div className="flex justify-end gap-2">
-            <Button onClick={() => setConfirming(false)}>Back to the sheet</Button>
-            <Button type="primary" onClick={save} data-os-sheet-confirm-save>Save {pending.length} marks</Button>
+            <Button onClick={() => setConfirming(false)}>Cancel</Button>
+            <Button type="primary" onClick={save} data-os-sheet-confirm-save>Confirm &amp; Send</Button>
           </div>
         </div>
       </Modal>

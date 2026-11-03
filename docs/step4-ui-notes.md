@@ -56,3 +56,23 @@ after the start, at least one day. Escape on the open time panel closes only the
 the same Escape and close the form — found by test, fixed by keeping Escape inside the picker while its panel is open).
 Verified: "Batch D — Night", 7:00–9:00 PM typed into the picker, Mon–Fri + Sat, NEET → stored 19:00 / 21:00 /
 "Mon, Tue, Wed, Thu, Fri, Sat" / NEET and offered in the enrolment form; a duplicate name, no time and no days were refused.
+
+## Attendance: WhatsApp notice only, no AI call (owner, 3 Nov 2026)
+- R15 / R16 changed in `os.yaml` and `intake/00-product-brief.md`: an absence gets a formal WhatsApp notice (`eduflow_absence_alert`)
+  and never a call; the office sees whether each notice was sent, delivered or failed. `ABSENCE.reason_call` and the
+  "Call the parent" row action are gone; `ABSENCE.absent` is `model: none` + `sends:` (7 credits, was a 14-credit blend).
+  The run estimate fell from 54,576 to 44,828 credits a month.
+- No schema break: the column stays `Call_Status`, shown as **WhatsApp Notice**; its values are Present · Queued · WhatsApp Sent ·
+  Delivered · Failed (the migrate replaced the CHECK; the demo data was reset). The three attendance AI calls in the call log
+  and the call-derived reasons in the seed were removed.
+- Repeat absence (2nd in 7 days) is computed by the sheet → `Needs_Followup: Yes` → the counsellor is alerted (R17), no call.
+- AttendanceSheet: info banner, "Mark all present" + search (Mark all absent removed), "Save Attendance" /
+  "Save & Send WhatsApp (Z)", confirmation only when someone is absent ("Ready to save attendance for …?" · Cancel / Confirm & Send),
+  toast "Attendance saved! Formal WhatsApp notice sent to Z absent parents." (live) / "… queued for …" + the SIMULATED line (demo).
+- Observed in the browser (dev server, office persona): Batch C marked with 2 absent (one by click, one by Space), counter,
+  banner, button label, confirmation text, one save, the simulated toast; badges Present green, WhatsApp Sent indigo.
+- Queued stays Queued in the demo — nothing moves it to WhatsApp Sent until ABSENCE is wired (SIMULATED).
+- Delivered / Failed need the WhatsApp delivery status back from Studio — UNVERIFIED (G5).
+- Kernel gap, adapter `custom/noticeBadges.js`: a table badge column cannot declare a colour per value (the kanban has
+  `colors:`, the table has no twin), so "WhatsApp Sent" came out grey and "Present" steel. To report to the skill owner.
+- ui_check NOT re-run after this change (needs a production build while the owner's dev server holds `.next`).
