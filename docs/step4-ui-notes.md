@@ -94,3 +94,27 @@ Verified: "Batch D — Night", 7:00–9:00 PM typed into the picker, Mon–Fri +
 - Observed (dev server, office persona, Batch A today): Present click on a saved Present → no change; Absent → "changed",
   "Save & Send WhatsApp (1)", confirm, toast (SIMULATED), table Absent / WhatsApp Sent; back to Present → "Save changes",
   the cannot-be-recalled line, toast "Attendance updated — no new WhatsApp notice.", table Present / WhatsApp Sent. No console errors.
+
+## Test scores: batch score entry grid + filtered CSV export (owner, 3 Nov 2026)
+- The page is the `ScoreBook` custom section (the kernel table keeps its filters to itself, so an export of "what is filtered"
+  needs one section that owns the filters): search, Batch / Course / Subject / period filters, 20 per page, Export, Add score;
+  a row's pencil opens the kernel's Correct marks (`edit_score`, now with a Student panel and Status). The kernel's page Export
+  is off (`export: false`); the single-student Add score form is gone.
+- Add score = a batch grid: Batch, Test name, Subject (suggests known subjects), Out of (default 100), Date (default today, no
+  future); every active student of the batch with #, name + course, roll no, Marks, Absent. Enter / ↓ next mark, ↑ previous
+  (absent rows skipped). Live "Total | Scored | Absent | Batch Avg". Marks outside 0–Out of and blanks are refused before
+  anything is sent (named in the toast; focus goes to the first). A student who already has this test + subject is shown
+  "Saved: x/y" and not sent (unique Test_Name + Student_ID + Subject; matched without case).
+- One `SCORES.save_batch`: a `test_runs` row (new entity: the head) and every student's `tests` row (its lines) in ONE
+  transaction. `tests` gained `Status` (Scored / Absent) and `Run_ID` — additive; an Absent row has no Marks, so Score_Pct stays
+  empty and stays out of every average (ROLLUP rule updated). The demo's four Weekly Test 14 entries became runs TR-2026-0001…4.
+- SCORES is a pure write (no AI, no message): it needs no Studio workflow — left unwired, the app writes it itself.
+- Marks ≤ Out of is checked by the grid only: the v4.9 validation grammar has no cross-field rule (server: Marks ≥ 0).
+- Export: the filtered rows → `Test_Scores_<Batch>_<Subject>_<date>.csv` (All-Batches / All-Subjects when unfiltered), UTF-8 with
+  BOM for Excel; columns Student ID, Student Name, Course, Batch, Test Name, Subject, Test Date, Marks Obtained, Max Marks,
+  Score Percentage (%), Status.
+- Observed (dev server, office persona): 29 scores, filter Batch A + Physics → 9; export name, header, 9 rows, BOM bytes EF BB BF;
+  grid for Weekly Test 15 / Physics / out of 50 with real keystrokes (Enter skipped the absent row, ↑ back, 60 flagged), the
+  refusal toast, save → toast "Successfully recorded scores for 10 students!", 10 rows (49.5/50 → 99 %, Dev Absent "—"), DB:
+  TR-2026-0005 10/9/1 avg 78 and 10 tests rows on that run; re-opening the same test → "10 already saved", Save disabled;
+  Correct marks opens. The browser's actual file save was not exercised (the click was intercepted to read the file).
