@@ -2,13 +2,14 @@
 ```json
 {
   "action": "send_link",
-  "Fee_ID": "<string>",
-  "Student_Name": "<string>",
-  "Parent_Name": "<string>",
-  "Parent_Phone": "<string>",
-  "Balance_INR": 0,
-  "Due_Date": "<string>",
-  "Payment_Link": "<string>"
+  "_who": "Sunita Rao",
+  "Fee_ID": "FE-2026-0302",
+  "Student_Name": "Kavya Patel",
+  "Parent_Name": "Mrs. M. Patel",
+  "Parent_Phone": "+919425009611",
+  "Balance_INR": 18000,
+  "Due_Date": "2026-10-15",
+  "Payment_Link": "https://rzp.io/l/eduflow-sim"
 }
 ```
 (samples are .md on purpose — never .json in a workflows folder)

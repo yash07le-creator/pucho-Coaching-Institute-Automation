@@ -2,16 +2,17 @@
 ```json
 {
   "action": "absent",
-  "Att_ID": "<string>",
-  "Date": "<string>",
-  "Batch": "<string>",
-  "Student_ID": "<string>",
-  "Name": "<string>",
-  "Course": "<string>",
-  "Parent_Name": "<string>",
-  "Parent_Phone": "<string>",
-  "Absences_This_Week": 0,
-  "Needs_Followup": "<string>"
+  "_who": "flow:ATTENDANCE",
+  "Att_ID": "AT-2026-5126",
+  "Date": "2026-11-03",
+  "Batch": "Batch B — Evening",
+  "Student_ID": "ST-2026-0112",
+  "Name": "Mohit Yadav",
+  "Course": "NEET",
+  "Parent_Name": "Mr. B. Yadav",
+  "Parent_Phone": "+919425015103",
+  "Absences_This_Week": 2,
+  "Needs_Followup": "Yes"
 }
 ```
 (samples are .md on purpose — never .json in a workflows folder)

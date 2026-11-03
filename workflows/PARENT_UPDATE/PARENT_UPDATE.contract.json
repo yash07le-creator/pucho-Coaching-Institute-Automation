@@ -9,6 +9,8 @@
   "connections": "portable",
   "fire_and_forget": false,
   "allow_pieces": [
+    "ai-voice-call",
+    "delay",
     "http",
     "pucho-cdm",
     "pucho-whatsapp",
@@ -16,19 +18,36 @@
   ],
   "allow_names": [
     "catch_webhook",
+    "delayFor",
     "extract",
+    "getCallDetails",
     "return_response",
     "send_request",
-    "send_template_message"
+    "send_template_message",
+    "voiceCall"
   ],
   "require_capabilities": [
-    "receive_PARENT_UPDATE=webhook:trigger",
-    "respond_PARENT_UPDATE=webhook:respond",
-    "persist_PARENT_UPDATE_weekly_report=http:write",
-    "dispatch_PARENT_UPDATE_weekly_report=pucho-whatsapp:write",
-    "model_PARENT_UPDATE_update_call=pucho-cdm:transform",
-    "persist_PARENT_UPDATE_update_call=http:write",
-    "also_PARENT_UPDATE_update_call=step_update_call_also_update:http:write"
+    "receive_PARENT_UPDATE=trigger:webhook:trigger",
+    "step_weekly_report_send=step_weekly_report_send:pucho-whatsapp:write",
+    "step_weekly_report_update=step_weekly_report_update:http:write",
+    "step_weekly_report_log=step_weekly_report_log:http:write",
+    "step_weekly_report_done=step_weekly_report_done:webhook:respond",
+    "step_update_call_team=step_update_call_team:http:read",
+    "step_update_call_call=step_update_call_call:ai-voice-call:action",
+    "step_update_call_wait=step_update_call_wait:delay:control",
+    "step_update_call_details=step_update_call_details:ai-voice-call:read",
+    "step_update_call_ai=step_update_call_ai:pucho-cdm:transform",
+    "step_update_call_update=step_update_call_update:http:write",
+    "step_update_call_log=step_update_call_log:http:write",
+    "step_update_call_alert=step_update_call_alert:http:write",
+    "step_update_call_staff_send=step_update_call_staff_send:pucho-whatsapp:write",
+    "step_update_call_staff_log=step_update_call_staff_log:http:write",
+    "step_update_call_done=step_update_call_done:webhook:respond",
+    "step_unknown_action=step_unknown_action:webhook:respond"
   ],
-  "unverified_outputs": []
+  "unverified_outputs": [
+    "ai-voice-call:voiceCall (connectionDetails keys, G1)",
+    "ai-voice-call:getCallDetails (response shape, G1)",
+    "pucho-whatsapp:send_template_message (response shape, rules §1.20 #5)"
+  ]
 }

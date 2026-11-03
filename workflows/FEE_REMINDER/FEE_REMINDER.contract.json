@@ -8,6 +8,8 @@
   "connections": "portable",
   "fire_and_forget": false,
   "allow_pieces": [
+    "ai-voice-call",
+    "delay",
     "http",
     "pucho-cdm",
     "pucho-whatsapp",
@@ -15,18 +17,35 @@
   ],
   "allow_names": [
     "catch_webhook",
+    "delayFor",
     "extract",
+    "getCallDetails",
     "return_response",
     "send_request",
-    "send_template_message"
+    "send_template_message",
+    "voiceCall"
   ],
   "require_capabilities": [
-    "receive_FEE_REMINDER=webhook:trigger",
-    "respond_FEE_REMINDER=webhook:respond",
-    "model_FEE_REMINDER_remind=pucho-cdm:transform",
-    "persist_FEE_REMINDER_remind=http:write",
-    "persist_FEE_REMINDER_send_link=http:write",
-    "dispatch_FEE_REMINDER_send_link=pucho-whatsapp:write"
+    "receive_FEE_REMINDER=trigger:webhook:trigger",
+    "step_remind_call=step_remind_call:ai-voice-call:action",
+    "step_remind_wait=step_remind_wait:delay:control",
+    "step_remind_details=step_remind_details:ai-voice-call:read",
+    "step_remind_ai=step_remind_ai:pucho-cdm:transform",
+    "step_remind_send=step_remind_send:pucho-whatsapp:write",
+    "step_remind_update=step_remind_update:http:write",
+    "step_remind_log=step_remind_log:http:write",
+    "step_remind_message=step_remind_message:http:write",
+    "step_remind_alert=step_remind_alert:http:write",
+    "step_remind_done=step_remind_done:webhook:respond",
+    "step_send_link_send=step_send_link_send:pucho-whatsapp:write",
+    "step_send_link_update=step_send_link_update:http:write",
+    "step_send_link_log=step_send_link_log:http:write",
+    "step_send_link_done=step_send_link_done:webhook:respond",
+    "step_unknown_action=step_unknown_action:webhook:respond"
   ],
-  "unverified_outputs": []
+  "unverified_outputs": [
+    "ai-voice-call:voiceCall (connectionDetails keys, G1)",
+    "ai-voice-call:getCallDetails (response shape, G1)",
+    "pucho-whatsapp:send_template_message (response shape, rules §1.20 #5)"
+  ]
 }

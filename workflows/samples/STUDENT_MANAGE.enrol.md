@@ -2,18 +2,19 @@
 ```json
 {
   "action": "enrol",
-  "Lead_ID": "<string>",
-  "Name": "<string>",
-  "Phone": "<string>",
-  "Student_Phone": "<string>",
-  "Parent_Name": "<string>",
-  "Parent_Phone": "<string>",
-  "Course": "<string>",
-  "Batch": "<string>",
-  "Fee_Amount_INR": 0,
-  "Fee_Due_Date": "<string>",
-  "Address": "<string>",
-  "Counsellor": "<string>"
+  "_who": "Sunita Rao",
+  "Lead_ID": "LD-2026-0149",
+  "Name": "Nandini Rathore",
+  "Phone": "+919425863310",
+  "Student_Phone": "+919425863310",
+  "Parent_Name": "Mr. S. Rathore",
+  "Parent_Phone": "+919425863311",
+  "Course": "CA Foundation",
+  "Batch": "Batch A — Morning",
+  "Fee_Amount_INR": 45000,
+  "Fee_Due_Date": "2026-11-20",
+  "Address": "Arera Colony, Bhopal",
+  "Counsellor": "Rahul Tiwari"
 }
 ```
 (samples are .md on purpose — never .json in a workflows folder)

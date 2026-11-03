@@ -18,10 +18,16 @@
     "send_template_message"
   ],
   "require_capabilities": [
-    "receive_STUDENT_MANAGE=webhook:trigger",
-    "respond_STUDENT_MANAGE=webhook:respond",
-    "persist_STUDENT_MANAGE_enrol=http:write",
-    "dispatch_STUDENT_MANAGE_enrol=pucho-whatsapp:write"
+    "receive_STUDENT_MANAGE=trigger:webhook:trigger",
+    "step_enrol_insert=step_enrol_insert:http:write",
+    "step_enrol_send=step_enrol_send:pucho-whatsapp:write",
+    "step_enrol_fee=step_enrol_fee:http:write",
+    "step_enrol_log=step_enrol_log:http:write",
+    "step_enrol_lead_update=step_enrol_lead_update:http:write",
+    "step_enrol_done=step_enrol_done:webhook:respond",
+    "step_unknown_action=step_unknown_action:webhook:respond"
   ],
-  "unverified_outputs": []
+  "unverified_outputs": [
+    "pucho-whatsapp:send_template_message (response shape, rules §1.20 #5)"
+  ]
 }

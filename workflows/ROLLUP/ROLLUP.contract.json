@@ -1,0 +1,35 @@
+{
+  "flow": "ROLLUP",
+  "covers": [
+    "R9",
+    "R13",
+    "R18",
+    "R20",
+    "R28"
+  ],
+  "connections": "portable",
+  "fire_and_forget": false,
+  "allow_pieces": [
+    "http",
+    "schedule",
+    "webhook"
+  ],
+  "allow_names": [
+    "cron_expression",
+    "return_response",
+    "send_request"
+  ],
+  "require_capabilities": [
+    "receive_ROLLUP=trigger:schedule:trigger",
+    "step_run_students=step_run_students:http:read",
+    "step_run_attendance=step_run_attendance:http:read",
+    "step_run_tests=step_run_tests:http:read",
+    "step_run_fees=step_run_fees:http:read",
+    "step_run_alerts=step_run_alerts:http:read",
+    "step_run_leads=step_run_leads:http:read",
+    "step_run_students_update=step_run_students_update:http:write",
+    "step_run_alerts_insert=step_run_alerts_insert:http:write",
+    "step_run_done=step_run_done:webhook:respond"
+  ],
+  "unverified_outputs": []
+}

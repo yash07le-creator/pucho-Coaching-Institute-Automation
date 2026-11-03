@@ -16,9 +16,11 @@
     "send_request"
   ],
   "require_capabilities": [
-    "receive_ATTENDANCE=webhook:trigger",
-    "respond_ATTENDANCE=webhook:respond",
-    "persist_ATTENDANCE_save_batch=http:write"
+    "receive_ATTENDANCE=trigger:webhook:trigger",
+    "step_save_batch_insert=step_save_batch_insert:http:write",
+    "step_save_batch_insert_lines=step_save_batch_insert_lines:http:write",
+    "step_save_batch_notify_post=step_save_batch_notify_post:http:write",
+    "step_save_batch_done=step_save_batch_done:webhook:respond"
   ],
   "unverified_outputs": []
 }

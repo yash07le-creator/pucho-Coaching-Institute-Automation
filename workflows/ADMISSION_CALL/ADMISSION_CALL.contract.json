@@ -10,23 +10,52 @@
   "connections": "portable",
   "fire_and_forget": false,
   "allow_pieces": [
+    "ai-voice-call",
+    "delay",
     "http",
     "pucho-cdm",
+    "pucho-whatsapp",
     "webhook"
   ],
   "allow_names": [
     "catch_webhook",
+    "delayFor",
     "extract",
+    "getCallDetails",
     "return_response",
-    "send_request"
+    "send_request",
+    "send_template_message",
+    "voiceCall"
   ],
   "require_capabilities": [
-    "receive_ADMISSION_CALL=webhook:trigger",
-    "respond_ADMISSION_CALL=webhook:respond",
-    "model_ADMISSION_CALL_new_lead=pucho-cdm:transform",
-    "persist_ADMISSION_CALL_new_lead=http:write",
-    "model_ADMISSION_CALL_call=pucho-cdm:transform",
-    "persist_ADMISSION_CALL_call=http:write"
+    "receive_ADMISSION_CALL=trigger:webhook:trigger",
+    "step_new_lead_team=step_new_lead_team:http:read",
+    "step_new_lead_leads=step_new_lead_leads:http:read",
+    "step_new_lead_call=step_new_lead_call:ai-voice-call:action",
+    "step_new_lead_wait=step_new_lead_wait:delay:control",
+    "step_new_lead_details=step_new_lead_details:ai-voice-call:read",
+    "step_new_lead_ai=step_new_lead_ai:pucho-cdm:transform",
+    "step_new_lead_insert=step_new_lead_insert:http:write",
+    "step_new_lead_log=step_new_lead_log:http:write",
+    "step_new_lead_staff_send=step_new_lead_staff_send:pucho-whatsapp:write",
+    "step_new_lead_staff_log=step_new_lead_staff_log:http:write",
+    "step_new_lead_done=step_new_lead_done:webhook:respond",
+    "step_call_team=step_call_team:http:read",
+    "step_call_leads=step_call_leads:http:read",
+    "step_call_call=step_call_call:ai-voice-call:action",
+    "step_call_wait=step_call_wait:delay:control",
+    "step_call_details=step_call_details:ai-voice-call:read",
+    "step_call_ai=step_call_ai:pucho-cdm:transform",
+    "step_call_update=step_call_update:http:write",
+    "step_call_log=step_call_log:http:write",
+    "step_call_staff_send=step_call_staff_send:pucho-whatsapp:write",
+    "step_call_staff_log=step_call_staff_log:http:write",
+    "step_call_done=step_call_done:webhook:respond",
+    "step_unknown_action=step_unknown_action:webhook:respond"
   ],
-  "unverified_outputs": []
+  "unverified_outputs": [
+    "ai-voice-call:voiceCall (connectionDetails keys, G1)",
+    "ai-voice-call:getCallDetails (response shape, G1)",
+    "pucho-whatsapp:send_template_message (response shape, rules §1.20 #5)"
+  ]
 }

@@ -8,21 +8,41 @@
   "connections": "portable",
   "fire_and_forget": false,
   "allow_pieces": [
+    "ai-voice-call",
+    "delay",
     "http",
     "pucho-cdm",
+    "pucho-whatsapp",
     "webhook"
   ],
   "allow_names": [
     "catch_webhook",
+    "delayFor",
     "extract",
+    "getCallDetails",
     "return_response",
-    "send_request"
+    "send_request",
+    "send_template_message",
+    "voiceCall"
   ],
   "require_capabilities": [
-    "receive_ACADEMIC_CALL=webhook:trigger",
-    "respond_ACADEMIC_CALL=webhook:respond",
-    "model_ACADEMIC_CALL_counsel=pucho-cdm:transform",
-    "persist_ACADEMIC_CALL_counsel=http:write"
+    "receive_ACADEMIC_CALL=trigger:webhook:trigger",
+    "step_counsel_team=step_counsel_team:http:read",
+    "step_counsel_call=step_counsel_call:ai-voice-call:action",
+    "step_counsel_wait=step_counsel_wait:delay:control",
+    "step_counsel_details=step_counsel_details:ai-voice-call:read",
+    "step_counsel_ai=step_counsel_ai:pucho-cdm:transform",
+    "step_counsel_update=step_counsel_update:http:write",
+    "step_counsel_log=step_counsel_log:http:write",
+    "step_counsel_alert=step_counsel_alert:http:write",
+    "step_counsel_staff_send=step_counsel_staff_send:pucho-whatsapp:write",
+    "step_counsel_staff_log=step_counsel_staff_log:http:write",
+    "step_counsel_done=step_counsel_done:webhook:respond",
+    "step_unknown_action=step_unknown_action:webhook:respond"
   ],
-  "unverified_outputs": []
+  "unverified_outputs": [
+    "ai-voice-call:voiceCall (connectionDetails keys, G1)",
+    "ai-voice-call:getCallDetails (response shape, G1)",
+    "pucho-whatsapp:send_template_message (response shape, rules §1.20 #5)"
+  ]
 }

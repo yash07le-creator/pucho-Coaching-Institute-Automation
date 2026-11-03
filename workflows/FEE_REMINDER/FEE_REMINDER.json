@@ -2,20 +2,22 @@
   "created": "1700000000000",
   "updated": "1700000000000",
   "name": "Pucho EduFlow - FEE_REMINDER",
-  "description": "EduFlow · FEE_REMINDER: one flow, router on action (remind, send_link); input = the action's payload fields (Balance_INR, Course, Days_Overdue, Due_Date, Fee_ID, Parent_Name, Parent_Phone, Payment_Link, Student_Name); rules in CODE nodes; writes through the app's /api/data; every path ends in a Return.",
+  "description": "EduFlow · FEE_REMINDER: router on action (remind, send_link) — rules in CODE (tools/eduflow/flowlib.mjs), writes through the app's /api/data, every path ends in a Return. Built by tools/build_eduflow_flows.py.",
   "tags": [],
   "pieces": [
-    "@puchoaistudio/tool-webhook",
+    "@puchoaistudio/tool-ai-voice-call",
+    "@puchoaistudio/tool-delay",
     "@puchoaistudio/tool-http",
     "@puchoaistudio/tool-pucho-cdm",
-    "@puchoaistudio/tool-pucho-whatsapp"
+    "@puchoaistudio/tool-pucho-whatsapp",
+    "@puchoaistudio/tool-webhook"
   ],
   "template": {
     "displayName": "Pucho EduFlow - FEE_REMINDER",
     "trigger": {
       "name": "trigger",
       "valid": true,
-      "displayName": "FEE_REMINDER — UI → action (remind, send_link)",
+      "displayName": "FEE_REMINDER — app → action (remind, send_link)",
       "type": "TOOL_TRIGGER",
       "settings": {
         "pieceName": "@puchoaistudio/tool-webhook",
@@ -52,15 +54,13 @@
         "valid": true,
         "settings": {
           "input": {
-            "trigger": "{{trigger}}",
-            "body": "{{trigger['body']}}",
             "app_url": "{{trigger['body']['app_url']}}",
             "inbound_token": "{{trigger['body']['inbound_token']}}",
             "company_name": "{{trigger['body']['company_name']}}"
           },
           "sampleData": {},
           "sourceCode": {
-            "code": "// @ts-nocheck\nexport const code = async (inputs) => {\n  const C = {\n    \"app_url\": \"{{trigger['body']['app_url']}}\",\n    \"inbound_token\": \"{{trigger['body']['inbound_token']}}\",\n    \"company_name\": \"{{trigger['body']['company_name']}}\",\n    \"flow\": \"FEE_REMINDER\",\n    \"brand_tone\": \"formal, precise, courteous\",\n    \"brand_signature\": \"\",\n    \"followup_days\": [\n      2,\n      5,\n      10\n    ],\n    \"quote_validity_days\": 30,\n    \"same_day_quote_hours\": 8,\n    \"default_owner\": \"\",\n    \"own_domain\": \"\",\n    \"quote_series\": \"SMT/Q\",\n    \"catalogue\": [],\n    \"options\": [],\n    \"owners\": [],\n    \"whatsapp_account_id\": \"SET_IN_STUDIO_WHATSAPP_ACCOUNT_ID\",\n    \"whatsapp_templates\": {\n      \"send_link\": \"SET_IN_STUDIO_TEMPLATE_ID_SEND_LINK\"\n    },\n    \"whatsapp_template_names\": {\n      \"send_link\": \"eduflow_fee_payment_link\"\n    },\n    \"voice_language\": \"hi\"\n  };\n  // v5.1: the app sends app_url, inbound_token and company_name with every call (the step's inputs, from the trigger body)\n  C.app_url = String(inputs.app_url || '').replace(/\\/+$/, ''); C.inbound_token = String(inputs.inbound_token || ''); C.company_name = String(inputs.company_name || '');\n  if (!C.brand_signature) C.brand_signature = 'For ' + C.company_name;\n  C.today = new Date().toISOString(); C.year = new Date().getFullYear();\n  C.catalogue_text = C.catalogue.map(c => c.code + ' = ' + c.name + (c.product_line ? ' (' + c.product_line + ')' : '')).join('; ');\n  C.options_for_model = (C.options || []).filter(o => o.model === ((inputs.body || {}).Model_Code || '')).map(o => o.code + ' = ' + o.description).join('; ');\n  return C;\n};",
+            "code": "// @ts-nocheck\nexport const code = async (inputs) => {\n  const C = {\n    \"flow\": \"FEE_REMINDER\",\n    \"app_url\": \"\",\n    \"inbound_token\": \"\",\n    \"company_name\": \"\",\n    \"whatsapp_account_id\": \"SET_IN_STUDIO_WHATSAPP_ACCOUNT_ID\",\n    \"whatsapp_templates\": {\n      \"fee_payment_link\": \"SET_IN_STUDIO_TEMPLATE_ID_FEE_PAYMENT_LINK\"\n    },\n    \"whatsapp_template_names\": {\n      \"fee_payment_link\": \"eduflow_fee_payment_link\"\n    },\n    \"voice_agents\": {\n      \"fee\": \"SET_IN_STUDIO_VOICE_AGENT_FEE\"\n    },\n    \"voice_language\": \"hi\"\n  };\n  // v5.1: the app sends app_url, inbound_token and company_name with every call\n  C.app_url = String(inputs.app_url || ''); C.inbound_token = String(inputs.inbound_token || ''); C.company_name = String(inputs.company_name || '');\n  C.app_url = String(C.app_url).replace(/\\/+$/, '');\n  return C;\n};",
             "packageJson": "{}"
           },
           "errorHandlingOptions": {
@@ -79,47 +79,36 @@
           "valid": true,
           "children": [
             {
-              "name": "step_remind_ai",
+              "name": "step_remind_call",
               "skip": false,
               "type": "PIECE",
               "valid": true,
               "settings": {
                 "input": {
-                  "text": "Parent Name: {{trigger['body']['Parent_Name']}}\nStudent Name: {{trigger['body']['Student_Name']}}\nCourse: {{trigger['body']['Course']}}\nDue Date: {{trigger['body']['Due_Date']}}",
-                  "fields": [
-                    {
-                      "name": "parent_response",
-                      "type": "string",
-                      "description": "what the parent said about paying, in their words"
-                    },
-                    {
-                      "name": "promise_date",
-                      "type": "string",
-                      "description": "the date the parent promised to pay, if they named one"
-                    }
-                  ]
+                  "aiVoiceCall": "{{step_constants['voice_agents']['fee']}}",
+                  "connectionDetails": {
+                    "phone_number": "{{trigger['body']['Parent_Phone']}}",
+                    "customer_name": "{{trigger['body']['Parent_Name']}}",
+                    "language": "{{step_constants['voice_language']}}",
+                    "context": "Parent {{trigger['body']['Parent_Name']}}: the {{trigger['body']['Course']}} fee of ₹{{trigger['body']['Balance_INR']}} for {{trigger['body']['Student_Name']}} was due on {{trigger['body']['Due_Date']}} ({{trigger['body']['Days_Overdue']}} days ago). Goal: a polite reminder and a date they will pay by."
+                  }
                 },
-                "pieceName": "@puchoaistudio/tool-pucho-cdm",
-                "actionName": "extract",
+                "pieceName": "@puchoaistudio/tool-ai-voice-call",
+                "actionName": "voiceCall",
                 "sampleData": {},
-                "pieceVersion": "^2.0.1",
+                "pieceVersion": "^2.4.4",
                 "propertySettings": {
-                  "text": {
+                  "aiVoiceCall": {
                     "type": "MANUAL"
                   },
-                  "fields": {
-                    "type": "MANUAL"
-                  },
-                  "schema": {
-                    "type": "MANUAL"
-                  },
-                  "threshold": {
-                    "type": "MANUAL"
+                  "connectionDetails": {
+                    "type": "MANUAL",
+                    "schema": {}
                   }
                 },
                 "errorHandlingOptions": {
                   "retryOnFailure": {
-                    "value": true
+                    "value": false
                   },
                   "continueOnFailure": {
                     "value": false
@@ -127,20 +116,29 @@
                 }
               },
               "nextAction": {
-                "name": "step_remind_build",
+                "name": "step_remind_wait",
                 "skip": false,
-                "type": "CODE",
+                "type": "PIECE",
                 "valid": true,
                 "settings": {
                   "input": {
-                    "ai_fields": "{{step_remind_ai['fields']}}",
-                    "C": "{{step_constants}}",
-                    "b": "{{trigger['body']}}"
+                    "unit": "minutes",
+                    "delayFor": 3
                   },
+                  "pieceName": "@puchoaistudio/tool-delay",
+                  "actionName": "delayFor",
                   "sampleData": {},
-                  "sourceCode": {
-                    "code": "// @ts-nocheck\nexport const code = async (inputs) => {\n  let parsed = {\"parent_response\": \"\", \"promise_date\": \"\"};\n  function cdmNum(s, integer) { const t = String(s).replace(/₹|\\b(?:rs\\.?|inr)(?![a-z])/gi, ' ').trim(); if (/0x[0-9a-f]/i.test(t) || /\\d\\s*e\\s*[+-]?\\d/i.test(t) || /\\d\\.\\d{3},\\d/.test(t) || /\\d\\.\\d+\\.\\d/.test(t)) return null; const m = t.match(/-?\\d[\\d,]*(\\.\\d+)?/); if (!m) return null; let x = Number(m[0].replace(/,/g, '')); if (!isFinite(x)) return null; const u = t.slice(m.index + m[0].length).trim().toLowerCase().match(/^(thousand|k|lakhs?|lacs?|l|crores?|cr|million|mn)(?![a-z])/); if (u) x = x * (/^(thousand|k)$/.test(u[1]) ? 1e3 : /^(million|mn)$/.test(u[1]) ? 1e6 : /^(lakhs?|lacs?|l)$/.test(u[1]) ? 1e5 : 1e7); x = parseFloat(x.toPrecision(15)); return integer && !Number.isInteger(x) ? null : x; }\n  function cdmBool(s) { const t = String(s).trim().toLowerCase().replace(/[.!?।]+$/, ''); if (['yes', 'y', 'true', '1', 'haan', 'हाँ', 'हां', 'હા'].includes(t)) return true; if (['no', 'n', 'false', '0', 'nahi', 'नहीं', 'ना', 'ના'].includes(t)) return false; return null; }\n  function cdmChoice(s, ch) { const t = String(s).trim().toLowerCase(); const L = ch.map((c) => [c, String(c).toLowerCase()]); const exact = L.find((x) => x[1] === t); if (exact) return exact[0]; const esc = (x) => x.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&'); const inSpan = L.filter((x) => new RegExp('(^|[^a-z0-9])' + esc(x[1]) + '([^a-z0-9]|$)').test(t)).sort((a, b) => b[1].length - a[1].length); if (inSpan.length) return inSpan[0][0]; const inChoice = t.length >= 2 ? L.find((x) => x[1].includes(t)) : null; return inChoice ? inChoice[0] : null; }\n  function cdmFields(fields, decl, conf, choices) { if (typeof fields === 'string') { try { fields = JSON.parse(fields); } catch (e) { fields = null; } } const ents = fields && Array.isArray(fields.entities) ? fields.entities : null; const keys = Object.keys(decl); const out = Object.create(null); for (const k of keys) out[k] = null; if (!ents) { out._parse_error = 'true'; if (conf) out[conf] = 0; out.fields_found = 0; out.fields_total = keys.length; return out; } const best = Object.create(null); for (const e of ents) { if (!e || !Object.prototype.hasOwnProperty.call(decl, e.type) || e.text === undefined || e.text === null || String(e.text).trim() === '') continue; const c = Number(e.confidence) || 0; if (!best[e.type] || c > best[e.type].c) best[e.type] = { v: String(e.text).trim(), c }; } const cs = []; for (const k of keys) { const b = best[k]; if (!b) continue; const t = decl[k]; const ch = choices && Array.isArray(choices[k]) && choices[k].length ? choices[k] : null; const v = (t === 'integer' || t === 'number') ? cdmNum(b.v, t === 'integer') : t === 'boolean' ? cdmBool(b.v) : ch ? cdmChoice(b.v, ch) : b.v; if (v === null) continue; out[k] = v; cs.push(b.c); } if (conf) out[conf] = cs.length ? Math.min(...cs) : 0; out.fields_found = cs.length; out.fields_total = keys.length; return out; }\n  { const got = cdmFields(inputs.ai_fields, {\"parent_response\": \"string\", \"promise_date\": \"string\"}, null, {}); for (const [k, v] of Object.entries(got)) if (v !== null) parsed[k] = v; }   // Pucho CDM extract → one value per field\n  const JEVP = {}; for (const k of Object.keys(inputs)) if (k.indexOf('jev_') === 0 && k.slice(-11) !== '_confidence') { const f = k.slice(4), v = inputs[k], conf = Number(inputs[k + '_confidence']); const pol = JEVP[f] || [0.5, null]; if (v !== undefined && v !== '' && (isNaN(conf) || conf >= pol[0])) parsed[f] = v; else if (pol[1] !== null && pol[1] !== undefined) parsed[f] = pol[1]; } /* a Jev answer lands only when confident; else the fallback */\n  const build = async (inputs) => {\n  const C = inputs.C, p = inputs.b || {}, r = parsed || {};\n  const allowed = [\"Fee_ID\", \"Created_At\", \"Student_ID\", \"Student_Name\", \"Parent_Name\", \"Parent_Phone\", \"Course\", \"Instalment\", \"Amount_INR\", \"Paid_INR\", \"Balance_INR\", \"Due_Date\", \"Days_Overdue\", \"Status\", \"Reminder_Count\", \"Last_Reminder_At\", \"Payment_Link\", \"Promise_Date\", \"Parent_Response\", \"Paid_At\", \"Payment_Mode\", \"Receipt_No\"]; const fills = {\"Last_Reminder_At\": \"now\", \"Parent_Response\": \"Simulated call — will pay by Friday\"};\n  const title = (s) => s.replace(/(^|_)(\\w)/g, (m, a, b) => a + b.toUpperCase());\n  const row = {}; for (const k of allowed) { if (p[k] !== undefined) row[k] = p[k]; else if (r[k] !== undefined) row[k] = r[k]; else if (r[k.toLowerCase()] !== undefined) row[k] = r[k.toLowerCase()]; }\n  for (const k of Object.keys(r)) { const t = title(k); if (allowed.includes(t) && row[t] === undefined) row[t] = Array.isArray(r[k]) ? r[k].join('; ') : r[k]; }\n  for (const [k, v] of Object.entries(fills)) row[k] = v === 'now' ? new Date().toISOString() : v;\n  const id = p['Fee_ID']; const patch = {}; for (const k of allowed) if (k !== 'Fee_ID' && row[k] !== undefined && row[k] !== '') patch[k] = row[k];\n  return { patch, id };\n};\n  const out = await build(inputs);\n  return { ...out, result: parsed };\n};",
-                    "packageJson": "{}"
+                  "pieceVersion": "^2.0.0",
+                  "propertySettings": {
+                    "unit": {
+                      "type": "MANUAL"
+                    },
+                    "delayFor": {
+                      "type": "MANUAL"
+                    },
+                    "markdown": {
+                      "type": "MANUAL"
+                    }
                   },
                   "errorHandlingOptions": {
                     "retryOnFailure": {
@@ -152,68 +150,21 @@
                   }
                 },
                 "nextAction": {
-                  "name": "step_remind_update",
+                  "name": "step_remind_details",
                   "skip": false,
                   "type": "PIECE",
                   "valid": true,
                   "settings": {
                     "input": {
-                      "method": "PATCH",
-                      "url": "{{step_constants['app_url']}}/api/data/fees",
-                      "headers": {
-                        "Content-Type": "application/json",
-                        "Authorization": "Bearer {{step_constants['inbound_token']}}",
-                        "X-Flow": "{{step_constants['flow']}}"
-                      },
-                      "queryParams": {
-                        "Fee_ID": "eq.{{trigger['body']['Fee_ID']}}"
-                      },
-                      "authType": "NONE",
-                      "body_type": "json",
-                      "body": {
-                        "data": {
-                          "Student_Name": "{{step_remind_build['patch']['Student_Name']}}",
-                          "Parent_Name": "{{step_remind_build['patch']['Parent_Name']}}",
-                          "Parent_Phone": "{{step_remind_build['patch']['Parent_Phone']}}",
-                          "Course": "{{step_remind_build['patch']['Course']}}",
-                          "Balance_INR": "{{step_remind_build['patch']['Balance_INR']}}",
-                          "Due_Date": "{{step_remind_build['patch']['Due_Date']}}",
-                          "Days_Overdue": "{{step_remind_build['patch']['Days_Overdue']}}",
-                          "Last_Reminder_At": "{{step_remind_build['patch']['Last_Reminder_At']}}",
-                          "Payment_Link": "{{step_remind_build['patch']['Payment_Link']}}",
-                          "Promise_Date": "{{step_remind_build['patch']['Promise_Date']}}",
-                          "Parent_Response": "{{step_remind_build['patch']['Parent_Response']}}"
-                        }
-                      }
+                      "requestId": "{{step_remind_call['apiResponse']['data']['requestId']}}"
                     },
-                    "pieceName": "@puchoaistudio/tool-http",
-                    "actionName": "send_request",
+                    "pieceName": "@puchoaistudio/tool-ai-voice-call",
+                    "actionName": "getCallDetails",
                     "sampleData": {},
-                    "pieceVersion": "^2.0.0",
+                    "pieceVersion": "^2.4.4",
                     "propertySettings": {
-                      "method": {
+                      "requestId": {
                         "type": "MANUAL"
-                      },
-                      "url": {
-                        "type": "MANUAL"
-                      },
-                      "headers": {
-                        "type": "MANUAL",
-                        "schema": {}
-                      },
-                      "queryParams": {
-                        "type": "MANUAL",
-                        "schema": {}
-                      },
-                      "authType": {
-                        "type": "MANUAL"
-                      },
-                      "body_type": {
-                        "type": "MANUAL"
-                      },
-                      "body": {
-                        "type": "MANUAL",
-                        "schema": {}
                       }
                     },
                     "errorHandlingOptions": {
@@ -221,83 +172,487 @@
                         "value": false
                       },
                       "continueOnFailure": {
-                        "value": false
+                        "value": true
                       }
                     }
                   },
                   "nextAction": {
-                    "name": "step_remind_done",
+                    "name": "step_remind_ai",
                     "skip": false,
                     "type": "PIECE",
                     "valid": true,
                     "settings": {
                       "input": {
-                        "fields": {
-                          "body": {
-                            "ok": "true",
-                            "action": "remind",
-                            "Fee_ID": "{{trigger['body']['Fee_ID']}}",
-                            "updated": "{{step_remind_update['body'][0]}}",
-                            "result": "{{step_remind_build['result']}}"
+                        "text": "A fee reminder call to a parent. promise_date as YYYY-MM-DD if they gave one.\nCall record: {{step_remind_details['apiResponse']['data']}}",
+                        "fields": [
+                          {
+                            "name": "parent_response",
+                            "type": "string",
+                            "description": "what the parent said about paying, in their words"
                           },
-                          "status": 200,
-                          "headers": {}
-                        },
-                        "respond": "stop",
-                        "responseType": "json"
-                      },
-                      "pieceName": "@puchoaistudio/tool-webhook",
-                      "actionName": "return_response",
-                      "sampleData": {},
-                      "pieceVersion": "^2.0.4",
-                      "propertySettings": {
-                        "fields": {
-                          "type": "MANUAL",
-                          "schema": {
-                            "body": {
-                              "type": "JSON",
-                              "required": true,
-                              "displayName": "JSON Body"
-                            },
-                            "status": {
-                              "type": "NUMBER",
-                              "required": false,
-                              "displayName": "Status",
-                              "defaultValue": 200
-                            },
-                            "headers": {
-                              "type": "OBJECT",
-                              "required": false,
-                              "displayName": "Headers"
-                            }
+                          {
+                            "name": "promise_date",
+                            "type": "string",
+                            "description": "the date the parent promised to pay, if they named one"
                           }
-                        },
-                        "respond": {
+                        ]
+                      },
+                      "pieceName": "@puchoaistudio/tool-pucho-cdm",
+                      "actionName": "extract",
+                      "sampleData": {},
+                      "pieceVersion": "^2.0.1",
+                      "propertySettings": {
+                        "text": {
                           "type": "MANUAL"
                         },
-                        "responseType": {
+                        "fields": {
+                          "type": "MANUAL"
+                        },
+                        "schema": {
+                          "type": "MANUAL"
+                        },
+                        "threshold": {
                           "type": "MANUAL"
                         }
                       },
                       "errorHandlingOptions": {
                         "retryOnFailure": {
-                          "value": false
+                          "value": true
                         },
                         "continueOnFailure": {
-                          "value": false
+                          "value": true
                         }
                       }
                     },
-                    "displayName": "Return remind: Fee_ID, updated, result"
+                    "nextAction": {
+                      "name": "step_remind_build",
+                      "skip": false,
+                      "type": "CODE",
+                      "valid": true,
+                      "settings": {
+                        "input": {
+                          "b": "{{trigger['body']}}",
+                          "C": "{{step_constants}}",
+                          "details": "{{step_remind_details}}",
+                          "ai_fields": "{{step_remind_ai['fields']}}",
+                          "request_id": "{{step_remind_call['apiResponse']['data']['requestId']}}"
+                        },
+                        "sampleData": {},
+                        "sourceCode": {
+                          "code": "// @ts-nocheck\n// lib: app/src/lib/renderMessage.js + flowkit cdmFields + tools/eduflow/flowlib.mjs, copied verbatim — edit those files, rebuild\n// src/lib/renderMessage.js — a client message from a fixed template (os.yaml `sends.message`), rule zero: the words\n// are the firm's, the values are the record's, no model is involved. ONE source: the app imports it to show what a\n// simulated send would have said, and build_flows.py embeds this same file in the flow's CODE node, so the wired flow\n// and the simulation can never word a message differently. Plain JS, no imports — it must run inside Studio as is.\n//   send = { to: <payload key>, lang: <payload key>, message: { en, hi, mr, … }, words: { hi: { Adjourned: '…' } }, template: { name, variables: { '1': '{{Col}}' } } }\n//   {{Key}} → the payload value · {{constants.x}} → the flow constant · [[ … ]] → dropped when any value inside is empty\n//   dates (YYYY-MM-DD or ISO) → \"Thu, 2 Oct 2026\" / \"Thu, 2 Oct 2026, 4:30 pm\" in IST · phone → digits with 91 prefix\nexport function renderMessage(send, vars, constants) {\n  const LANG = { english: 'en', en: 'en', hindi: 'hi', hi: 'hi', marathi: 'mr', mr: 'mr', gujarati: 'gu', gu: 'gu', tamil: 'ta', ta: 'ta', telugu: 'te', te: 'te', kannada: 'kn', kn: 'kn', bengali: 'bn', bn: 'bn', malayalam: 'ml', ml: 'ml', punjabi: 'pa', pa: 'pa' };\n  const msg = (send && send.message) || {};\n  const asked = LANG[String((vars || {})[send.lang] || '').trim().toLowerCase()] || 'en';\n  const lang = msg[asked] ? asked : (msg.en ? 'en' : Object.keys(msg)[0]);\n  const words = ((send.words || {})[lang]) || {};\n  const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];\n  const date = (v) => {\n    const only = /^\\d{4}-\\d{2}-\\d{2}$/.test(v);\n    const t = only ? Date.UTC(+v.slice(0, 4), +v.slice(5, 7) - 1, +v.slice(8, 10)) : Date.parse(v) + 330 * 60000;   // IST without Intl\n    if (isNaN(t)) return v; const d = new Date(t);\n    let s = `${DAYS[d.getUTCDay()]}, ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;\n    if (!only) { const h = d.getUTCHours(), m = d.getUTCMinutes(); s += `, ${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`; }\n    return s;\n  };\n  const val = (k) => {\n    let v = k.indexOf('constants.') === 0 ? (constants || {})[k.slice(10)] : (vars || {})[k];\n    if (v === undefined || v === null) return '';\n    v = String(v).trim();\n    if (/^\\d{4}-\\d{2}-\\d{2}([T ][\\d:.]+(Z|[+-]\\d{2}:?\\d{2})?)?$/.test(v)) v = date(v);\n    return words[v] !== undefined ? words[v] : v;\n  };\n  const fill = (s) => s.replace(/\\{\\{\\s*([\\w.]+)\\s*\\}\\}/g, (_, k) => val(k));\n  let text = String(msg[lang] || '')\n    .replace(/\\[\\[([\\s\\S]*?)\\]\\]/g, (_, part) => (part.match(/\\{\\{\\s*([\\w.]+)\\s*\\}\\}/g) || []).every((p) => val(p.replace(/[{}\\s]/g, '')) !== '') ? part : '');\n  text = fill(text).replace(/[ \\t]{2,}/g, ' ').replace(/ +([.,।])/g, '$1').trim();\n  const digits = String((vars || {})[send.to] || '').replace(/\\D/g, '');\n  const to = digits.length === 10 ? '91' + digits : digits;\n  // v4.4 — an approved WhatsApp template (os.yaml `sends.template`): the words live on whatsapp.pucho.ai, the flow fills only the\n  // variables, each a {{Column}} template rendered the same way as a message. `to_e164` is the `+91…` form pucho-whatsapp takes.\n  const tpl = send && send.template; const variables = {};\n  if (tpl && tpl.variables) for (const k of Object.keys(tpl.variables)) variables[k] = fill(String(tpl.variables[k])).trim();\n  return { to, to_e164: to ? '+' + to : '', lang, text, template: tpl ? (tpl.name || '') : '', variables };\n}\nfunction cdmNum(s, integer) { const t = String(s).replace(/₹|\\b(?:rs\\.?|inr)(?![a-z])/gi, ' ').trim(); if (/0x[0-9a-f]/i.test(t) || /\\d\\s*e\\s*[+-]?\\d/i.test(t) || /\\d\\.\\d{3},\\d/.test(t) || /\\d\\.\\d+\\.\\d/.test(t)) return null; const m = t.match(/-?\\d[\\d,]*(\\.\\d+)?/); if (!m) return null; let x = Number(m[0].replace(/,/g, '')); if (!isFinite(x)) return null; const u = t.slice(m.index + m[0].length).trim().toLowerCase().match(/^(thousand|k|lakhs?|lacs?|l|crores?|cr|million|mn)(?![a-z])/); if (u) x = x * (/^(thousand|k)$/.test(u[1]) ? 1e3 : /^(million|mn)$/.test(u[1]) ? 1e6 : /^(lakhs?|lacs?|l)$/.test(u[1]) ? 1e5 : 1e7); x = parseFloat(x.toPrecision(15)); return integer && !Number.isInteger(x) ? null : x; }\nfunction cdmBool(s) { const t = String(s).trim().toLowerCase().replace(/[.!?।]+$/, ''); if (['yes', 'y', 'true', '1', 'haan', 'हाँ', 'हां', 'હા'].includes(t)) return true; if (['no', 'n', 'false', '0', 'nahi', 'नहीं', 'ना', 'ના'].includes(t)) return false; return null; }\nfunction cdmChoice(s, ch) { const t = String(s).trim().toLowerCase(); const L = ch.map((c) => [c, String(c).toLowerCase()]); const exact = L.find((x) => x[1] === t); if (exact) return exact[0]; const esc = (x) => x.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&'); const inSpan = L.filter((x) => new RegExp('(^|[^a-z0-9])' + esc(x[1]) + '([^a-z0-9]|$)').test(t)).sort((a, b) => b[1].length - a[1].length); if (inSpan.length) return inSpan[0][0]; const inChoice = t.length >= 2 ? L.find((x) => x[1].includes(t)) : null; return inChoice ? inChoice[0] : null; }\nfunction cdmFields(fields, decl, conf, choices) { if (typeof fields === 'string') { try { fields = JSON.parse(fields); } catch (e) { fields = null; } } const ents = fields && Array.isArray(fields.entities) ? fields.entities : null; const keys = Object.keys(decl); const out = Object.create(null); for (const k of keys) out[k] = null; if (!ents) { out._parse_error = 'true'; if (conf) out[conf] = 0; out.fields_found = 0; out.fields_total = keys.length; return out; } const best = Object.create(null); for (const e of ents) { if (!e || !Object.prototype.hasOwnProperty.call(decl, e.type) || e.text === undefined || e.text === null || String(e.text).trim() === '') continue; const c = Number(e.confidence) || 0; if (!best[e.type] || c > best[e.type].c) best[e.type] = { v: String(e.text).trim(), c }; } const cs = []; for (const k of keys) { const b = best[k]; if (!b) continue; const t = decl[k]; const ch = choices && Array.isArray(choices[k]) && choices[k].length ? choices[k] : null; const v = (t === 'integer' || t === 'number') ? cdmNum(b.v, t === 'integer') : t === 'boolean' ? cdmBool(b.v) : ch ? cdmChoice(b.v, ch) : b.v; if (v === null) continue; out[k] = v; cs.push(b.c); } if (conf) out[conf] = cs.length ? Math.min(...cs) : 0; out.fields_found = cs.length; out.fields_total = keys.length; return out; }\n// tools/eduflow/flowlib.mjs — every rule the EduFlow Studio flows run in their CODE steps (method/ai-pipeline.md, the custom path).\n// Rule zero: a model only reads a call transcript (Pucho CDM); grades, statuses, counts, dates, owners and every row are code here.\n// tools/build_eduflow_flows.py copies this file VERBATIM into each CODE step (inside the lib / end-lib markers), so the flow runs\n// exactly what tests/eduflow-flowlib.test.mjs and flow_sim test. Plain JS, no imports — it must run inside Studio as is.\n// Each CODE step calls ONE function with the node's inputs: b = the trigger body, C = the constants step, the rest named per step.\n// Uses renderMessage (app/src/lib/renderMessage.js) and cdmFields (flowkit) — the builder puts both above this file.\n\nconst S = (v) => (v === undefined || v === null ? '' : String(v)).trim();\nconst N = (v) => { if (v === '' || v === null || v === undefined) return null; const x = Number(String(v).replace(/[,%₹\\s]/g, '')); return Number.isFinite(x) ? x : null; };\nconst list = (v) => { if (Array.isArray(v)) return v; if (v && Array.isArray(v.body)) return v.body; if (typeof v === 'string') { try { const x = JSON.parse(v); return Array.isArray(x) ? x : []; } catch (e) { return []; } } return []; };\nconst nowIso = () => new Date().toISOString();\nconst istDate = (ms = Date.now()) => new Date(ms + 330 * 60000).toISOString().slice(0, 10);   // IST calendar day, no Intl\nconst istWeekday = (ms = Date.now()) => new Date(ms + 330 * 60000).getUTCDay();               // 0 Sun … 5 Fri\nconst dayDiff = (a, b) => Math.round((Date.parse(`${a}T00:00:00Z`) - Date.parse(`${b}T00:00:00Z`)) / 864e5);   // a − b in days\nconst yes = (v) => /^(yes|true|1|haan)$/i.test(S(v));\nconst e164 = (v) => { const d = S(v).replace(/\\D/g, ''); return d ? '+' + (d.length === 10 ? '91' + d : d) : ''; };\nconst active = (r) => S(r.Status) !== 'Inactive';\nconst teamOf = (team, role, course) => list(team).filter((m) => S(m.Role) === role && String(m.Active) !== 'false' && (!course || /^all$/i.test(S(m.Courses)) || S(m.Courses).split(',').map((x) => x.trim()).includes(course)));\n\n// A send step runs with continueOnFailure: it answers either the provider's reply or an error (⚑ UNVERIFIED shape, rules §1.20 #5).\nfunction sendOk(r) { return !!r && typeof r === 'object' && !r.error && !r.errorMessage && r.success !== false && !(Number(r.statusCode) >= 400) && !(Number(r.status) >= 400); }\n\n// getCallDetails (⚑ UNVERIFIED shape, G1): the transcript, duration and outcome, read defensively from whichever keys the agent returns.\nfunction callFacts(d) {\n  const x = (d && typeof d === 'object' && (d.apiResponse?.data || d.data || d)) || {};\n  const msgs = Array.isArray(x.messages) ? x.messages.map((m) => `${m.role || m.speaker || ''}: ${m.message || m.content || m.text || ''}`).join('\\n') : '';\n  const transcript = S(x.transcript ?? x.transcription ?? x.call_transcript ?? msgs);\n  const duration = Math.max(0, Math.round(N(x.duration ?? x.durationSec ?? x.call_duration ?? x.duration_seconds) ?? 0));\n  const status = S(x.status ?? x.call_status ?? x.endedReason ?? x.ended_reason).toLowerCase();\n  const answered = transcript.length > 20 && !/no.?answer|busy|fail|not.?answered|voicemail|unreachable/.test(status);\n  return { transcript: transcript.slice(0, 20000), duration, answered, status };\n}\n\n// One WhatsApp template to a staff member: the row the loop sends + the messages row it logs (eduflow_staff_alert: 1 name · 2 text).\nfunction staffAlert(member, text, agent, b) {\n  const to = e164(member && member.Phone); if (!to) return [];\n  return [{ to_e164: to, variables: { 1: S(member.Name), 2: text.slice(0, 900) },\n    message: { Sent_At: nowIso(), To_Name: S(member.Name), To_Phone: to, Type: 'Staff Alert', Agent: agent, Template: 'eduflow_staff_alert', Preview: text.slice(0, 300), Status: 'Sent', Student_ID: S(b.Student_ID), Lead_ID: S(b.Lead_ID) } }];\n}\nfunction messageRow(b, m, type, agent, to_name, extra = {}) {\n  const preview = Object.values(m.variables || {}).filter(Boolean).join(' · ');\n  return { Sent_At: nowIso(), To_Name: S(to_name), To_Phone: m.to_e164, Type: type, Agent: agent, Template: m.template, Preview: preview.slice(0, 300), Status: 'Queued', Student_ID: S(b.Student_ID), Lead_ID: S(b.Lead_ID), ...extra };\n}\n// After the send: the message row's Status is what the provider answered (Sent / Failed).\nfunction afterSend(i) {\n  const ok = sendOk(i.sent); const st = ok ? 'Sent' : 'Failed';\n  return { ok: ok ? 'true' : 'false', status: st, messages: list(i.messages).map((m) => ({ ...m, Status: st })), patch: i.patch || {}, fees: list(i.fees), leads: list(i.leads) };\n}\n\n// ── ABSENCE.absent — the formal notice; a repeat absence also alerts the counsellor (no call, owner 3 Nov 2026) ──\nconst SEND_ABSENCE = { to: 'Parent_Phone', template: { name: 'eduflow_absence_alert', variables: { 1: '{{Parent_Name}}', 2: '{{Name}}', 3: '{{Batch}}', 4: '{{Date}}' } } };\nfunction absenceBuild(i) {\n  const b = i.b || {}; const m = renderMessage(SEND_ABSENCE, b, i.C || {});\n  const follow = yes(b.Needs_Followup); const counsellor = teamOf(i.team, 'Counsellor', S(b.Course))[0];\n  const text = `${S(b.Name)} (${S(b.Course)}, ${S(b.Batch)}) is absent ${N(b.Absences_This_Week) || 2} times this week — please call the parent.`;\n  const alerts = follow ? [{ Raised_At: nowIso(), Title: `Absent ${N(b.Absences_This_Week) || 2} times this week — ${S(b.Name)}`, Detail: text, Kind: 'Attendance', Severity: 'HIGH', Student_ID: S(b.Student_ID), Lead_ID: '', Raised_By: 'flow:ABSENCE', Owner: S(counsellor && counsellor.Name), Status: 'Open' }] : [];\n  return { to_e164: m.to_e164, variables: m.variables, messages: [messageRow(b, m, 'Absence Alert', 'Attendance', b.Parent_Name)], alerts, staff: follow ? staffAlert(counsellor, text, 'Attendance', b) : [] };\n}\nfunction absenceAfter(i) {\n  const a = afterSend(i); return { ...a, patch: { Call_Status: a.ok === 'true' ? 'WhatsApp Sent' : 'Failed' } };   // Delivered comes from the delivery callback (G5)\n}\n\n// ── ATTENDANCE.save_batch — the session head, its lines, then one ABSENCE.absent per absentee (never a present student) ──\nfunction attendanceSession(i) {\n  const b = i.b || {};\n  return { row: { Session_ID: '', Date: S(b.Date), Batch: S(b.Batch), Total_Count: N(b.Total_Count) ?? 0, Present_Count: N(b.Present_Count) ?? 0, Absent_Count: N(b.Absent_Count) ?? 0, Absentees: S(b.Absentees), Marked_By: S(b.Marked_By || b._who), Saved_At: nowIso() } };\n}\nfunction attendanceLines(i) {\n  const sid = S((list(i.head)[0] || {}).Session_ID); const cols = ['Date', 'Batch', 'Student_ID', 'Name', 'Course', 'Parent_Name', 'Parent_Phone', 'Status', 'Absences_This_Week', 'Absences_This_Month', 'Call_Status', 'Needs_Followup', 'Followup_Done', 'Marked_By'];\n  const rows = list((i.b || {}).lines).map((l) => { const r = { Att_ID: '', Session_ID: sid }; for (const c of cols) r[c] = l[c] === undefined ? '' : l[c]; return r; });\n  return { rows, count: rows.length, Session_ID: sid };\n}\nfunction attendanceAbsentees(i) {\n  const C = i.C || {}; const saved = list(i.saved).filter((r) => S(r.Status) === 'Absent');\n  const posts = saved.map((r) => ({ action: 'absent', _who: 'flow:ATTENDANCE', app_url: C.app_url, inbound_token: C.inbound_token, company_name: C.company_name,\n    Att_ID: S(r.Att_ID), Date: S(r.Date), Batch: S(r.Batch), Student_ID: S(r.Student_ID), Name: S(r.Name), Course: S(r.Course), Parent_Name: S(r.Parent_Name), Parent_Phone: S(r.Parent_Phone),\n    Absences_This_Week: N(r.Absences_This_Week) ?? 1, Needs_Followup: S(r.Needs_Followup) || 'No' }));\n  return { posts, absent: posts.length };\n}\n\n// ── the four call agents: one CDM read of the transcript → code decides everything else ──\nfunction cdm(i, decl, choices) { return cdmFields(i.ai_fields, decl, null, choices || {}); }\nfunction callRow(b, f, extra) {\n  return { Call_ID: '', Called_At: nowIso(), Lead_ID: S(b.Lead_ID), Student_ID: S(b.Student_ID), Course: S(b.Course), Status: f.answered ? 'Completed' : 'No Answer', Duration_Sec: f.duration, Request_ID: S(b._request_id),\n    Transcript: f.transcript, Outcome: '', Summary: '', Grade: '', Score: '', Sentiment: '', Concern: '', Issue_Type: '', Reason: '', Category: '', Needs_Followup: 'No', Retry_At: '', ...extra };\n}\n\n// ADMISSION_CALL.new_lead / call — HOT needs grade HOT and score ≥ 80 (else WARM); HOT → follow-up in 48 h and the counsellor alerted.\nfunction admissionResult(i) {\n  const b = { ...(i.b || {}), _request_id: i.request_id }; const f = callFacts(i.details);\n  const r = cdm(i, { grade: 'string', score: 'number', summary: 'string', next_action: 'string' }, { grade: ['HOT', 'WARM', 'COLD'] });\n  const score = Math.max(0, Math.min(100, Math.round(N(r.score) ?? 0)));\n  const grade = !f.answered ? 'Not graded' : r.grade === 'HOT' && score >= 80 ? 'HOT' : r.grade === 'COLD' ? 'COLD' : 'WARM';\n  const hot = grade === 'HOT'; const course = S(b.Course);\n  const open = (n) => list(i.leads).filter((l) => S(l.Assigned_To) === n && S(l.Grade) === 'HOT' && !['Enrolled', 'Lost'].includes(S(l.Stage))).length;\n  const pool = teamOf(i.team, 'Counsellor', course).sort((x, y) => open(x.Name) - open(y.Name));\n  const counsellor = list(i.team).find((m) => S(m.Name) === S(b.Assigned_To)) || (hot ? pool[0] : null);\n  const lead = { Stage: f.answered ? 'Called' : 'New', Grade: grade, Score: f.answered ? score : '', AI_Summary: S(r.summary), Next_Action: S(r.next_action), Call_Status: f.answered ? 'Completed' : 'No Answer',\n    Last_Called_At: nowIso(), Transcript: f.transcript, Assigned_To: S(b.Assigned_To) || (hot && counsellor ? S(counsellor.Name) : ''), Next_Followup_At: hot ? new Date(Date.now() + 48 * 3600e3).toISOString() : '' };\n  const row = { Lead_ID: S(b.Lead_ID), Created_At: nowIso(), Name: S(b.Name), Phone: S(b.Phone), Email: S(b.Email), Course: course, Source: S(b.Source), Notes: S(b.Notes), Lost_Reason: '', ...lead };\n  const call = callRow(b, f, { Agent: 'Admission', Relation: 'Lead', Person: S(b.Name), Phone: S(b.Phone), Grade: f.answered ? grade : '', Score: f.answered ? score : '', Summary: S(r.summary),\n    Outcome: !f.answered ? 'No answer — call again in 2 hours' : hot ? `Graded HOT — ${counsellor ? S(counsellor.Name) : 'counsellor'} alerted` : `Graded ${grade}` });\n  const staff = hot ? staffAlert(counsellor, `HOT lead: ${S(b.Name)} (${course}, ${S(b.Phone)}) — score ${score}. ${S(r.next_action)}`, 'Admission', b) : [];\n  return { lead, row, call, staff, grade, answered: f.answered ? 'true' : 'false' };\n}\n\n// ACADEMIC_CALL.counsel — the student's issue; a mentor / counsellor is alerted only when the call says so.\nfunction academicResult(i) {\n  const b = { ...(i.b || {}), _request_id: i.request_id }; const f = callFacts(i.details);\n  const r = cdm(i, { issue_type: 'string', main_issue: 'string', needs_mentor: 'string', needs_counsellor: 'string' }, { issue_type: ['ACADEMIC', 'PERSONAL', 'ATTENDANCE', 'FINANCIAL', 'OTHER'], needs_mentor: ['Yes', 'No'], needs_counsellor: ['Yes', 'No'] });\n  const mentor = list(i.team).find((m) => S(m.Name) === S(b.Mentor)) || teamOf(i.team, 'Mentor', S(b.Course))[0]; const counsellor = teamOf(i.team, 'Counsellor', S(b.Course))[0];\n  const wantM = f.answered && r.needs_mentor === 'Yes'; const wantC = f.answered && r.needs_counsellor === 'Yes';\n  const text = `${S(b.Name)} (${S(b.Course)}; attendance ${N(b.Attendance_Pct) ?? '—'}%, last test ${N(b.Last_Score) ?? '—'}%): ${S(r.main_issue) || 'needs a session'}.`;\n  const patch = f.answered ? { Issue_Type: r.issue_type || 'OTHER', Main_Issue: S(r.main_issue), Last_Counselled_At: nowIso() } : { Last_Counselled_At: nowIso() };\n  const call = callRow(b, f, { Agent: 'Academic', Relation: 'Student', Person: S(b.Name), Phone: S(b.Student_Phone), Issue_Type: f.answered ? (r.issue_type || 'OTHER') : '', Summary: S(r.main_issue),\n    Needs_Followup: wantM || wantC ? 'Yes' : 'No', Outcome: !f.answered ? 'No answer' : wantM || wantC ? `Alerted ${[wantM && 'mentor', wantC && 'counsellor'].filter(Boolean).join(' and ')}` : 'Counselled' });\n  const alerts = wantM || wantC ? [{ Raised_At: nowIso(), Title: `Academic support — ${S(b.Name)} — ${S(b.Course)}`, Detail: text, Kind: 'Academic', Severity: wantM && wantC ? 'HIGH' : 'MEDIUM', Student_ID: S(b.Student_ID), Lead_ID: '', Raised_By: 'flow:ACADEMIC_CALL', Owner: S((wantM ? mentor : counsellor)?.Name), Status: 'Open' }] : [];\n  return { patch, call, alerts, staff: [...(wantM ? staffAlert(mentor, text, 'Academic', b) : []), ...(wantC ? staffAlert(counsellor, text, 'Academic', b) : [])] };\n}\n\n// FEE_REMINDER.remind — the call, then always the payment-link WhatsApp; day 15+ with no promise → a CRITICAL alert to the director.\nconst SEND_LINK = { to: 'Parent_Phone', template: { name: 'eduflow_fee_payment_link', variables: { 1: '{{Parent_Name}}', 2: '{{Student_Name}}', 3: '{{Balance_INR}}', 4: '{{Due_Date}}', 5: '{{Payment_Link}}' } } };\nfunction feeLink(i) {\n  const b = i.b || {}; const m = renderMessage(SEND_LINK, b, i.C || {});\n  return { to_e164: m.to_e164, variables: m.variables, messages: [messageRow(b, m, 'Payment Link', 'Fee', b.Parent_Name)], patch: { Last_Reminder_At: nowIso() } };\n}\nfunction feeResult(i) {\n  const b = { ...(i.b || {}), _request_id: i.request_id }; const f = callFacts(i.details); const link = feeLink(i);\n  const r = cdm(i, { parent_response: 'string', promise_date: 'string' });\n  const promise = /^\\d{4}-\\d{2}-\\d{2}$/.test(S(r.promise_date)) ? S(r.promise_date) : '';\n  const patch = { Reminder_Count: (N(b.Reminder_Count) ?? 0) + 1, Last_Reminder_At: nowIso(), Parent_Response: f.answered ? S(r.parent_response) : 'No answer — payment link sent on WhatsApp', ...(promise ? { Promise_Date: promise } : {}) };\n  const late = (N(b.Days_Overdue) ?? 0) >= 15 && !promise;\n  const call = callRow(b, f, { Agent: 'Fee', Relation: 'Parent', Person: S(b.Parent_Name), Phone: S(b.Parent_Phone), Summary: S(r.parent_response), Needs_Followup: late ? 'Yes' : 'No',\n    Outcome: !f.answered ? 'No answer — link sent' : promise ? `Promised to pay by ${promise}` : 'No promise — link sent' });\n  const alerts = late ? [{ Raised_At: nowIso(), Title: `Fee overdue ${N(b.Days_Overdue)} days — ${S(b.Student_Name)} — ₹${N(b.Balance_INR) ?? ''}`, Detail: `${S(b.Parent_Name)}: ${f.answered ? S(r.parent_response) || 'no promise to pay' : 'did not answer the reminder call'}.`, Kind: 'Fee', Severity: 'CRITICAL', Student_ID: '', Lead_ID: '', Raised_By: 'flow:FEE_REMINDER', Owner: S(b.Director), Status: 'Open' }] : [];\n  return { ...link, patch, call, alerts };\n}\n\n// PARENT_UPDATE.weekly_report — 100 % of active parents, numbers from the record, no AI.\nconst SEND_REPORT = { to: 'Parent_Phone', template: { name: 'eduflow_weekly_report', variables: { 1: '{{Parent_Name}}', 2: '{{Name}}', 3: '{{Attendance_Pct}}', 4: '{{Last_Score}}', 5: '{{Class_Rank}}', 6: '{{Performance_Trend}}' } } };\nfunction weeklyReport(i) {\n  const b = i.b || {}; const m = renderMessage(SEND_REPORT, b, i.C || {});\n  return { to_e164: m.to_e164, variables: m.variables, messages: [messageRow(b, m, 'Weekly Report', 'Parent', b.Parent_Name)], patch: { Last_Report_At: nowIso() } };\n}\n// PARENT_UPDATE.update_call — status and escalation in code (owner, 3 Nov 2026).\nfunction parentResult(i) {\n  const b = { ...(i.b || {}), _request_id: i.request_id }; const f = callFacts(i.details);\n  const r = cdm(i, { sentiment: 'string', feedback: 'string', concern: 'string', needs_escalation: 'string' }, { sentiment: ['Happy', 'Neutral', 'Concerned', 'No Answer'], needs_escalation: ['Yes', 'No'] });\n  const sentiment = !f.answered ? 'No Answer' : r.sentiment || 'Neutral'; const esc = f.answered && r.needs_escalation === 'Yes'; const flag = sentiment === 'Concerned' || esc;\n  const status = sentiment === 'No Answer' ? 'No Answer' : esc ? 'Escalated' : 'Completed';\n  const director = teamOf(i.team, 'Director')[0]; const retry = yes(b.Is_Retry);\n  const call = callRow(b, f, { Agent: 'Parent', Relation: 'Parent', Person: S(b.Parent_Name), Phone: S(b.Parent_Phone), Status: status, Sentiment: sentiment, Summary: S(r.feedback), Concern: S(r.concern), Needs_Followup: flag ? 'Yes' : 'No',\n    Outcome: status === 'No Answer' ? (retry ? 'No answer twice — closed' : 'No answer — retry on Monday 5 PM') : flag ? 'Escalated to the director' : 'Update shared' });\n  const patch = { Parent_Sentiment: sentiment, Parent_Concern: S(r.concern), Last_Parent_Call_At: nowIso() };\n  const detail = `${S(b.Parent_Name)}: ${S(r.concern) || S(r.feedback) || 'concerned about progress'}`;\n  const alerts = flag ? [{ Raised_At: nowIso(), Title: `Parent Concern - ${S(b.Name)} - ${S(b.Course)}`, Detail: detail, Kind: 'Parent', Severity: 'HIGH', Student_ID: S(b.Student_ID), Lead_ID: '', Raised_By: 'flow:PARENT_UPDATE', Owner: S(director && director.Name), Status: 'Open' }] : [];\n  return { patch, call, alerts, staff: flag ? staffAlert(director, `Parent concern — ${S(b.Name)} (${S(b.Course)}). ${detail}`, 'Parent', b) : [], status };\n}\n\n// ── STUDENT_MANAGE.enrol — student, first fee, welcome WhatsApp; from a lead, the lead becomes Enrolled ──\nconst SEND_WELCOME = { to: 'Parent_Phone', template: { name: 'eduflow_welcome', variables: { 1: '{{Parent_Name}}', 2: '{{Name}}', 3: '{{Course}}', 4: '{{Batch}}' } } };\nfunction enrolBuild(i) {\n  const b = i.b || {};\n  return { row: { Student_ID: '', Enrolled_At: nowIso(), Name: S(b.Name), Student_Phone: S(b.Student_Phone || b.Phone), Parent_Name: S(b.Parent_Name), Parent_Phone: S(b.Parent_Phone), Course: S(b.Course), Batch: S(b.Batch),\n    Address: S(b.Address), Status: 'Active', Fee_Status: 'Due', Fee_Amount_INR: N(b.Fee_Amount_INR) ?? '', Fee_Due_Date: S(b.Fee_Due_Date), Counsellor: S(b.Counsellor) } };\n}\nfunction enrolNext(i) {\n  const b = i.b || {}; const st = list(i.saved)[0] || {}; const sid = S(st.Student_ID); const m = renderMessage(SEND_WELCOME, b, i.C || {});\n  const fees = N(b.Fee_Amount_INR) ? [{ Fee_ID: '', Created_At: nowIso(), Student_ID: sid, Student_Name: S(b.Name), Parent_Name: S(b.Parent_Name), Parent_Phone: S(b.Parent_Phone), Course: S(b.Course), Instalment: 1,\n    Amount_INR: N(b.Fee_Amount_INR), Paid_INR: 0, Due_Date: S(b.Fee_Due_Date), Days_Overdue: 0, Status: 'Upcoming', Reminder_Count: 0 }] : [];\n  return { Student_ID: sid, to_e164: m.to_e164, variables: m.variables, messages: [messageRow({ ...b, Student_ID: sid }, m, 'Welcome', 'Office', b.Parent_Name)], fees, leads: S(b.Lead_ID) ? [{ Lead_ID: S(b.Lead_ID), Stage: 'Enrolled' }] : [] };\n}\n\n// ── SEND_WHATSAPP.send_update — the reviewed text to one parent (the app filled `To` from the student record, D6) ──\nconst SEND_UPDATE = { to: 'To', template: { name: 'eduflow_general_update', variables: { 1: '{{Parent_Name}}', 2: '{{Name}}', 3: '{{Message}}' } } };\nfunction updateBuild(i) {\n  const b = i.b || {}; const m = renderMessage(SEND_UPDATE, b, i.C || {});\n  return { to_e164: m.to_e164, variables: m.variables, messages: [messageRow(b, m, 'General Update', 'Office', b.Parent_Name)] };\n}\n\n// ── schedules: read the app's rows, decide in code, post one call per target to the action flow ──\nfunction post(C, action, who, row) { return { action, _who: `flow:${who}`, app_url: C.app_url, inbound_token: C.inbound_token, company_name: C.company_name, ...row }; }\nconst pick = (r, keys) => Object.fromEntries(keys.map((k) => [k, r[k] === undefined || r[k] === null ? '' : r[k]]));\n\n// FEE_RUN (daily 10:00) — Days_Overdue and Due → Overdue; a call on day 1, 7 and 15 overdue; the link 3 days before Due_Date.\nfunction feeRun(i) {\n  const C = i.C || {}; const today = S(C.today_override) || istDate(); const director = S((teamOf(i.team, 'Director')[0] || {}).Name);\n  const patches = [], remind = [], link = [];\n  for (const f of list(i.fees)) {\n    const bal = N(f.Balance_INR) ?? ((N(f.Amount_INR) ?? 0) - (N(f.Paid_INR) ?? 0)); if (S(f.Status) === 'Paid' || bal <= 0 || !S(f.Due_Date)) continue;\n    const late = Math.max(0, dayDiff(today, S(f.Due_Date).slice(0, 10)));\n    const status = late > 0 ? 'Overdue' : S(f.Status) === 'Partial' ? 'Partial' : dayDiff(S(f.Due_Date).slice(0, 10), today) <= 7 ? 'Due' : S(f.Status) || 'Upcoming';\n    if ((N(f.Days_Overdue) ?? 0) !== late || S(f.Status) !== status) patches.push({ Fee_ID: S(f.Fee_ID), Days_Overdue: late, Status: status });\n    const row = { ...pick(f, ['Fee_ID', 'Student_Name', 'Parent_Name', 'Parent_Phone', 'Course', 'Due_Date', 'Payment_Link', 'Reminder_Count']), Balance_INR: bal, Days_Overdue: late, Director: director };\n    if ([1, 7, 15].includes(late)) remind.push(post(C, 'remind', 'FEE_RUN', row));\n    else if (dayDiff(S(f.Due_Date).slice(0, 10), today) === 3) link.push(post(C, 'send_link', 'FEE_RUN', row));\n  }\n  return { patches, posts: [...remind, ...link], remind: remind.length, link: link.length, today };\n}\n\n// ACADEMIC_RUN (Monday 11:00) — attendance < 75 or last score < 60, worst first, at most 50.\nfunction academicRun(i) {\n  const C = i.C || {}; const worst = (s) => Math.min(N(s.Attendance_Pct) ?? 100, N(s.Last_Score) ?? 100);\n  const due = list(i.students).filter((s) => active(s) && ((N(s.Attendance_Pct) ?? 100) < 75 || (N(s.Last_Score) ?? 100) < 60)).sort((a, b) => worst(a) - worst(b)).slice(0, N(C.max_calls) ?? 50);\n  return { posts: due.map((s) => post(C, 'counsel', 'ACADEMIC_RUN', pick(s, ['Student_ID', 'Name', 'Student_Phone', 'Course', 'Attendance_Pct', 'Last_Score', 'Weak_Subjects', 'Mentor']))), count: due.length };\n}\n\n// PARENT_RUN (Friday and Monday 17:00 IST) — Friday: report to every active parent, a call only for at-risk students; Monday: one retry.\nfunction parentRun(i) {\n  const C = i.C || {}; const day = C.force_weekday !== undefined && C.force_weekday !== '' ? Number(C.force_weekday) : istWeekday(); const today = istDate();\n  const keys = ['Student_ID', 'Name', 'Parent_Name', 'Parent_Phone', 'Course', 'Attendance_Pct', 'Last_Score', 'Class_Rank', 'Performance_Trend', 'Strong_Subjects', 'Weak_Subjects'];\n  const students = list(i.students).filter(active); const byId = new Map(students.map((s) => [S(s.Student_ID), s]));\n  const risky = (s) => ['At Risk', 'Critical'].includes(S(s.Status)) || (N(s.Attendance_Pct) ?? 100) < 75 || (N(s.Last_Score) ?? 100) < 60;\n  if (day === 5) return { reports: students.map((s) => post(C, 'weekly_report', 'PARENT_RUN', { ...pick(s, keys), Is_Retry: 'No' })), calls: students.filter(risky).map((s) => post(C, 'update_call', 'PARENT_RUN', { ...pick(s, keys), Is_Retry: 'No' })), retried: [], day: 'Friday' };\n  if (day !== 1) return { reports: [], calls: [], retried: [], day: 'not a run day' };\n  const friday = istDate(Date.now() - 3 * 864e5);\n  const missed = list(i.calls).filter((c) => S(c.Agent) === 'Parent' && S(c.Status) === 'No Answer' && !S(c.Retry_At) && istDate(Date.parse(S(c.Called_At)) || 0) === friday && byId.has(S(c.Student_ID)));\n  return { reports: [], calls: missed.map((c) => post(C, 'update_call', 'PARENT_RUN', { ...pick(byId.get(S(c.Student_ID)), keys), Is_Retry: 'Yes' })), retried: missed.map((c) => ({ Call_ID: S(c.Call_ID), Retry_At: nowIso() })), day: `Monday (${today})` };\n}\n\n// ROLLUP (01:30 daily) — per student from attendance + tests; Status; Fee_Status; alerts without duplicates while one is open.\nfunction rollup(i) {\n  const today = istDate(); const from = istDate(Date.now() - 29 * 864e5); const att = list(i.attendance), tests = list(i.tests), fees = list(i.fees);\n  const open = new Set(list(i.alerts).filter((a) => S(a.Status) !== 'Resolved').map((a) => `${S(a.Kind)}|${S(a.Student_ID) || S(a.Lead_ID)}`));\n  const stats = list(i.students).filter(active).map((s) => {\n    const id = S(s.Student_ID); const a = att.filter((r) => S(r.Student_ID) === id && S(r.Date).slice(0, 10) >= from);\n    const ts = tests.filter((t) => S(t.Student_ID) === id && S(t.Status) !== 'Absent' && N(t.Score_Pct) !== null).sort((x, y) => S(x.Test_Date).localeCompare(S(y.Test_Date)));\n    const pct = ts.map((t) => N(t.Score_Pct)); const avg = pct.length ? Math.round(pct.reduce((x, y) => x + y, 0) / pct.length) : null;\n    const last3 = pct.slice(-3); const trend = last3.length < 2 ? 'Stable' : last3[last3.length - 1] - last3[0] >= 5 ? 'Improving' : last3[0] - last3[last3.length - 1] >= 5 ? 'Declining' : 'Stable';\n    const subj = {}; for (const t of ts) (subj[S(t.Subject)] ||= []).push(N(t.Score_Pct)); const ranked = Object.entries(subj).map(([k, v]) => [k, v.reduce((x, y) => x + y, 0) / v.length]).sort((x, y) => y[1] - x[1]);\n    const attPct = a.length ? Math.round(a.filter((r) => S(r.Status) === 'Present').length * 100 / a.length) : (N(s.Attendance_Pct) ?? null);\n    const due = fees.filter((f) => S(f.Student_ID) === id && S(f.Status) !== 'Paid'); const worstLate = Math.max(0, ...due.map((f) => N(f.Days_Overdue) ?? 0));\n    const status = (attPct ?? 100) < 60 || (avg ?? 100) < 40 ? 'Critical' : (attPct ?? 100) < 75 || (avg ?? 100) < 60 ? 'At Risk' : 'Active';\n    return { s, id, patch: { Student_ID: id, Attendance_Pct: attPct ?? '', Last_Score: pct.length ? pct[pct.length - 1] : '', Avg_Score: avg ?? '', Performance_Trend: trend, Strong_Subjects: ranked.filter((x) => x[1] >= 75).map((x) => x[0]).join(', '),\n      Weak_Subjects: ranked.filter((x) => x[1] < 60).map((x) => x[0]).join(', '), Status: status, Fee_Status: !due.length ? 'Paid' : due.some((f) => S(f.Status) === 'Overdue') ? 'Overdue' : 'Due' }, worstLate };\n  });\n  for (const x of stats) { const peers = stats.filter((y) => S(y.s.Course) === S(x.s.Course) && S(y.s.Batch) === S(x.s.Batch) && y.patch.Avg_Score !== '').sort((p, q) => q.patch.Avg_Score - p.patch.Avg_Score); x.patch.Class_Rank = x.patch.Avg_Score === '' ? '' : peers.indexOf(x) + 1; }\n  const alerts = []; const add = (kind, id, row) => { if (!open.has(`${kind}|${id}`)) { open.add(`${kind}|${id}`); alerts.push({ Raised_At: nowIso(), Lead_ID: '', Student_ID: '', Raised_By: 'flow:ROLLUP', Owner: '', Status: 'Open', Kind: kind, ...row }); } };\n  for (const x of stats) {\n    if (x.patch.Attendance_Pct !== '' && x.patch.Attendance_Pct < 75) add('Attendance', x.id, { Student_ID: x.id, Severity: 'HIGH', Title: `Attendance ${x.patch.Attendance_Pct}% — ${S(x.s.Name)}`, Detail: `Last 30 days, ${S(x.s.Course)} · ${S(x.s.Batch)}.`, Owner: S(x.s.Mentor) });\n    if (x.worstLate >= 15) add('Fee', x.id, { Student_ID: x.id, Severity: 'CRITICAL', Title: `Fee overdue ${x.worstLate} days — ${S(x.s.Name)}`, Detail: 'Reminder calls have not cleared it.' });\n  }\n  for (const l of list(i.leads)) if (S(l.Grade) === 'HOT' && !['Enrolled', 'Lost'].includes(S(l.Stage)) && S(l.Next_Followup_At) && S(l.Next_Followup_At).slice(0, 10) < today)\n    add('Lead', S(l.Lead_ID), { Lead_ID: S(l.Lead_ID), Severity: 'MEDIUM', Title: `HOT lead past 48 h — ${S(l.Name)}`, Detail: `${S(l.Course)} · follow-up was due ${S(l.Next_Followup_At).slice(0, 10)}.`, Owner: S(l.Assigned_To) });\n  return { patches: stats.map((x) => x.patch), alerts, students: stats.length, today };\n}\n// end lib\nexport const code = async (inputs) => feeResult(inputs);",
+                          "packageJson": "{}"
+                        },
+                        "errorHandlingOptions": {
+                          "retryOnFailure": {
+                            "value": false
+                          },
+                          "continueOnFailure": {
+                            "value": false
+                          }
+                        }
+                      },
+                      "nextAction": {
+                        "name": "step_remind_send",
+                        "skip": false,
+                        "type": "PIECE",
+                        "valid": true,
+                        "settings": {
+                          "input": {
+                            "account_id": "{{step_constants['whatsapp_account_id']}}",
+                            "to": "{{step_remind_build['to_e164']}}",
+                            "template_id": "{{step_constants['whatsapp_templates']['fee_payment_link']}}",
+                            "template_variables": {
+                              "1": "{{step_remind_build['variables']['1']}}",
+                              "2": "{{step_remind_build['variables']['2']}}",
+                              "3": "{{step_remind_build['variables']['3']}}",
+                              "4": "{{step_remind_build['variables']['4']}}",
+                              "5": "{{step_remind_build['variables']['5']}}"
+                            }
+                          },
+                          "pieceName": "@puchoaistudio/tool-pucho-whatsapp",
+                          "actionName": "send_template_message",
+                          "sampleData": {},
+                          "pieceVersion": "^2.1.6",
+                          "propertySettings": {
+                            "account_id": {
+                              "type": "MANUAL"
+                            },
+                            "to": {
+                              "type": "MANUAL"
+                            },
+                            "template_id": {
+                              "type": "MANUAL"
+                            },
+                            "template_variables": {
+                              "type": "MANUAL",
+                              "schema": {}
+                            }
+                          },
+                          "errorHandlingOptions": {
+                            "retryOnFailure": {
+                              "value": false
+                            },
+                            "continueOnFailure": {
+                              "value": true
+                            }
+                          }
+                        },
+                        "nextAction": {
+                          "name": "step_remind_update",
+                          "skip": false,
+                          "type": "PIECE",
+                          "valid": true,
+                          "settings": {
+                            "input": {
+                              "method": "PATCH",
+                              "url": "{{step_constants['app_url']}}/api/data/fees",
+                              "headers": {
+                                "Content-Type": "application/json",
+                                "Authorization": "Bearer {{step_constants['inbound_token']}}",
+                                "X-Flow": "{{step_constants['flow']}}"
+                              },
+                              "queryParams": {
+                                "Fee_ID": "eq.{{trigger['body']['Fee_ID']}}"
+                              },
+                              "authType": "NONE",
+                              "body_type": "json",
+                              "body": {
+                                "data": {
+                                  "Reminder_Count": "{{step_remind_build['patch']['Reminder_Count']}}",
+                                  "Last_Reminder_At": "{{step_remind_build['patch']['Last_Reminder_At']}}",
+                                  "Parent_Response": "{{step_remind_build['patch']['Parent_Response']}}",
+                                  "Promise_Date": "{{step_remind_build['patch']['Promise_Date']}}"
+                                }
+                              }
+                            },
+                            "pieceName": "@puchoaistudio/tool-http",
+                            "actionName": "send_request",
+                            "sampleData": {},
+                            "pieceVersion": "^2.0.0",
+                            "propertySettings": {
+                              "method": {
+                                "type": "MANUAL"
+                              },
+                              "url": {
+                                "type": "MANUAL"
+                              },
+                              "headers": {
+                                "type": "MANUAL",
+                                "schema": {}
+                              },
+                              "queryParams": {
+                                "type": "MANUAL",
+                                "schema": {}
+                              },
+                              "authType": {
+                                "type": "MANUAL"
+                              },
+                              "body_type": {
+                                "type": "MANUAL"
+                              },
+                              "body": {
+                                "type": "MANUAL",
+                                "schema": {}
+                              }
+                            },
+                            "errorHandlingOptions": {
+                              "retryOnFailure": {
+                                "value": false
+                              },
+                              "continueOnFailure": {
+                                "value": false
+                              }
+                            }
+                          },
+                          "nextAction": {
+                            "name": "step_remind_log",
+                            "skip": false,
+                            "type": "PIECE",
+                            "valid": true,
+                            "settings": {
+                              "input": {
+                                "method": "POST",
+                                "url": "{{step_constants['app_url']}}/api/data/calls",
+                                "headers": {
+                                  "Content-Type": "application/json",
+                                  "Authorization": "Bearer {{step_constants['inbound_token']}}",
+                                  "X-Flow": "{{step_constants['flow']}}"
+                                },
+                                "queryParams": {},
+                                "authType": "NONE",
+                                "body_type": "json",
+                                "body": {
+                                  "data": {
+                                    "Called_At": "{{step_remind_build['call']['Called_At']}}",
+                                    "Agent": "{{step_remind_build['call']['Agent']}}",
+                                    "Person": "{{step_remind_build['call']['Person']}}",
+                                    "Relation": "{{step_remind_build['call']['Relation']}}",
+                                    "Phone": "{{step_remind_build['call']['Phone']}}",
+                                    "Lead_ID": "{{step_remind_build['call']['Lead_ID']}}",
+                                    "Student_ID": "{{step_remind_build['call']['Student_ID']}}",
+                                    "Course": "{{step_remind_build['call']['Course']}}",
+                                    "Status": "{{step_remind_build['call']['Status']}}",
+                                    "Duration_Sec": "{{step_remind_build['call']['Duration_Sec']}}",
+                                    "Request_ID": "{{step_remind_build['call']['Request_ID']}}",
+                                    "Outcome": "{{step_remind_build['call']['Outcome']}}",
+                                    "Summary": "{{step_remind_build['call']['Summary']}}",
+                                    "Transcript": "{{step_remind_build['call']['Transcript']}}",
+                                    "Grade": "{{step_remind_build['call']['Grade']}}",
+                                    "Score": "{{step_remind_build['call']['Score']}}",
+                                    "Sentiment": "{{step_remind_build['call']['Sentiment']}}",
+                                    "Concern": "{{step_remind_build['call']['Concern']}}",
+                                    "Issue_Type": "{{step_remind_build['call']['Issue_Type']}}",
+                                    "Reason": "{{step_remind_build['call']['Reason']}}",
+                                    "Category": "{{step_remind_build['call']['Category']}}",
+                                    "Needs_Followup": "{{step_remind_build['call']['Needs_Followup']}}",
+                                    "Retry_At": "{{step_remind_build['call']['Retry_At']}}"
+                                  }
+                                }
+                              },
+                              "pieceName": "@puchoaistudio/tool-http",
+                              "actionName": "send_request",
+                              "sampleData": {},
+                              "pieceVersion": "^2.0.0",
+                              "propertySettings": {
+                                "method": {
+                                  "type": "MANUAL"
+                                },
+                                "url": {
+                                  "type": "MANUAL"
+                                },
+                                "headers": {
+                                  "type": "MANUAL",
+                                  "schema": {}
+                                },
+                                "queryParams": {
+                                  "type": "MANUAL",
+                                  "schema": {}
+                                },
+                                "authType": {
+                                  "type": "MANUAL"
+                                },
+                                "body_type": {
+                                  "type": "MANUAL"
+                                },
+                                "body": {
+                                  "type": "MANUAL",
+                                  "schema": {}
+                                }
+                              },
+                              "errorHandlingOptions": {
+                                "retryOnFailure": {
+                                  "value": false
+                                },
+                                "continueOnFailure": {
+                                  "value": false
+                                }
+                              }
+                            },
+                            "nextAction": {
+                              "name": "step_remind_message",
+                              "skip": false,
+                              "type": "PIECE",
+                              "valid": true,
+                              "settings": {
+                                "input": {
+                                  "method": "POST",
+                                  "url": "{{step_constants['app_url']}}/api/data/messages",
+                                  "headers": {
+                                    "Content-Type": "application/json",
+                                    "Authorization": "Bearer {{step_constants['inbound_token']}}",
+                                    "X-Flow": "{{step_constants['flow']}}"
+                                  },
+                                  "queryParams": {},
+                                  "authType": "NONE",
+                                  "body_type": "json",
+                                  "body": {
+                                    "data": "{{step_remind_build['messages']}}"
+                                  }
+                                },
+                                "pieceName": "@puchoaistudio/tool-http",
+                                "actionName": "send_request",
+                                "sampleData": {},
+                                "pieceVersion": "^2.0.0",
+                                "propertySettings": {
+                                  "method": {
+                                    "type": "MANUAL"
+                                  },
+                                  "url": {
+                                    "type": "MANUAL"
+                                  },
+                                  "headers": {
+                                    "type": "MANUAL",
+                                    "schema": {}
+                                  },
+                                  "queryParams": {
+                                    "type": "MANUAL",
+                                    "schema": {}
+                                  },
+                                  "authType": {
+                                    "type": "MANUAL"
+                                  },
+                                  "body_type": {
+                                    "type": "MANUAL"
+                                  },
+                                  "body": {
+                                    "type": "MANUAL",
+                                    "schema": {}
+                                  }
+                                },
+                                "errorHandlingOptions": {
+                                  "retryOnFailure": {
+                                    "value": false
+                                  },
+                                  "continueOnFailure": {
+                                    "value": false
+                                  }
+                                }
+                              },
+                              "nextAction": {
+                                "name": "step_remind_alert",
+                                "skip": false,
+                                "type": "PIECE",
+                                "valid": true,
+                                "settings": {
+                                  "input": {
+                                    "method": "POST",
+                                    "url": "{{step_constants['app_url']}}/api/data/alerts",
+                                    "headers": {
+                                      "Content-Type": "application/json",
+                                      "Authorization": "Bearer {{step_constants['inbound_token']}}",
+                                      "X-Flow": "{{step_constants['flow']}}"
+                                    },
+                                    "queryParams": {},
+                                    "authType": "NONE",
+                                    "body_type": "json",
+                                    "body": {
+                                      "data": "{{step_remind_build['alerts']}}"
+                                    }
+                                  },
+                                  "pieceName": "@puchoaistudio/tool-http",
+                                  "actionName": "send_request",
+                                  "sampleData": {},
+                                  "pieceVersion": "^2.0.0",
+                                  "propertySettings": {
+                                    "method": {
+                                      "type": "MANUAL"
+                                    },
+                                    "url": {
+                                      "type": "MANUAL"
+                                    },
+                                    "headers": {
+                                      "type": "MANUAL",
+                                      "schema": {}
+                                    },
+                                    "queryParams": {
+                                      "type": "MANUAL",
+                                      "schema": {}
+                                    },
+                                    "authType": {
+                                      "type": "MANUAL"
+                                    },
+                                    "body_type": {
+                                      "type": "MANUAL"
+                                    },
+                                    "body": {
+                                      "type": "MANUAL",
+                                      "schema": {}
+                                    }
+                                  },
+                                  "errorHandlingOptions": {
+                                    "retryOnFailure": {
+                                      "value": false
+                                    },
+                                    "continueOnFailure": {
+                                      "value": false
+                                    }
+                                  }
+                                },
+                                "nextAction": {
+                                  "name": "step_remind_done",
+                                  "skip": false,
+                                  "type": "PIECE",
+                                  "valid": true,
+                                  "settings": {
+                                    "input": {
+                                      "fields": {
+                                        "body": {
+                                          "ok": "true",
+                                          "action": "remind",
+                                          "Fee_ID": "{{trigger['body']['Fee_ID']}}"
+                                        },
+                                        "status": 200,
+                                        "headers": {}
+                                      },
+                                      "respond": "stop",
+                                      "responseType": "json"
+                                    },
+                                    "pieceName": "@puchoaistudio/tool-webhook",
+                                    "actionName": "return_response",
+                                    "sampleData": {},
+                                    "pieceVersion": "^2.0.4",
+                                    "propertySettings": {
+                                      "fields": {
+                                        "type": "MANUAL",
+                                        "schema": {
+                                          "body": {
+                                            "type": "JSON",
+                                            "required": true,
+                                            "displayName": "JSON Body"
+                                          },
+                                          "status": {
+                                            "type": "NUMBER",
+                                            "required": false,
+                                            "displayName": "Status",
+                                            "defaultValue": 200
+                                          },
+                                          "headers": {
+                                            "type": "OBJECT",
+                                            "required": false,
+                                            "displayName": "Headers"
+                                          }
+                                        }
+                                      },
+                                      "respond": {
+                                        "type": "MANUAL"
+                                      },
+                                      "responseType": {
+                                        "type": "MANUAL"
+                                      }
+                                    },
+                                    "errorHandlingOptions": {
+                                      "retryOnFailure": {
+                                        "value": false
+                                      },
+                                      "continueOnFailure": {
+                                        "value": false
+                                      }
+                                    }
+                                  },
+                                  "displayName": "Return remind"
+                                },
+                                "displayName": "Day 15+ with no promise: alert the director (else none)"
+                              },
+                              "displayName": "Log the payment-link message"
+                            },
+                            "displayName": "Log the call (Agent Fee)"
+                          },
+                          "displayName": "Update the fee: count, response, promise"
+                        },
+                        "displayName": "WhatsApp the payment link"
+                      },
+                      "displayName": "Response, promise, link and rows (code)"
+                    },
+                    "displayName": "Read the transcript (Pucho CDM)"
                   },
-                  "displayName": "Update fees: Student_Name, Parent_Name, Parent_Phone, Course, Balance_INR, Due_Date +5 more"
+                  "displayName": "Get the call details (transcript)"
                 },
-                "displayName": "Read the CDM output · build the patch (CODE)"
+                "displayName": "Wait 3 min for the call to end"
               },
-              "displayName": "Extract the fields (Pucho CDM)"
+              "displayName": "AI voice call (fee agent)"
             },
             {
-              "name": "step_send_link_message",
+              "name": "step_send_link_build",
               "skip": false,
               "type": "CODE",
               "valid": true,
@@ -308,7 +663,7 @@
                 },
                 "sampleData": {},
                 "sourceCode": {
-                  "code": "// @ts-nocheck\n// lib: the app's src/lib/renderMessage.js, copied verbatim so the flow and the app word a message the same way\n// src/lib/renderMessage.js — a client message from a fixed template (os.yaml `sends.message`), rule zero: the words\n// are the firm's, the values are the record's, no model is involved. ONE source: the app imports it to show what a\n// simulated send would have said, and build_flows.py embeds this same file in the flow's CODE node, so the wired flow\n// and the simulation can never word a message differently. Plain JS, no imports — it must run inside Studio as is.\n//   send = { to: <payload key>, lang: <payload key>, message: { en, hi, mr, … }, words: { hi: { Adjourned: '…' } }, template: { name, variables: { '1': '{{Col}}' } } }\n//   {{Key}} → the payload value · {{constants.x}} → the flow constant · [[ … ]] → dropped when any value inside is empty\n//   dates (YYYY-MM-DD or ISO) → \"Thu, 2 Oct 2026\" / \"Thu, 2 Oct 2026, 4:30 pm\" in IST · phone → digits with 91 prefix\nfunction renderMessage(send, vars, constants) {\n  const LANG = { english: 'en', en: 'en', hindi: 'hi', hi: 'hi', marathi: 'mr', mr: 'mr', gujarati: 'gu', gu: 'gu', tamil: 'ta', ta: 'ta', telugu: 'te', te: 'te', kannada: 'kn', kn: 'kn', bengali: 'bn', bn: 'bn', malayalam: 'ml', ml: 'ml', punjabi: 'pa', pa: 'pa' };\n  const msg = (send && send.message) || {};\n  const asked = LANG[String((vars || {})[send.lang] || '').trim().toLowerCase()] || 'en';\n  const lang = msg[asked] ? asked : (msg.en ? 'en' : Object.keys(msg)[0]);\n  const words = ((send.words || {})[lang]) || {};\n  const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];\n  const date = (v) => {\n    const only = /^\\d{4}-\\d{2}-\\d{2}$/.test(v);\n    const t = only ? Date.UTC(+v.slice(0, 4), +v.slice(5, 7) - 1, +v.slice(8, 10)) : Date.parse(v) + 330 * 60000;   // IST without Intl\n    if (isNaN(t)) return v; const d = new Date(t);\n    let s = `${DAYS[d.getUTCDay()]}, ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;\n    if (!only) { const h = d.getUTCHours(), m = d.getUTCMinutes(); s += `, ${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`; }\n    return s;\n  };\n  const val = (k) => {\n    let v = k.indexOf('constants.') === 0 ? (constants || {})[k.slice(10)] : (vars || {})[k];\n    if (v === undefined || v === null) return '';\n    v = String(v).trim();\n    if (/^\\d{4}-\\d{2}-\\d{2}([T ][\\d:.]+(Z|[+-]\\d{2}:?\\d{2})?)?$/.test(v)) v = date(v);\n    return words[v] !== undefined ? words[v] : v;\n  };\n  const fill = (s) => s.replace(/\\{\\{\\s*([\\w.]+)\\s*\\}\\}/g, (_, k) => val(k));\n  let text = String(msg[lang] || '')\n    .replace(/\\[\\[([\\s\\S]*?)\\]\\]/g, (_, part) => (part.match(/\\{\\{\\s*([\\w.]+)\\s*\\}\\}/g) || []).every((p) => val(p.replace(/[{}\\s]/g, '')) !== '') ? part : '');\n  text = fill(text).replace(/[ \\t]{2,}/g, ' ').replace(/ +([.,।])/g, '$1').trim();\n  const digits = String((vars || {})[send.to] || '').replace(/\\D/g, '');\n  const to = digits.length === 10 ? '91' + digits : digits;\n  // v4.4 — an approved WhatsApp template (os.yaml `sends.template`): the words live on whatsapp.pucho.ai, the flow fills only the\n  // variables, each a {{Column}} template rendered the same way as a message. `to_e164` is the `+91…` form pucho-whatsapp takes.\n  const tpl = send && send.template; const variables = {};\n  if (tpl && tpl.variables) for (const k of Object.keys(tpl.variables)) variables[k] = fill(String(tpl.variables[k])).trim();\n  return { to, to_e164: to ? '+' + to : '', lang, text, template: tpl ? (tpl.name || '') : '', variables };\n}\n\n// end lib\nconst SEND = {\"tool\": \"whatsapp\", \"to\": \"Parent_Phone\", \"template\": {\"name\": \"eduflow_fee_payment_link\", \"variables\": {\"1\": \"{{Parent_Name}}\", \"2\": \"{{Student_Name}}\", \"3\": \"{{Balance_INR}}\", \"4\": \"{{Due_Date}}\", \"5\": \"{{Payment_Link}}\"}}};\nexport const code = async (inputs) => renderMessage(SEND, { ...(inputs.b || {}) }, inputs.C || {});",
+                  "code": "// @ts-nocheck\n// lib: app/src/lib/renderMessage.js + flowkit cdmFields + tools/eduflow/flowlib.mjs, copied verbatim — edit those files, rebuild\n// src/lib/renderMessage.js — a client message from a fixed template (os.yaml `sends.message`), rule zero: the words\n// are the firm's, the values are the record's, no model is involved. ONE source: the app imports it to show what a\n// simulated send would have said, and build_flows.py embeds this same file in the flow's CODE node, so the wired flow\n// and the simulation can never word a message differently. Plain JS, no imports — it must run inside Studio as is.\n//   send = { to: <payload key>, lang: <payload key>, message: { en, hi, mr, … }, words: { hi: { Adjourned: '…' } }, template: { name, variables: { '1': '{{Col}}' } } }\n//   {{Key}} → the payload value · {{constants.x}} → the flow constant · [[ … ]] → dropped when any value inside is empty\n//   dates (YYYY-MM-DD or ISO) → \"Thu, 2 Oct 2026\" / \"Thu, 2 Oct 2026, 4:30 pm\" in IST · phone → digits with 91 prefix\nexport function renderMessage(send, vars, constants) {\n  const LANG = { english: 'en', en: 'en', hindi: 'hi', hi: 'hi', marathi: 'mr', mr: 'mr', gujarati: 'gu', gu: 'gu', tamil: 'ta', ta: 'ta', telugu: 'te', te: 'te', kannada: 'kn', kn: 'kn', bengali: 'bn', bn: 'bn', malayalam: 'ml', ml: 'ml', punjabi: 'pa', pa: 'pa' };\n  const msg = (send && send.message) || {};\n  const asked = LANG[String((vars || {})[send.lang] || '').trim().toLowerCase()] || 'en';\n  const lang = msg[asked] ? asked : (msg.en ? 'en' : Object.keys(msg)[0]);\n  const words = ((send.words || {})[lang]) || {};\n  const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];\n  const date = (v) => {\n    const only = /^\\d{4}-\\d{2}-\\d{2}$/.test(v);\n    const t = only ? Date.UTC(+v.slice(0, 4), +v.slice(5, 7) - 1, +v.slice(8, 10)) : Date.parse(v) + 330 * 60000;   // IST without Intl\n    if (isNaN(t)) return v; const d = new Date(t);\n    let s = `${DAYS[d.getUTCDay()]}, ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;\n    if (!only) { const h = d.getUTCHours(), m = d.getUTCMinutes(); s += `, ${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`; }\n    return s;\n  };\n  const val = (k) => {\n    let v = k.indexOf('constants.') === 0 ? (constants || {})[k.slice(10)] : (vars || {})[k];\n    if (v === undefined || v === null) return '';\n    v = String(v).trim();\n    if (/^\\d{4}-\\d{2}-\\d{2}([T ][\\d:.]+(Z|[+-]\\d{2}:?\\d{2})?)?$/.test(v)) v = date(v);\n    return words[v] !== undefined ? words[v] : v;\n  };\n  const fill = (s) => s.replace(/\\{\\{\\s*([\\w.]+)\\s*\\}\\}/g, (_, k) => val(k));\n  let text = String(msg[lang] || '')\n    .replace(/\\[\\[([\\s\\S]*?)\\]\\]/g, (_, part) => (part.match(/\\{\\{\\s*([\\w.]+)\\s*\\}\\}/g) || []).every((p) => val(p.replace(/[{}\\s]/g, '')) !== '') ? part : '');\n  text = fill(text).replace(/[ \\t]{2,}/g, ' ').replace(/ +([.,।])/g, '$1').trim();\n  const digits = String((vars || {})[send.to] || '').replace(/\\D/g, '');\n  const to = digits.length === 10 ? '91' + digits : digits;\n  // v4.4 — an approved WhatsApp template (os.yaml `sends.template`): the words live on whatsapp.pucho.ai, the flow fills only the\n  // variables, each a {{Column}} template rendered the same way as a message. `to_e164` is the `+91…` form pucho-whatsapp takes.\n  const tpl = send && send.template; const variables = {};\n  if (tpl && tpl.variables) for (const k of Object.keys(tpl.variables)) variables[k] = fill(String(tpl.variables[k])).trim();\n  return { to, to_e164: to ? '+' + to : '', lang, text, template: tpl ? (tpl.name || '') : '', variables };\n}\nfunction cdmNum(s, integer) { const t = String(s).replace(/₹|\\b(?:rs\\.?|inr)(?![a-z])/gi, ' ').trim(); if (/0x[0-9a-f]/i.test(t) || /\\d\\s*e\\s*[+-]?\\d/i.test(t) || /\\d\\.\\d{3},\\d/.test(t) || /\\d\\.\\d+\\.\\d/.test(t)) return null; const m = t.match(/-?\\d[\\d,]*(\\.\\d+)?/); if (!m) return null; let x = Number(m[0].replace(/,/g, '')); if (!isFinite(x)) return null; const u = t.slice(m.index + m[0].length).trim().toLowerCase().match(/^(thousand|k|lakhs?|lacs?|l|crores?|cr|million|mn)(?![a-z])/); if (u) x = x * (/^(thousand|k)$/.test(u[1]) ? 1e3 : /^(million|mn)$/.test(u[1]) ? 1e6 : /^(lakhs?|lacs?|l)$/.test(u[1]) ? 1e5 : 1e7); x = parseFloat(x.toPrecision(15)); return integer && !Number.isInteger(x) ? null : x; }\nfunction cdmBool(s) { const t = String(s).trim().toLowerCase().replace(/[.!?।]+$/, ''); if (['yes', 'y', 'true', '1', 'haan', 'हाँ', 'हां', 'હા'].includes(t)) return true; if (['no', 'n', 'false', '0', 'nahi', 'नहीं', 'ना', 'ના'].includes(t)) return false; return null; }\nfunction cdmChoice(s, ch) { const t = String(s).trim().toLowerCase(); const L = ch.map((c) => [c, String(c).toLowerCase()]); const exact = L.find((x) => x[1] === t); if (exact) return exact[0]; const esc = (x) => x.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&'); const inSpan = L.filter((x) => new RegExp('(^|[^a-z0-9])' + esc(x[1]) + '([^a-z0-9]|$)').test(t)).sort((a, b) => b[1].length - a[1].length); if (inSpan.length) return inSpan[0][0]; const inChoice = t.length >= 2 ? L.find((x) => x[1].includes(t)) : null; return inChoice ? inChoice[0] : null; }\nfunction cdmFields(fields, decl, conf, choices) { if (typeof fields === 'string') { try { fields = JSON.parse(fields); } catch (e) { fields = null; } } const ents = fields && Array.isArray(fields.entities) ? fields.entities : null; const keys = Object.keys(decl); const out = Object.create(null); for (const k of keys) out[k] = null; if (!ents) { out._parse_error = 'true'; if (conf) out[conf] = 0; out.fields_found = 0; out.fields_total = keys.length; return out; } const best = Object.create(null); for (const e of ents) { if (!e || !Object.prototype.hasOwnProperty.call(decl, e.type) || e.text === undefined || e.text === null || String(e.text).trim() === '') continue; const c = Number(e.confidence) || 0; if (!best[e.type] || c > best[e.type].c) best[e.type] = { v: String(e.text).trim(), c }; } const cs = []; for (const k of keys) { const b = best[k]; if (!b) continue; const t = decl[k]; const ch = choices && Array.isArray(choices[k]) && choices[k].length ? choices[k] : null; const v = (t === 'integer' || t === 'number') ? cdmNum(b.v, t === 'integer') : t === 'boolean' ? cdmBool(b.v) : ch ? cdmChoice(b.v, ch) : b.v; if (v === null) continue; out[k] = v; cs.push(b.c); } if (conf) out[conf] = cs.length ? Math.min(...cs) : 0; out.fields_found = cs.length; out.fields_total = keys.length; return out; }\n// tools/eduflow/flowlib.mjs — every rule the EduFlow Studio flows run in their CODE steps (method/ai-pipeline.md, the custom path).\n// Rule zero: a model only reads a call transcript (Pucho CDM); grades, statuses, counts, dates, owners and every row are code here.\n// tools/build_eduflow_flows.py copies this file VERBATIM into each CODE step (inside the lib / end-lib markers), so the flow runs\n// exactly what tests/eduflow-flowlib.test.mjs and flow_sim test. Plain JS, no imports — it must run inside Studio as is.\n// Each CODE step calls ONE function with the node's inputs: b = the trigger body, C = the constants step, the rest named per step.\n// Uses renderMessage (app/src/lib/renderMessage.js) and cdmFields (flowkit) — the builder puts both above this file.\n\nconst S = (v) => (v === undefined || v === null ? '' : String(v)).trim();\nconst N = (v) => { if (v === '' || v === null || v === undefined) return null; const x = Number(String(v).replace(/[,%₹\\s]/g, '')); return Number.isFinite(x) ? x : null; };\nconst list = (v) => { if (Array.isArray(v)) return v; if (v && Array.isArray(v.body)) return v.body; if (typeof v === 'string') { try { const x = JSON.parse(v); return Array.isArray(x) ? x : []; } catch (e) { return []; } } return []; };\nconst nowIso = () => new Date().toISOString();\nconst istDate = (ms = Date.now()) => new Date(ms + 330 * 60000).toISOString().slice(0, 10);   // IST calendar day, no Intl\nconst istWeekday = (ms = Date.now()) => new Date(ms + 330 * 60000).getUTCDay();               // 0 Sun … 5 Fri\nconst dayDiff = (a, b) => Math.round((Date.parse(`${a}T00:00:00Z`) - Date.parse(`${b}T00:00:00Z`)) / 864e5);   // a − b in days\nconst yes = (v) => /^(yes|true|1|haan)$/i.test(S(v));\nconst e164 = (v) => { const d = S(v).replace(/\\D/g, ''); return d ? '+' + (d.length === 10 ? '91' + d : d) : ''; };\nconst active = (r) => S(r.Status) !== 'Inactive';\nconst teamOf = (team, role, course) => list(team).filter((m) => S(m.Role) === role && String(m.Active) !== 'false' && (!course || /^all$/i.test(S(m.Courses)) || S(m.Courses).split(',').map((x) => x.trim()).includes(course)));\n\n// A send step runs with continueOnFailure: it answers either the provider's reply or an error (⚑ UNVERIFIED shape, rules §1.20 #5).\nfunction sendOk(r) { return !!r && typeof r === 'object' && !r.error && !r.errorMessage && r.success !== false && !(Number(r.statusCode) >= 400) && !(Number(r.status) >= 400); }\n\n// getCallDetails (⚑ UNVERIFIED shape, G1): the transcript, duration and outcome, read defensively from whichever keys the agent returns.\nfunction callFacts(d) {\n  const x = (d && typeof d === 'object' && (d.apiResponse?.data || d.data || d)) || {};\n  const msgs = Array.isArray(x.messages) ? x.messages.map((m) => `${m.role || m.speaker || ''}: ${m.message || m.content || m.text || ''}`).join('\\n') : '';\n  const transcript = S(x.transcript ?? x.transcription ?? x.call_transcript ?? msgs);\n  const duration = Math.max(0, Math.round(N(x.duration ?? x.durationSec ?? x.call_duration ?? x.duration_seconds) ?? 0));\n  const status = S(x.status ?? x.call_status ?? x.endedReason ?? x.ended_reason).toLowerCase();\n  const answered = transcript.length > 20 && !/no.?answer|busy|fail|not.?answered|voicemail|unreachable/.test(status);\n  return { transcript: transcript.slice(0, 20000), duration, answered, status };\n}\n\n// One WhatsApp template to a staff member: the row the loop sends + the messages row it logs (eduflow_staff_alert: 1 name · 2 text).\nfunction staffAlert(member, text, agent, b) {\n  const to = e164(member && member.Phone); if (!to) return [];\n  return [{ to_e164: to, variables: { 1: S(member.Name), 2: text.slice(0, 900) },\n    message: { Sent_At: nowIso(), To_Name: S(member.Name), To_Phone: to, Type: 'Staff Alert', Agent: agent, Template: 'eduflow_staff_alert', Preview: text.slice(0, 300), Status: 'Sent', Student_ID: S(b.Student_ID), Lead_ID: S(b.Lead_ID) } }];\n}\nfunction messageRow(b, m, type, agent, to_name, extra = {}) {\n  const preview = Object.values(m.variables || {}).filter(Boolean).join(' · ');\n  return { Sent_At: nowIso(), To_Name: S(to_name), To_Phone: m.to_e164, Type: type, Agent: agent, Template: m.template, Preview: preview.slice(0, 300), Status: 'Queued', Student_ID: S(b.Student_ID), Lead_ID: S(b.Lead_ID), ...extra };\n}\n// After the send: the message row's Status is what the provider answered (Sent / Failed).\nfunction afterSend(i) {\n  const ok = sendOk(i.sent); const st = ok ? 'Sent' : 'Failed';\n  return { ok: ok ? 'true' : 'false', status: st, messages: list(i.messages).map((m) => ({ ...m, Status: st })), patch: i.patch || {}, fees: list(i.fees), leads: list(i.leads) };\n}\n\n// ── ABSENCE.absent — the formal notice; a repeat absence also alerts the counsellor (no call, owner 3 Nov 2026) ──\nconst SEND_ABSENCE = { to: 'Parent_Phone', template: { name: 'eduflow_absence_alert', variables: { 1: '{{Parent_Name}}', 2: '{{Name}}', 3: '{{Batch}}', 4: '{{Date}}' } } };\nfunction absenceBuild(i) {\n  const b = i.b || {}; const m = renderMessage(SEND_ABSENCE, b, i.C || {});\n  const follow = yes(b.Needs_Followup); const counsellor = teamOf(i.team, 'Counsellor', S(b.Course))[0];\n  const text = `${S(b.Name)} (${S(b.Course)}, ${S(b.Batch)}) is absent ${N(b.Absences_This_Week) || 2} times this week — please call the parent.`;\n  const alerts = follow ? [{ Raised_At: nowIso(), Title: `Absent ${N(b.Absences_This_Week) || 2} times this week — ${S(b.Name)}`, Detail: text, Kind: 'Attendance', Severity: 'HIGH', Student_ID: S(b.Student_ID), Lead_ID: '', Raised_By: 'flow:ABSENCE', Owner: S(counsellor && counsellor.Name), Status: 'Open' }] : [];\n  return { to_e164: m.to_e164, variables: m.variables, messages: [messageRow(b, m, 'Absence Alert', 'Attendance', b.Parent_Name)], alerts, staff: follow ? staffAlert(counsellor, text, 'Attendance', b) : [] };\n}\nfunction absenceAfter(i) {\n  const a = afterSend(i); return { ...a, patch: { Call_Status: a.ok === 'true' ? 'WhatsApp Sent' : 'Failed' } };   // Delivered comes from the delivery callback (G5)\n}\n\n// ── ATTENDANCE.save_batch — the session head, its lines, then one ABSENCE.absent per absentee (never a present student) ──\nfunction attendanceSession(i) {\n  const b = i.b || {};\n  return { row: { Session_ID: '', Date: S(b.Date), Batch: S(b.Batch), Total_Count: N(b.Total_Count) ?? 0, Present_Count: N(b.Present_Count) ?? 0, Absent_Count: N(b.Absent_Count) ?? 0, Absentees: S(b.Absentees), Marked_By: S(b.Marked_By || b._who), Saved_At: nowIso() } };\n}\nfunction attendanceLines(i) {\n  const sid = S((list(i.head)[0] || {}).Session_ID); const cols = ['Date', 'Batch', 'Student_ID', 'Name', 'Course', 'Parent_Name', 'Parent_Phone', 'Status', 'Absences_This_Week', 'Absences_This_Month', 'Call_Status', 'Needs_Followup', 'Followup_Done', 'Marked_By'];\n  const rows = list((i.b || {}).lines).map((l) => { const r = { Att_ID: '', Session_ID: sid }; for (const c of cols) r[c] = l[c] === undefined ? '' : l[c]; return r; });\n  return { rows, count: rows.length, Session_ID: sid };\n}\nfunction attendanceAbsentees(i) {\n  const C = i.C || {}; const saved = list(i.saved).filter((r) => S(r.Status) === 'Absent');\n  const posts = saved.map((r) => ({ action: 'absent', _who: 'flow:ATTENDANCE', app_url: C.app_url, inbound_token: C.inbound_token, company_name: C.company_name,\n    Att_ID: S(r.Att_ID), Date: S(r.Date), Batch: S(r.Batch), Student_ID: S(r.Student_ID), Name: S(r.Name), Course: S(r.Course), Parent_Name: S(r.Parent_Name), Parent_Phone: S(r.Parent_Phone),\n    Absences_This_Week: N(r.Absences_This_Week) ?? 1, Needs_Followup: S(r.Needs_Followup) || 'No' }));\n  return { posts, absent: posts.length };\n}\n\n// ── the four call agents: one CDM read of the transcript → code decides everything else ──\nfunction cdm(i, decl, choices) { return cdmFields(i.ai_fields, decl, null, choices || {}); }\nfunction callRow(b, f, extra) {\n  return { Call_ID: '', Called_At: nowIso(), Lead_ID: S(b.Lead_ID), Student_ID: S(b.Student_ID), Course: S(b.Course), Status: f.answered ? 'Completed' : 'No Answer', Duration_Sec: f.duration, Request_ID: S(b._request_id),\n    Transcript: f.transcript, Outcome: '', Summary: '', Grade: '', Score: '', Sentiment: '', Concern: '', Issue_Type: '', Reason: '', Category: '', Needs_Followup: 'No', Retry_At: '', ...extra };\n}\n\n// ADMISSION_CALL.new_lead / call — HOT needs grade HOT and score ≥ 80 (else WARM); HOT → follow-up in 48 h and the counsellor alerted.\nfunction admissionResult(i) {\n  const b = { ...(i.b || {}), _request_id: i.request_id }; const f = callFacts(i.details);\n  const r = cdm(i, { grade: 'string', score: 'number', summary: 'string', next_action: 'string' }, { grade: ['HOT', 'WARM', 'COLD'] });\n  const score = Math.max(0, Math.min(100, Math.round(N(r.score) ?? 0)));\n  const grade = !f.answered ? 'Not graded' : r.grade === 'HOT' && score >= 80 ? 'HOT' : r.grade === 'COLD' ? 'COLD' : 'WARM';\n  const hot = grade === 'HOT'; const course = S(b.Course);\n  const open = (n) => list(i.leads).filter((l) => S(l.Assigned_To) === n && S(l.Grade) === 'HOT' && !['Enrolled', 'Lost'].includes(S(l.Stage))).length;\n  const pool = teamOf(i.team, 'Counsellor', course).sort((x, y) => open(x.Name) - open(y.Name));\n  const counsellor = list(i.team).find((m) => S(m.Name) === S(b.Assigned_To)) || (hot ? pool[0] : null);\n  const lead = { Stage: f.answered ? 'Called' : 'New', Grade: grade, Score: f.answered ? score : '', AI_Summary: S(r.summary), Next_Action: S(r.next_action), Call_Status: f.answered ? 'Completed' : 'No Answer',\n    Last_Called_At: nowIso(), Transcript: f.transcript, Assigned_To: S(b.Assigned_To) || (hot && counsellor ? S(counsellor.Name) : ''), Next_Followup_At: hot ? new Date(Date.now() + 48 * 3600e3).toISOString() : '' };\n  const row = { Lead_ID: S(b.Lead_ID), Created_At: nowIso(), Name: S(b.Name), Phone: S(b.Phone), Email: S(b.Email), Course: course, Source: S(b.Source), Notes: S(b.Notes), Lost_Reason: '', ...lead };\n  const call = callRow(b, f, { Agent: 'Admission', Relation: 'Lead', Person: S(b.Name), Phone: S(b.Phone), Grade: f.answered ? grade : '', Score: f.answered ? score : '', Summary: S(r.summary),\n    Outcome: !f.answered ? 'No answer — call again in 2 hours' : hot ? `Graded HOT — ${counsellor ? S(counsellor.Name) : 'counsellor'} alerted` : `Graded ${grade}` });\n  const staff = hot ? staffAlert(counsellor, `HOT lead: ${S(b.Name)} (${course}, ${S(b.Phone)}) — score ${score}. ${S(r.next_action)}`, 'Admission', b) : [];\n  return { lead, row, call, staff, grade, answered: f.answered ? 'true' : 'false' };\n}\n\n// ACADEMIC_CALL.counsel — the student's issue; a mentor / counsellor is alerted only when the call says so.\nfunction academicResult(i) {\n  const b = { ...(i.b || {}), _request_id: i.request_id }; const f = callFacts(i.details);\n  const r = cdm(i, { issue_type: 'string', main_issue: 'string', needs_mentor: 'string', needs_counsellor: 'string' }, { issue_type: ['ACADEMIC', 'PERSONAL', 'ATTENDANCE', 'FINANCIAL', 'OTHER'], needs_mentor: ['Yes', 'No'], needs_counsellor: ['Yes', 'No'] });\n  const mentor = list(i.team).find((m) => S(m.Name) === S(b.Mentor)) || teamOf(i.team, 'Mentor', S(b.Course))[0]; const counsellor = teamOf(i.team, 'Counsellor', S(b.Course))[0];\n  const wantM = f.answered && r.needs_mentor === 'Yes'; const wantC = f.answered && r.needs_counsellor === 'Yes';\n  const text = `${S(b.Name)} (${S(b.Course)}; attendance ${N(b.Attendance_Pct) ?? '—'}%, last test ${N(b.Last_Score) ?? '—'}%): ${S(r.main_issue) || 'needs a session'}.`;\n  const patch = f.answered ? { Issue_Type: r.issue_type || 'OTHER', Main_Issue: S(r.main_issue), Last_Counselled_At: nowIso() } : { Last_Counselled_At: nowIso() };\n  const call = callRow(b, f, { Agent: 'Academic', Relation: 'Student', Person: S(b.Name), Phone: S(b.Student_Phone), Issue_Type: f.answered ? (r.issue_type || 'OTHER') : '', Summary: S(r.main_issue),\n    Needs_Followup: wantM || wantC ? 'Yes' : 'No', Outcome: !f.answered ? 'No answer' : wantM || wantC ? `Alerted ${[wantM && 'mentor', wantC && 'counsellor'].filter(Boolean).join(' and ')}` : 'Counselled' });\n  const alerts = wantM || wantC ? [{ Raised_At: nowIso(), Title: `Academic support — ${S(b.Name)} — ${S(b.Course)}`, Detail: text, Kind: 'Academic', Severity: wantM && wantC ? 'HIGH' : 'MEDIUM', Student_ID: S(b.Student_ID), Lead_ID: '', Raised_By: 'flow:ACADEMIC_CALL', Owner: S((wantM ? mentor : counsellor)?.Name), Status: 'Open' }] : [];\n  return { patch, call, alerts, staff: [...(wantM ? staffAlert(mentor, text, 'Academic', b) : []), ...(wantC ? staffAlert(counsellor, text, 'Academic', b) : [])] };\n}\n\n// FEE_REMINDER.remind — the call, then always the payment-link WhatsApp; day 15+ with no promise → a CRITICAL alert to the director.\nconst SEND_LINK = { to: 'Parent_Phone', template: { name: 'eduflow_fee_payment_link', variables: { 1: '{{Parent_Name}}', 2: '{{Student_Name}}', 3: '{{Balance_INR}}', 4: '{{Due_Date}}', 5: '{{Payment_Link}}' } } };\nfunction feeLink(i) {\n  const b = i.b || {}; const m = renderMessage(SEND_LINK, b, i.C || {});\n  return { to_e164: m.to_e164, variables: m.variables, messages: [messageRow(b, m, 'Payment Link', 'Fee', b.Parent_Name)], patch: { Last_Reminder_At: nowIso() } };\n}\nfunction feeResult(i) {\n  const b = { ...(i.b || {}), _request_id: i.request_id }; const f = callFacts(i.details); const link = feeLink(i);\n  const r = cdm(i, { parent_response: 'string', promise_date: 'string' });\n  const promise = /^\\d{4}-\\d{2}-\\d{2}$/.test(S(r.promise_date)) ? S(r.promise_date) : '';\n  const patch = { Reminder_Count: (N(b.Reminder_Count) ?? 0) + 1, Last_Reminder_At: nowIso(), Parent_Response: f.answered ? S(r.parent_response) : 'No answer — payment link sent on WhatsApp', ...(promise ? { Promise_Date: promise } : {}) };\n  const late = (N(b.Days_Overdue) ?? 0) >= 15 && !promise;\n  const call = callRow(b, f, { Agent: 'Fee', Relation: 'Parent', Person: S(b.Parent_Name), Phone: S(b.Parent_Phone), Summary: S(r.parent_response), Needs_Followup: late ? 'Yes' : 'No',\n    Outcome: !f.answered ? 'No answer — link sent' : promise ? `Promised to pay by ${promise}` : 'No promise — link sent' });\n  const alerts = late ? [{ Raised_At: nowIso(), Title: `Fee overdue ${N(b.Days_Overdue)} days — ${S(b.Student_Name)} — ₹${N(b.Balance_INR) ?? ''}`, Detail: `${S(b.Parent_Name)}: ${f.answered ? S(r.parent_response) || 'no promise to pay' : 'did not answer the reminder call'}.`, Kind: 'Fee', Severity: 'CRITICAL', Student_ID: '', Lead_ID: '', Raised_By: 'flow:FEE_REMINDER', Owner: S(b.Director), Status: 'Open' }] : [];\n  return { ...link, patch, call, alerts };\n}\n\n// PARENT_UPDATE.weekly_report — 100 % of active parents, numbers from the record, no AI.\nconst SEND_REPORT = { to: 'Parent_Phone', template: { name: 'eduflow_weekly_report', variables: { 1: '{{Parent_Name}}', 2: '{{Name}}', 3: '{{Attendance_Pct}}', 4: '{{Last_Score}}', 5: '{{Class_Rank}}', 6: '{{Performance_Trend}}' } } };\nfunction weeklyReport(i) {\n  const b = i.b || {}; const m = renderMessage(SEND_REPORT, b, i.C || {});\n  return { to_e164: m.to_e164, variables: m.variables, messages: [messageRow(b, m, 'Weekly Report', 'Parent', b.Parent_Name)], patch: { Last_Report_At: nowIso() } };\n}\n// PARENT_UPDATE.update_call — status and escalation in code (owner, 3 Nov 2026).\nfunction parentResult(i) {\n  const b = { ...(i.b || {}), _request_id: i.request_id }; const f = callFacts(i.details);\n  const r = cdm(i, { sentiment: 'string', feedback: 'string', concern: 'string', needs_escalation: 'string' }, { sentiment: ['Happy', 'Neutral', 'Concerned', 'No Answer'], needs_escalation: ['Yes', 'No'] });\n  const sentiment = !f.answered ? 'No Answer' : r.sentiment || 'Neutral'; const esc = f.answered && r.needs_escalation === 'Yes'; const flag = sentiment === 'Concerned' || esc;\n  const status = sentiment === 'No Answer' ? 'No Answer' : esc ? 'Escalated' : 'Completed';\n  const director = teamOf(i.team, 'Director')[0]; const retry = yes(b.Is_Retry);\n  const call = callRow(b, f, { Agent: 'Parent', Relation: 'Parent', Person: S(b.Parent_Name), Phone: S(b.Parent_Phone), Status: status, Sentiment: sentiment, Summary: S(r.feedback), Concern: S(r.concern), Needs_Followup: flag ? 'Yes' : 'No',\n    Outcome: status === 'No Answer' ? (retry ? 'No answer twice — closed' : 'No answer — retry on Monday 5 PM') : flag ? 'Escalated to the director' : 'Update shared' });\n  const patch = { Parent_Sentiment: sentiment, Parent_Concern: S(r.concern), Last_Parent_Call_At: nowIso() };\n  const detail = `${S(b.Parent_Name)}: ${S(r.concern) || S(r.feedback) || 'concerned about progress'}`;\n  const alerts = flag ? [{ Raised_At: nowIso(), Title: `Parent Concern - ${S(b.Name)} - ${S(b.Course)}`, Detail: detail, Kind: 'Parent', Severity: 'HIGH', Student_ID: S(b.Student_ID), Lead_ID: '', Raised_By: 'flow:PARENT_UPDATE', Owner: S(director && director.Name), Status: 'Open' }] : [];\n  return { patch, call, alerts, staff: flag ? staffAlert(director, `Parent concern — ${S(b.Name)} (${S(b.Course)}). ${detail}`, 'Parent', b) : [], status };\n}\n\n// ── STUDENT_MANAGE.enrol — student, first fee, welcome WhatsApp; from a lead, the lead becomes Enrolled ──\nconst SEND_WELCOME = { to: 'Parent_Phone', template: { name: 'eduflow_welcome', variables: { 1: '{{Parent_Name}}', 2: '{{Name}}', 3: '{{Course}}', 4: '{{Batch}}' } } };\nfunction enrolBuild(i) {\n  const b = i.b || {};\n  return { row: { Student_ID: '', Enrolled_At: nowIso(), Name: S(b.Name), Student_Phone: S(b.Student_Phone || b.Phone), Parent_Name: S(b.Parent_Name), Parent_Phone: S(b.Parent_Phone), Course: S(b.Course), Batch: S(b.Batch),\n    Address: S(b.Address), Status: 'Active', Fee_Status: 'Due', Fee_Amount_INR: N(b.Fee_Amount_INR) ?? '', Fee_Due_Date: S(b.Fee_Due_Date), Counsellor: S(b.Counsellor) } };\n}\nfunction enrolNext(i) {\n  const b = i.b || {}; const st = list(i.saved)[0] || {}; const sid = S(st.Student_ID); const m = renderMessage(SEND_WELCOME, b, i.C || {});\n  const fees = N(b.Fee_Amount_INR) ? [{ Fee_ID: '', Created_At: nowIso(), Student_ID: sid, Student_Name: S(b.Name), Parent_Name: S(b.Parent_Name), Parent_Phone: S(b.Parent_Phone), Course: S(b.Course), Instalment: 1,\n    Amount_INR: N(b.Fee_Amount_INR), Paid_INR: 0, Due_Date: S(b.Fee_Due_Date), Days_Overdue: 0, Status: 'Upcoming', Reminder_Count: 0 }] : [];\n  return { Student_ID: sid, to_e164: m.to_e164, variables: m.variables, messages: [messageRow({ ...b, Student_ID: sid }, m, 'Welcome', 'Office', b.Parent_Name)], fees, leads: S(b.Lead_ID) ? [{ Lead_ID: S(b.Lead_ID), Stage: 'Enrolled' }] : [] };\n}\n\n// ── SEND_WHATSAPP.send_update — the reviewed text to one parent (the app filled `To` from the student record, D6) ──\nconst SEND_UPDATE = { to: 'To', template: { name: 'eduflow_general_update', variables: { 1: '{{Parent_Name}}', 2: '{{Name}}', 3: '{{Message}}' } } };\nfunction updateBuild(i) {\n  const b = i.b || {}; const m = renderMessage(SEND_UPDATE, b, i.C || {});\n  return { to_e164: m.to_e164, variables: m.variables, messages: [messageRow(b, m, 'General Update', 'Office', b.Parent_Name)] };\n}\n\n// ── schedules: read the app's rows, decide in code, post one call per target to the action flow ──\nfunction post(C, action, who, row) { return { action, _who: `flow:${who}`, app_url: C.app_url, inbound_token: C.inbound_token, company_name: C.company_name, ...row }; }\nconst pick = (r, keys) => Object.fromEntries(keys.map((k) => [k, r[k] === undefined || r[k] === null ? '' : r[k]]));\n\n// FEE_RUN (daily 10:00) — Days_Overdue and Due → Overdue; a call on day 1, 7 and 15 overdue; the link 3 days before Due_Date.\nfunction feeRun(i) {\n  const C = i.C || {}; const today = S(C.today_override) || istDate(); const director = S((teamOf(i.team, 'Director')[0] || {}).Name);\n  const patches = [], remind = [], link = [];\n  for (const f of list(i.fees)) {\n    const bal = N(f.Balance_INR) ?? ((N(f.Amount_INR) ?? 0) - (N(f.Paid_INR) ?? 0)); if (S(f.Status) === 'Paid' || bal <= 0 || !S(f.Due_Date)) continue;\n    const late = Math.max(0, dayDiff(today, S(f.Due_Date).slice(0, 10)));\n    const status = late > 0 ? 'Overdue' : S(f.Status) === 'Partial' ? 'Partial' : dayDiff(S(f.Due_Date).slice(0, 10), today) <= 7 ? 'Due' : S(f.Status) || 'Upcoming';\n    if ((N(f.Days_Overdue) ?? 0) !== late || S(f.Status) !== status) patches.push({ Fee_ID: S(f.Fee_ID), Days_Overdue: late, Status: status });\n    const row = { ...pick(f, ['Fee_ID', 'Student_Name', 'Parent_Name', 'Parent_Phone', 'Course', 'Due_Date', 'Payment_Link', 'Reminder_Count']), Balance_INR: bal, Days_Overdue: late, Director: director };\n    if ([1, 7, 15].includes(late)) remind.push(post(C, 'remind', 'FEE_RUN', row));\n    else if (dayDiff(S(f.Due_Date).slice(0, 10), today) === 3) link.push(post(C, 'send_link', 'FEE_RUN', row));\n  }\n  return { patches, posts: [...remind, ...link], remind: remind.length, link: link.length, today };\n}\n\n// ACADEMIC_RUN (Monday 11:00) — attendance < 75 or last score < 60, worst first, at most 50.\nfunction academicRun(i) {\n  const C = i.C || {}; const worst = (s) => Math.min(N(s.Attendance_Pct) ?? 100, N(s.Last_Score) ?? 100);\n  const due = list(i.students).filter((s) => active(s) && ((N(s.Attendance_Pct) ?? 100) < 75 || (N(s.Last_Score) ?? 100) < 60)).sort((a, b) => worst(a) - worst(b)).slice(0, N(C.max_calls) ?? 50);\n  return { posts: due.map((s) => post(C, 'counsel', 'ACADEMIC_RUN', pick(s, ['Student_ID', 'Name', 'Student_Phone', 'Course', 'Attendance_Pct', 'Last_Score', 'Weak_Subjects', 'Mentor']))), count: due.length };\n}\n\n// PARENT_RUN (Friday and Monday 17:00 IST) — Friday: report to every active parent, a call only for at-risk students; Monday: one retry.\nfunction parentRun(i) {\n  const C = i.C || {}; const day = C.force_weekday !== undefined && C.force_weekday !== '' ? Number(C.force_weekday) : istWeekday(); const today = istDate();\n  const keys = ['Student_ID', 'Name', 'Parent_Name', 'Parent_Phone', 'Course', 'Attendance_Pct', 'Last_Score', 'Class_Rank', 'Performance_Trend', 'Strong_Subjects', 'Weak_Subjects'];\n  const students = list(i.students).filter(active); const byId = new Map(students.map((s) => [S(s.Student_ID), s]));\n  const risky = (s) => ['At Risk', 'Critical'].includes(S(s.Status)) || (N(s.Attendance_Pct) ?? 100) < 75 || (N(s.Last_Score) ?? 100) < 60;\n  if (day === 5) return { reports: students.map((s) => post(C, 'weekly_report', 'PARENT_RUN', { ...pick(s, keys), Is_Retry: 'No' })), calls: students.filter(risky).map((s) => post(C, 'update_call', 'PARENT_RUN', { ...pick(s, keys), Is_Retry: 'No' })), retried: [], day: 'Friday' };\n  if (day !== 1) return { reports: [], calls: [], retried: [], day: 'not a run day' };\n  const friday = istDate(Date.now() - 3 * 864e5);\n  const missed = list(i.calls).filter((c) => S(c.Agent) === 'Parent' && S(c.Status) === 'No Answer' && !S(c.Retry_At) && istDate(Date.parse(S(c.Called_At)) || 0) === friday && byId.has(S(c.Student_ID)));\n  return { reports: [], calls: missed.map((c) => post(C, 'update_call', 'PARENT_RUN', { ...pick(byId.get(S(c.Student_ID)), keys), Is_Retry: 'Yes' })), retried: missed.map((c) => ({ Call_ID: S(c.Call_ID), Retry_At: nowIso() })), day: `Monday (${today})` };\n}\n\n// ROLLUP (01:30 daily) — per student from attendance + tests; Status; Fee_Status; alerts without duplicates while one is open.\nfunction rollup(i) {\n  const today = istDate(); const from = istDate(Date.now() - 29 * 864e5); const att = list(i.attendance), tests = list(i.tests), fees = list(i.fees);\n  const open = new Set(list(i.alerts).filter((a) => S(a.Status) !== 'Resolved').map((a) => `${S(a.Kind)}|${S(a.Student_ID) || S(a.Lead_ID)}`));\n  const stats = list(i.students).filter(active).map((s) => {\n    const id = S(s.Student_ID); const a = att.filter((r) => S(r.Student_ID) === id && S(r.Date).slice(0, 10) >= from);\n    const ts = tests.filter((t) => S(t.Student_ID) === id && S(t.Status) !== 'Absent' && N(t.Score_Pct) !== null).sort((x, y) => S(x.Test_Date).localeCompare(S(y.Test_Date)));\n    const pct = ts.map((t) => N(t.Score_Pct)); const avg = pct.length ? Math.round(pct.reduce((x, y) => x + y, 0) / pct.length) : null;\n    const last3 = pct.slice(-3); const trend = last3.length < 2 ? 'Stable' : last3[last3.length - 1] - last3[0] >= 5 ? 'Improving' : last3[0] - last3[last3.length - 1] >= 5 ? 'Declining' : 'Stable';\n    const subj = {}; for (const t of ts) (subj[S(t.Subject)] ||= []).push(N(t.Score_Pct)); const ranked = Object.entries(subj).map(([k, v]) => [k, v.reduce((x, y) => x + y, 0) / v.length]).sort((x, y) => y[1] - x[1]);\n    const attPct = a.length ? Math.round(a.filter((r) => S(r.Status) === 'Present').length * 100 / a.length) : (N(s.Attendance_Pct) ?? null);\n    const due = fees.filter((f) => S(f.Student_ID) === id && S(f.Status) !== 'Paid'); const worstLate = Math.max(0, ...due.map((f) => N(f.Days_Overdue) ?? 0));\n    const status = (attPct ?? 100) < 60 || (avg ?? 100) < 40 ? 'Critical' : (attPct ?? 100) < 75 || (avg ?? 100) < 60 ? 'At Risk' : 'Active';\n    return { s, id, patch: { Student_ID: id, Attendance_Pct: attPct ?? '', Last_Score: pct.length ? pct[pct.length - 1] : '', Avg_Score: avg ?? '', Performance_Trend: trend, Strong_Subjects: ranked.filter((x) => x[1] >= 75).map((x) => x[0]).join(', '),\n      Weak_Subjects: ranked.filter((x) => x[1] < 60).map((x) => x[0]).join(', '), Status: status, Fee_Status: !due.length ? 'Paid' : due.some((f) => S(f.Status) === 'Overdue') ? 'Overdue' : 'Due' }, worstLate };\n  });\n  for (const x of stats) { const peers = stats.filter((y) => S(y.s.Course) === S(x.s.Course) && S(y.s.Batch) === S(x.s.Batch) && y.patch.Avg_Score !== '').sort((p, q) => q.patch.Avg_Score - p.patch.Avg_Score); x.patch.Class_Rank = x.patch.Avg_Score === '' ? '' : peers.indexOf(x) + 1; }\n  const alerts = []; const add = (kind, id, row) => { if (!open.has(`${kind}|${id}`)) { open.add(`${kind}|${id}`); alerts.push({ Raised_At: nowIso(), Lead_ID: '', Student_ID: '', Raised_By: 'flow:ROLLUP', Owner: '', Status: 'Open', Kind: kind, ...row }); } };\n  for (const x of stats) {\n    if (x.patch.Attendance_Pct !== '' && x.patch.Attendance_Pct < 75) add('Attendance', x.id, { Student_ID: x.id, Severity: 'HIGH', Title: `Attendance ${x.patch.Attendance_Pct}% — ${S(x.s.Name)}`, Detail: `Last 30 days, ${S(x.s.Course)} · ${S(x.s.Batch)}.`, Owner: S(x.s.Mentor) });\n    if (x.worstLate >= 15) add('Fee', x.id, { Student_ID: x.id, Severity: 'CRITICAL', Title: `Fee overdue ${x.worstLate} days — ${S(x.s.Name)}`, Detail: 'Reminder calls have not cleared it.' });\n  }\n  for (const l of list(i.leads)) if (S(l.Grade) === 'HOT' && !['Enrolled', 'Lost'].includes(S(l.Stage)) && S(l.Next_Followup_At) && S(l.Next_Followup_At).slice(0, 10) < today)\n    add('Lead', S(l.Lead_ID), { Lead_ID: S(l.Lead_ID), Severity: 'MEDIUM', Title: `HOT lead past 48 h — ${S(l.Name)}`, Detail: `${S(l.Course)} · follow-up was due ${S(l.Next_Followup_At).slice(0, 10)}.`, Owner: S(l.Assigned_To) });\n  return { patches: stats.map((x) => x.patch), alerts, students: stats.length, today };\n}\n// end lib\nexport const code = async (inputs) => feeLink(inputs);",
                   "packageJson": "{}"
                 },
                 "errorHandlingOptions": {
@@ -328,14 +683,14 @@
                 "settings": {
                   "input": {
                     "account_id": "{{step_constants['whatsapp_account_id']}}",
-                    "to": "{{step_send_link_message['to_e164']}}",
-                    "template_id": "{{step_constants['whatsapp_templates']['send_link']}}",
+                    "to": "{{step_send_link_build['to_e164']}}",
+                    "template_id": "{{step_constants['whatsapp_templates']['fee_payment_link']}}",
                     "template_variables": {
-                      "1": "{{step_send_link_message['variables']['1']}}",
-                      "2": "{{step_send_link_message['variables']['2']}}",
-                      "3": "{{step_send_link_message['variables']['3']}}",
-                      "4": "{{step_send_link_message['variables']['4']}}",
-                      "5": "{{step_send_link_message['variables']['5']}}"
+                      "1": "{{step_send_link_build['variables']['1']}}",
+                      "2": "{{step_send_link_build['variables']['2']}}",
+                      "3": "{{step_send_link_build['variables']['3']}}",
+                      "4": "{{step_send_link_build['variables']['4']}}",
+                      "5": "{{step_send_link_build['variables']['5']}}"
                     }
                   },
                   "pieceName": "@puchoaistudio/tool-pucho-whatsapp",
@@ -362,22 +717,24 @@
                       "value": false
                     },
                     "continueOnFailure": {
-                      "value": false
+                      "value": true
                     }
                   }
                 },
                 "nextAction": {
-                  "name": "step_send_link_build",
+                  "name": "step_send_link_after",
                   "skip": false,
                   "type": "CODE",
                   "valid": true,
                   "settings": {
                     "input": {
-                      "b": "{{trigger['body']}}"
+                      "sent": "{{step_send_link_send}}",
+                      "messages": "{{step_send_link_build['messages']}}",
+                      "patch": "{{step_send_link_build['patch']}}"
                     },
                     "sampleData": {},
                     "sourceCode": {
-                      "code": "// @ts-nocheck\nexport const code = async (inputs) => {\n  const p0 = { ...(inputs.b || {}) }; const JEVP = {}; for (const k of Object.keys(inputs)) if (k.indexOf('jev_') === 0 && k.slice(-11) !== '_confidence') { const f = k.slice(4), v = inputs[k], conf = Number(inputs[k + '_confidence']); const pol = JEVP[f] || [0.5, null]; if (v !== undefined && v !== '' && (isNaN(conf) || conf >= pol[0])) p0[f] = v; else if (pol[1] !== null && pol[1] !== undefined) p0[f] = pol[1]; } /* a Jev answer lands only when confident; else the fallback */ const now = new Date().toISOString();\n  const p = { ...p0 }; for (const [k, c] of Object.entries({})) if (p0[k] !== undefined) p[c] = p0[k];\n  const allowed = [\"Fee_ID\", \"Created_At\", \"Student_ID\", \"Student_Name\", \"Parent_Name\", \"Parent_Phone\", \"Course\", \"Instalment\", \"Amount_INR\", \"Paid_INR\", \"Balance_INR\", \"Due_Date\", \"Days_Overdue\", \"Status\", \"Reminder_Count\", \"Last_Reminder_At\", \"Payment_Link\", \"Promise_Date\", \"Parent_Response\", \"Paid_At\", \"Payment_Mode\", \"Receipt_No\"];\n  const patch = {}; for (const k of allowed) if (p[k] !== undefined && p[k] !== null && p[k] !== '') patch[k] = p[k];\n  patch[\"Last_Reminder_At\"] = now;\n  if (p.Stage && ['Won','Lost','Closed'].includes(p.Stage) && !p.Close_Reason) return { ok: 'false', error: 'Close_Reason required' };\n  return { ok: 'true', patch, id: p[allowed[0]] || '' };\n};",
+                      "code": "// @ts-nocheck\n// lib: app/src/lib/renderMessage.js + flowkit cdmFields + tools/eduflow/flowlib.mjs, copied verbatim — edit those files, rebuild\n// src/lib/renderMessage.js — a client message from a fixed template (os.yaml `sends.message`), rule zero: the words\n// are the firm's, the values are the record's, no model is involved. ONE source: the app imports it to show what a\n// simulated send would have said, and build_flows.py embeds this same file in the flow's CODE node, so the wired flow\n// and the simulation can never word a message differently. Plain JS, no imports — it must run inside Studio as is.\n//   send = { to: <payload key>, lang: <payload key>, message: { en, hi, mr, … }, words: { hi: { Adjourned: '…' } }, template: { name, variables: { '1': '{{Col}}' } } }\n//   {{Key}} → the payload value · {{constants.x}} → the flow constant · [[ … ]] → dropped when any value inside is empty\n//   dates (YYYY-MM-DD or ISO) → \"Thu, 2 Oct 2026\" / \"Thu, 2 Oct 2026, 4:30 pm\" in IST · phone → digits with 91 prefix\nexport function renderMessage(send, vars, constants) {\n  const LANG = { english: 'en', en: 'en', hindi: 'hi', hi: 'hi', marathi: 'mr', mr: 'mr', gujarati: 'gu', gu: 'gu', tamil: 'ta', ta: 'ta', telugu: 'te', te: 'te', kannada: 'kn', kn: 'kn', bengali: 'bn', bn: 'bn', malayalam: 'ml', ml: 'ml', punjabi: 'pa', pa: 'pa' };\n  const msg = (send && send.message) || {};\n  const asked = LANG[String((vars || {})[send.lang] || '').trim().toLowerCase()] || 'en';\n  const lang = msg[asked] ? asked : (msg.en ? 'en' : Object.keys(msg)[0]);\n  const words = ((send.words || {})[lang]) || {};\n  const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];\n  const date = (v) => {\n    const only = /^\\d{4}-\\d{2}-\\d{2}$/.test(v);\n    const t = only ? Date.UTC(+v.slice(0, 4), +v.slice(5, 7) - 1, +v.slice(8, 10)) : Date.parse(v) + 330 * 60000;   // IST without Intl\n    if (isNaN(t)) return v; const d = new Date(t);\n    let s = `${DAYS[d.getUTCDay()]}, ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;\n    if (!only) { const h = d.getUTCHours(), m = d.getUTCMinutes(); s += `, ${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`; }\n    return s;\n  };\n  const val = (k) => {\n    let v = k.indexOf('constants.') === 0 ? (constants || {})[k.slice(10)] : (vars || {})[k];\n    if (v === undefined || v === null) return '';\n    v = String(v).trim();\n    if (/^\\d{4}-\\d{2}-\\d{2}([T ][\\d:.]+(Z|[+-]\\d{2}:?\\d{2})?)?$/.test(v)) v = date(v);\n    return words[v] !== undefined ? words[v] : v;\n  };\n  const fill = (s) => s.replace(/\\{\\{\\s*([\\w.]+)\\s*\\}\\}/g, (_, k) => val(k));\n  let text = String(msg[lang] || '')\n    .replace(/\\[\\[([\\s\\S]*?)\\]\\]/g, (_, part) => (part.match(/\\{\\{\\s*([\\w.]+)\\s*\\}\\}/g) || []).every((p) => val(p.replace(/[{}\\s]/g, '')) !== '') ? part : '');\n  text = fill(text).replace(/[ \\t]{2,}/g, ' ').replace(/ +([.,।])/g, '$1').trim();\n  const digits = String((vars || {})[send.to] || '').replace(/\\D/g, '');\n  const to = digits.length === 10 ? '91' + digits : digits;\n  // v4.4 — an approved WhatsApp template (os.yaml `sends.template`): the words live on whatsapp.pucho.ai, the flow fills only the\n  // variables, each a {{Column}} template rendered the same way as a message. `to_e164` is the `+91…` form pucho-whatsapp takes.\n  const tpl = send && send.template; const variables = {};\n  if (tpl && tpl.variables) for (const k of Object.keys(tpl.variables)) variables[k] = fill(String(tpl.variables[k])).trim();\n  return { to, to_e164: to ? '+' + to : '', lang, text, template: tpl ? (tpl.name || '') : '', variables };\n}\nfunction cdmNum(s, integer) { const t = String(s).replace(/₹|\\b(?:rs\\.?|inr)(?![a-z])/gi, ' ').trim(); if (/0x[0-9a-f]/i.test(t) || /\\d\\s*e\\s*[+-]?\\d/i.test(t) || /\\d\\.\\d{3},\\d/.test(t) || /\\d\\.\\d+\\.\\d/.test(t)) return null; const m = t.match(/-?\\d[\\d,]*(\\.\\d+)?/); if (!m) return null; let x = Number(m[0].replace(/,/g, '')); if (!isFinite(x)) return null; const u = t.slice(m.index + m[0].length).trim().toLowerCase().match(/^(thousand|k|lakhs?|lacs?|l|crores?|cr|million|mn)(?![a-z])/); if (u) x = x * (/^(thousand|k)$/.test(u[1]) ? 1e3 : /^(million|mn)$/.test(u[1]) ? 1e6 : /^(lakhs?|lacs?|l)$/.test(u[1]) ? 1e5 : 1e7); x = parseFloat(x.toPrecision(15)); return integer && !Number.isInteger(x) ? null : x; }\nfunction cdmBool(s) { const t = String(s).trim().toLowerCase().replace(/[.!?।]+$/, ''); if (['yes', 'y', 'true', '1', 'haan', 'हाँ', 'हां', 'હા'].includes(t)) return true; if (['no', 'n', 'false', '0', 'nahi', 'नहीं', 'ना', 'ના'].includes(t)) return false; return null; }\nfunction cdmChoice(s, ch) { const t = String(s).trim().toLowerCase(); const L = ch.map((c) => [c, String(c).toLowerCase()]); const exact = L.find((x) => x[1] === t); if (exact) return exact[0]; const esc = (x) => x.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&'); const inSpan = L.filter((x) => new RegExp('(^|[^a-z0-9])' + esc(x[1]) + '([^a-z0-9]|$)').test(t)).sort((a, b) => b[1].length - a[1].length); if (inSpan.length) return inSpan[0][0]; const inChoice = t.length >= 2 ? L.find((x) => x[1].includes(t)) : null; return inChoice ? inChoice[0] : null; }\nfunction cdmFields(fields, decl, conf, choices) { if (typeof fields === 'string') { try { fields = JSON.parse(fields); } catch (e) { fields = null; } } const ents = fields && Array.isArray(fields.entities) ? fields.entities : null; const keys = Object.keys(decl); const out = Object.create(null); for (const k of keys) out[k] = null; if (!ents) { out._parse_error = 'true'; if (conf) out[conf] = 0; out.fields_found = 0; out.fields_total = keys.length; return out; } const best = Object.create(null); for (const e of ents) { if (!e || !Object.prototype.hasOwnProperty.call(decl, e.type) || e.text === undefined || e.text === null || String(e.text).trim() === '') continue; const c = Number(e.confidence) || 0; if (!best[e.type] || c > best[e.type].c) best[e.type] = { v: String(e.text).trim(), c }; } const cs = []; for (const k of keys) { const b = best[k]; if (!b) continue; const t = decl[k]; const ch = choices && Array.isArray(choices[k]) && choices[k].length ? choices[k] : null; const v = (t === 'integer' || t === 'number') ? cdmNum(b.v, t === 'integer') : t === 'boolean' ? cdmBool(b.v) : ch ? cdmChoice(b.v, ch) : b.v; if (v === null) continue; out[k] = v; cs.push(b.c); } if (conf) out[conf] = cs.length ? Math.min(...cs) : 0; out.fields_found = cs.length; out.fields_total = keys.length; return out; }\n// tools/eduflow/flowlib.mjs — every rule the EduFlow Studio flows run in their CODE steps (method/ai-pipeline.md, the custom path).\n// Rule zero: a model only reads a call transcript (Pucho CDM); grades, statuses, counts, dates, owners and every row are code here.\n// tools/build_eduflow_flows.py copies this file VERBATIM into each CODE step (inside the lib / end-lib markers), so the flow runs\n// exactly what tests/eduflow-flowlib.test.mjs and flow_sim test. Plain JS, no imports — it must run inside Studio as is.\n// Each CODE step calls ONE function with the node's inputs: b = the trigger body, C = the constants step, the rest named per step.\n// Uses renderMessage (app/src/lib/renderMessage.js) and cdmFields (flowkit) — the builder puts both above this file.\n\nconst S = (v) => (v === undefined || v === null ? '' : String(v)).trim();\nconst N = (v) => { if (v === '' || v === null || v === undefined) return null; const x = Number(String(v).replace(/[,%₹\\s]/g, '')); return Number.isFinite(x) ? x : null; };\nconst list = (v) => { if (Array.isArray(v)) return v; if (v && Array.isArray(v.body)) return v.body; if (typeof v === 'string') { try { const x = JSON.parse(v); return Array.isArray(x) ? x : []; } catch (e) { return []; } } return []; };\nconst nowIso = () => new Date().toISOString();\nconst istDate = (ms = Date.now()) => new Date(ms + 330 * 60000).toISOString().slice(0, 10);   // IST calendar day, no Intl\nconst istWeekday = (ms = Date.now()) => new Date(ms + 330 * 60000).getUTCDay();               // 0 Sun … 5 Fri\nconst dayDiff = (a, b) => Math.round((Date.parse(`${a}T00:00:00Z`) - Date.parse(`${b}T00:00:00Z`)) / 864e5);   // a − b in days\nconst yes = (v) => /^(yes|true|1|haan)$/i.test(S(v));\nconst e164 = (v) => { const d = S(v).replace(/\\D/g, ''); return d ? '+' + (d.length === 10 ? '91' + d : d) : ''; };\nconst active = (r) => S(r.Status) !== 'Inactive';\nconst teamOf = (team, role, course) => list(team).filter((m) => S(m.Role) === role && String(m.Active) !== 'false' && (!course || /^all$/i.test(S(m.Courses)) || S(m.Courses).split(',').map((x) => x.trim()).includes(course)));\n\n// A send step runs with continueOnFailure: it answers either the provider's reply or an error (⚑ UNVERIFIED shape, rules §1.20 #5).\nfunction sendOk(r) { return !!r && typeof r === 'object' && !r.error && !r.errorMessage && r.success !== false && !(Number(r.statusCode) >= 400) && !(Number(r.status) >= 400); }\n\n// getCallDetails (⚑ UNVERIFIED shape, G1): the transcript, duration and outcome, read defensively from whichever keys the agent returns.\nfunction callFacts(d) {\n  const x = (d && typeof d === 'object' && (d.apiResponse?.data || d.data || d)) || {};\n  const msgs = Array.isArray(x.messages) ? x.messages.map((m) => `${m.role || m.speaker || ''}: ${m.message || m.content || m.text || ''}`).join('\\n') : '';\n  const transcript = S(x.transcript ?? x.transcription ?? x.call_transcript ?? msgs);\n  const duration = Math.max(0, Math.round(N(x.duration ?? x.durationSec ?? x.call_duration ?? x.duration_seconds) ?? 0));\n  const status = S(x.status ?? x.call_status ?? x.endedReason ?? x.ended_reason).toLowerCase();\n  const answered = transcript.length > 20 && !/no.?answer|busy|fail|not.?answered|voicemail|unreachable/.test(status);\n  return { transcript: transcript.slice(0, 20000), duration, answered, status };\n}\n\n// One WhatsApp template to a staff member: the row the loop sends + the messages row it logs (eduflow_staff_alert: 1 name · 2 text).\nfunction staffAlert(member, text, agent, b) {\n  const to = e164(member && member.Phone); if (!to) return [];\n  return [{ to_e164: to, variables: { 1: S(member.Name), 2: text.slice(0, 900) },\n    message: { Sent_At: nowIso(), To_Name: S(member.Name), To_Phone: to, Type: 'Staff Alert', Agent: agent, Template: 'eduflow_staff_alert', Preview: text.slice(0, 300), Status: 'Sent', Student_ID: S(b.Student_ID), Lead_ID: S(b.Lead_ID) } }];\n}\nfunction messageRow(b, m, type, agent, to_name, extra = {}) {\n  const preview = Object.values(m.variables || {}).filter(Boolean).join(' · ');\n  return { Sent_At: nowIso(), To_Name: S(to_name), To_Phone: m.to_e164, Type: type, Agent: agent, Template: m.template, Preview: preview.slice(0, 300), Status: 'Queued', Student_ID: S(b.Student_ID), Lead_ID: S(b.Lead_ID), ...extra };\n}\n// After the send: the message row's Status is what the provider answered (Sent / Failed).\nfunction afterSend(i) {\n  const ok = sendOk(i.sent); const st = ok ? 'Sent' : 'Failed';\n  return { ok: ok ? 'true' : 'false', status: st, messages: list(i.messages).map((m) => ({ ...m, Status: st })), patch: i.patch || {}, fees: list(i.fees), leads: list(i.leads) };\n}\n\n// ── ABSENCE.absent — the formal notice; a repeat absence also alerts the counsellor (no call, owner 3 Nov 2026) ──\nconst SEND_ABSENCE = { to: 'Parent_Phone', template: { name: 'eduflow_absence_alert', variables: { 1: '{{Parent_Name}}', 2: '{{Name}}', 3: '{{Batch}}', 4: '{{Date}}' } } };\nfunction absenceBuild(i) {\n  const b = i.b || {}; const m = renderMessage(SEND_ABSENCE, b, i.C || {});\n  const follow = yes(b.Needs_Followup); const counsellor = teamOf(i.team, 'Counsellor', S(b.Course))[0];\n  const text = `${S(b.Name)} (${S(b.Course)}, ${S(b.Batch)}) is absent ${N(b.Absences_This_Week) || 2} times this week — please call the parent.`;\n  const alerts = follow ? [{ Raised_At: nowIso(), Title: `Absent ${N(b.Absences_This_Week) || 2} times this week — ${S(b.Name)}`, Detail: text, Kind: 'Attendance', Severity: 'HIGH', Student_ID: S(b.Student_ID), Lead_ID: '', Raised_By: 'flow:ABSENCE', Owner: S(counsellor && counsellor.Name), Status: 'Open' }] : [];\n  return { to_e164: m.to_e164, variables: m.variables, messages: [messageRow(b, m, 'Absence Alert', 'Attendance', b.Parent_Name)], alerts, staff: follow ? staffAlert(counsellor, text, 'Attendance', b) : [] };\n}\nfunction absenceAfter(i) {\n  const a = afterSend(i); return { ...a, patch: { Call_Status: a.ok === 'true' ? 'WhatsApp Sent' : 'Failed' } };   // Delivered comes from the delivery callback (G5)\n}\n\n// ── ATTENDANCE.save_batch — the session head, its lines, then one ABSENCE.absent per absentee (never a present student) ──\nfunction attendanceSession(i) {\n  const b = i.b || {};\n  return { row: { Session_ID: '', Date: S(b.Date), Batch: S(b.Batch), Total_Count: N(b.Total_Count) ?? 0, Present_Count: N(b.Present_Count) ?? 0, Absent_Count: N(b.Absent_Count) ?? 0, Absentees: S(b.Absentees), Marked_By: S(b.Marked_By || b._who), Saved_At: nowIso() } };\n}\nfunction attendanceLines(i) {\n  const sid = S((list(i.head)[0] || {}).Session_ID); const cols = ['Date', 'Batch', 'Student_ID', 'Name', 'Course', 'Parent_Name', 'Parent_Phone', 'Status', 'Absences_This_Week', 'Absences_This_Month', 'Call_Status', 'Needs_Followup', 'Followup_Done', 'Marked_By'];\n  const rows = list((i.b || {}).lines).map((l) => { const r = { Att_ID: '', Session_ID: sid }; for (const c of cols) r[c] = l[c] === undefined ? '' : l[c]; return r; });\n  return { rows, count: rows.length, Session_ID: sid };\n}\nfunction attendanceAbsentees(i) {\n  const C = i.C || {}; const saved = list(i.saved).filter((r) => S(r.Status) === 'Absent');\n  const posts = saved.map((r) => ({ action: 'absent', _who: 'flow:ATTENDANCE', app_url: C.app_url, inbound_token: C.inbound_token, company_name: C.company_name,\n    Att_ID: S(r.Att_ID), Date: S(r.Date), Batch: S(r.Batch), Student_ID: S(r.Student_ID), Name: S(r.Name), Course: S(r.Course), Parent_Name: S(r.Parent_Name), Parent_Phone: S(r.Parent_Phone),\n    Absences_This_Week: N(r.Absences_This_Week) ?? 1, Needs_Followup: S(r.Needs_Followup) || 'No' }));\n  return { posts, absent: posts.length };\n}\n\n// ── the four call agents: one CDM read of the transcript → code decides everything else ──\nfunction cdm(i, decl, choices) { return cdmFields(i.ai_fields, decl, null, choices || {}); }\nfunction callRow(b, f, extra) {\n  return { Call_ID: '', Called_At: nowIso(), Lead_ID: S(b.Lead_ID), Student_ID: S(b.Student_ID), Course: S(b.Course), Status: f.answered ? 'Completed' : 'No Answer', Duration_Sec: f.duration, Request_ID: S(b._request_id),\n    Transcript: f.transcript, Outcome: '', Summary: '', Grade: '', Score: '', Sentiment: '', Concern: '', Issue_Type: '', Reason: '', Category: '', Needs_Followup: 'No', Retry_At: '', ...extra };\n}\n\n// ADMISSION_CALL.new_lead / call — HOT needs grade HOT and score ≥ 80 (else WARM); HOT → follow-up in 48 h and the counsellor alerted.\nfunction admissionResult(i) {\n  const b = { ...(i.b || {}), _request_id: i.request_id }; const f = callFacts(i.details);\n  const r = cdm(i, { grade: 'string', score: 'number', summary: 'string', next_action: 'string' }, { grade: ['HOT', 'WARM', 'COLD'] });\n  const score = Math.max(0, Math.min(100, Math.round(N(r.score) ?? 0)));\n  const grade = !f.answered ? 'Not graded' : r.grade === 'HOT' && score >= 80 ? 'HOT' : r.grade === 'COLD' ? 'COLD' : 'WARM';\n  const hot = grade === 'HOT'; const course = S(b.Course);\n  const open = (n) => list(i.leads).filter((l) => S(l.Assigned_To) === n && S(l.Grade) === 'HOT' && !['Enrolled', 'Lost'].includes(S(l.Stage))).length;\n  const pool = teamOf(i.team, 'Counsellor', course).sort((x, y) => open(x.Name) - open(y.Name));\n  const counsellor = list(i.team).find((m) => S(m.Name) === S(b.Assigned_To)) || (hot ? pool[0] : null);\n  const lead = { Stage: f.answered ? 'Called' : 'New', Grade: grade, Score: f.answered ? score : '', AI_Summary: S(r.summary), Next_Action: S(r.next_action), Call_Status: f.answered ? 'Completed' : 'No Answer',\n    Last_Called_At: nowIso(), Transcript: f.transcript, Assigned_To: S(b.Assigned_To) || (hot && counsellor ? S(counsellor.Name) : ''), Next_Followup_At: hot ? new Date(Date.now() + 48 * 3600e3).toISOString() : '' };\n  const row = { Lead_ID: S(b.Lead_ID), Created_At: nowIso(), Name: S(b.Name), Phone: S(b.Phone), Email: S(b.Email), Course: course, Source: S(b.Source), Notes: S(b.Notes), Lost_Reason: '', ...lead };\n  const call = callRow(b, f, { Agent: 'Admission', Relation: 'Lead', Person: S(b.Name), Phone: S(b.Phone), Grade: f.answered ? grade : '', Score: f.answered ? score : '', Summary: S(r.summary),\n    Outcome: !f.answered ? 'No answer — call again in 2 hours' : hot ? `Graded HOT — ${counsellor ? S(counsellor.Name) : 'counsellor'} alerted` : `Graded ${grade}` });\n  const staff = hot ? staffAlert(counsellor, `HOT lead: ${S(b.Name)} (${course}, ${S(b.Phone)}) — score ${score}. ${S(r.next_action)}`, 'Admission', b) : [];\n  return { lead, row, call, staff, grade, answered: f.answered ? 'true' : 'false' };\n}\n\n// ACADEMIC_CALL.counsel — the student's issue; a mentor / counsellor is alerted only when the call says so.\nfunction academicResult(i) {\n  const b = { ...(i.b || {}), _request_id: i.request_id }; const f = callFacts(i.details);\n  const r = cdm(i, { issue_type: 'string', main_issue: 'string', needs_mentor: 'string', needs_counsellor: 'string' }, { issue_type: ['ACADEMIC', 'PERSONAL', 'ATTENDANCE', 'FINANCIAL', 'OTHER'], needs_mentor: ['Yes', 'No'], needs_counsellor: ['Yes', 'No'] });\n  const mentor = list(i.team).find((m) => S(m.Name) === S(b.Mentor)) || teamOf(i.team, 'Mentor', S(b.Course))[0]; const counsellor = teamOf(i.team, 'Counsellor', S(b.Course))[0];\n  const wantM = f.answered && r.needs_mentor === 'Yes'; const wantC = f.answered && r.needs_counsellor === 'Yes';\n  const text = `${S(b.Name)} (${S(b.Course)}; attendance ${N(b.Attendance_Pct) ?? '—'}%, last test ${N(b.Last_Score) ?? '—'}%): ${S(r.main_issue) || 'needs a session'}.`;\n  const patch = f.answered ? { Issue_Type: r.issue_type || 'OTHER', Main_Issue: S(r.main_issue), Last_Counselled_At: nowIso() } : { Last_Counselled_At: nowIso() };\n  const call = callRow(b, f, { Agent: 'Academic', Relation: 'Student', Person: S(b.Name), Phone: S(b.Student_Phone), Issue_Type: f.answered ? (r.issue_type || 'OTHER') : '', Summary: S(r.main_issue),\n    Needs_Followup: wantM || wantC ? 'Yes' : 'No', Outcome: !f.answered ? 'No answer' : wantM || wantC ? `Alerted ${[wantM && 'mentor', wantC && 'counsellor'].filter(Boolean).join(' and ')}` : 'Counselled' });\n  const alerts = wantM || wantC ? [{ Raised_At: nowIso(), Title: `Academic support — ${S(b.Name)} — ${S(b.Course)}`, Detail: text, Kind: 'Academic', Severity: wantM && wantC ? 'HIGH' : 'MEDIUM', Student_ID: S(b.Student_ID), Lead_ID: '', Raised_By: 'flow:ACADEMIC_CALL', Owner: S((wantM ? mentor : counsellor)?.Name), Status: 'Open' }] : [];\n  return { patch, call, alerts, staff: [...(wantM ? staffAlert(mentor, text, 'Academic', b) : []), ...(wantC ? staffAlert(counsellor, text, 'Academic', b) : [])] };\n}\n\n// FEE_REMINDER.remind — the call, then always the payment-link WhatsApp; day 15+ with no promise → a CRITICAL alert to the director.\nconst SEND_LINK = { to: 'Parent_Phone', template: { name: 'eduflow_fee_payment_link', variables: { 1: '{{Parent_Name}}', 2: '{{Student_Name}}', 3: '{{Balance_INR}}', 4: '{{Due_Date}}', 5: '{{Payment_Link}}' } } };\nfunction feeLink(i) {\n  const b = i.b || {}; const m = renderMessage(SEND_LINK, b, i.C || {});\n  return { to_e164: m.to_e164, variables: m.variables, messages: [messageRow(b, m, 'Payment Link', 'Fee', b.Parent_Name)], patch: { Last_Reminder_At: nowIso() } };\n}\nfunction feeResult(i) {\n  const b = { ...(i.b || {}), _request_id: i.request_id }; const f = callFacts(i.details); const link = feeLink(i);\n  const r = cdm(i, { parent_response: 'string', promise_date: 'string' });\n  const promise = /^\\d{4}-\\d{2}-\\d{2}$/.test(S(r.promise_date)) ? S(r.promise_date) : '';\n  const patch = { Reminder_Count: (N(b.Reminder_Count) ?? 0) + 1, Last_Reminder_At: nowIso(), Parent_Response: f.answered ? S(r.parent_response) : 'No answer — payment link sent on WhatsApp', ...(promise ? { Promise_Date: promise } : {}) };\n  const late = (N(b.Days_Overdue) ?? 0) >= 15 && !promise;\n  const call = callRow(b, f, { Agent: 'Fee', Relation: 'Parent', Person: S(b.Parent_Name), Phone: S(b.Parent_Phone), Summary: S(r.parent_response), Needs_Followup: late ? 'Yes' : 'No',\n    Outcome: !f.answered ? 'No answer — link sent' : promise ? `Promised to pay by ${promise}` : 'No promise — link sent' });\n  const alerts = late ? [{ Raised_At: nowIso(), Title: `Fee overdue ${N(b.Days_Overdue)} days — ${S(b.Student_Name)} — ₹${N(b.Balance_INR) ?? ''}`, Detail: `${S(b.Parent_Name)}: ${f.answered ? S(r.parent_response) || 'no promise to pay' : 'did not answer the reminder call'}.`, Kind: 'Fee', Severity: 'CRITICAL', Student_ID: '', Lead_ID: '', Raised_By: 'flow:FEE_REMINDER', Owner: S(b.Director), Status: 'Open' }] : [];\n  return { ...link, patch, call, alerts };\n}\n\n// PARENT_UPDATE.weekly_report — 100 % of active parents, numbers from the record, no AI.\nconst SEND_REPORT = { to: 'Parent_Phone', template: { name: 'eduflow_weekly_report', variables: { 1: '{{Parent_Name}}', 2: '{{Name}}', 3: '{{Attendance_Pct}}', 4: '{{Last_Score}}', 5: '{{Class_Rank}}', 6: '{{Performance_Trend}}' } } };\nfunction weeklyReport(i) {\n  const b = i.b || {}; const m = renderMessage(SEND_REPORT, b, i.C || {});\n  return { to_e164: m.to_e164, variables: m.variables, messages: [messageRow(b, m, 'Weekly Report', 'Parent', b.Parent_Name)], patch: { Last_Report_At: nowIso() } };\n}\n// PARENT_UPDATE.update_call — status and escalation in code (owner, 3 Nov 2026).\nfunction parentResult(i) {\n  const b = { ...(i.b || {}), _request_id: i.request_id }; const f = callFacts(i.details);\n  const r = cdm(i, { sentiment: 'string', feedback: 'string', concern: 'string', needs_escalation: 'string' }, { sentiment: ['Happy', 'Neutral', 'Concerned', 'No Answer'], needs_escalation: ['Yes', 'No'] });\n  const sentiment = !f.answered ? 'No Answer' : r.sentiment || 'Neutral'; const esc = f.answered && r.needs_escalation === 'Yes'; const flag = sentiment === 'Concerned' || esc;\n  const status = sentiment === 'No Answer' ? 'No Answer' : esc ? 'Escalated' : 'Completed';\n  const director = teamOf(i.team, 'Director')[0]; const retry = yes(b.Is_Retry);\n  const call = callRow(b, f, { Agent: 'Parent', Relation: 'Parent', Person: S(b.Parent_Name), Phone: S(b.Parent_Phone), Status: status, Sentiment: sentiment, Summary: S(r.feedback), Concern: S(r.concern), Needs_Followup: flag ? 'Yes' : 'No',\n    Outcome: status === 'No Answer' ? (retry ? 'No answer twice — closed' : 'No answer — retry on Monday 5 PM') : flag ? 'Escalated to the director' : 'Update shared' });\n  const patch = { Parent_Sentiment: sentiment, Parent_Concern: S(r.concern), Last_Parent_Call_At: nowIso() };\n  const detail = `${S(b.Parent_Name)}: ${S(r.concern) || S(r.feedback) || 'concerned about progress'}`;\n  const alerts = flag ? [{ Raised_At: nowIso(), Title: `Parent Concern - ${S(b.Name)} - ${S(b.Course)}`, Detail: detail, Kind: 'Parent', Severity: 'HIGH', Student_ID: S(b.Student_ID), Lead_ID: '', Raised_By: 'flow:PARENT_UPDATE', Owner: S(director && director.Name), Status: 'Open' }] : [];\n  return { patch, call, alerts, staff: flag ? staffAlert(director, `Parent concern — ${S(b.Name)} (${S(b.Course)}). ${detail}`, 'Parent', b) : [], status };\n}\n\n// ── STUDENT_MANAGE.enrol — student, first fee, welcome WhatsApp; from a lead, the lead becomes Enrolled ──\nconst SEND_WELCOME = { to: 'Parent_Phone', template: { name: 'eduflow_welcome', variables: { 1: '{{Parent_Name}}', 2: '{{Name}}', 3: '{{Course}}', 4: '{{Batch}}' } } };\nfunction enrolBuild(i) {\n  const b = i.b || {};\n  return { row: { Student_ID: '', Enrolled_At: nowIso(), Name: S(b.Name), Student_Phone: S(b.Student_Phone || b.Phone), Parent_Name: S(b.Parent_Name), Parent_Phone: S(b.Parent_Phone), Course: S(b.Course), Batch: S(b.Batch),\n    Address: S(b.Address), Status: 'Active', Fee_Status: 'Due', Fee_Amount_INR: N(b.Fee_Amount_INR) ?? '', Fee_Due_Date: S(b.Fee_Due_Date), Counsellor: S(b.Counsellor) } };\n}\nfunction enrolNext(i) {\n  const b = i.b || {}; const st = list(i.saved)[0] || {}; const sid = S(st.Student_ID); const m = renderMessage(SEND_WELCOME, b, i.C || {});\n  const fees = N(b.Fee_Amount_INR) ? [{ Fee_ID: '', Created_At: nowIso(), Student_ID: sid, Student_Name: S(b.Name), Parent_Name: S(b.Parent_Name), Parent_Phone: S(b.Parent_Phone), Course: S(b.Course), Instalment: 1,\n    Amount_INR: N(b.Fee_Amount_INR), Paid_INR: 0, Due_Date: S(b.Fee_Due_Date), Days_Overdue: 0, Status: 'Upcoming', Reminder_Count: 0 }] : [];\n  return { Student_ID: sid, to_e164: m.to_e164, variables: m.variables, messages: [messageRow({ ...b, Student_ID: sid }, m, 'Welcome', 'Office', b.Parent_Name)], fees, leads: S(b.Lead_ID) ? [{ Lead_ID: S(b.Lead_ID), Stage: 'Enrolled' }] : [] };\n}\n\n// ── SEND_WHATSAPP.send_update — the reviewed text to one parent (the app filled `To` from the student record, D6) ──\nconst SEND_UPDATE = { to: 'To', template: { name: 'eduflow_general_update', variables: { 1: '{{Parent_Name}}', 2: '{{Name}}', 3: '{{Message}}' } } };\nfunction updateBuild(i) {\n  const b = i.b || {}; const m = renderMessage(SEND_UPDATE, b, i.C || {});\n  return { to_e164: m.to_e164, variables: m.variables, messages: [messageRow(b, m, 'General Update', 'Office', b.Parent_Name)] };\n}\n\n// ── schedules: read the app's rows, decide in code, post one call per target to the action flow ──\nfunction post(C, action, who, row) { return { action, _who: `flow:${who}`, app_url: C.app_url, inbound_token: C.inbound_token, company_name: C.company_name, ...row }; }\nconst pick = (r, keys) => Object.fromEntries(keys.map((k) => [k, r[k] === undefined || r[k] === null ? '' : r[k]]));\n\n// FEE_RUN (daily 10:00) — Days_Overdue and Due → Overdue; a call on day 1, 7 and 15 overdue; the link 3 days before Due_Date.\nfunction feeRun(i) {\n  const C = i.C || {}; const today = S(C.today_override) || istDate(); const director = S((teamOf(i.team, 'Director')[0] || {}).Name);\n  const patches = [], remind = [], link = [];\n  for (const f of list(i.fees)) {\n    const bal = N(f.Balance_INR) ?? ((N(f.Amount_INR) ?? 0) - (N(f.Paid_INR) ?? 0)); if (S(f.Status) === 'Paid' || bal <= 0 || !S(f.Due_Date)) continue;\n    const late = Math.max(0, dayDiff(today, S(f.Due_Date).slice(0, 10)));\n    const status = late > 0 ? 'Overdue' : S(f.Status) === 'Partial' ? 'Partial' : dayDiff(S(f.Due_Date).slice(0, 10), today) <= 7 ? 'Due' : S(f.Status) || 'Upcoming';\n    if ((N(f.Days_Overdue) ?? 0) !== late || S(f.Status) !== status) patches.push({ Fee_ID: S(f.Fee_ID), Days_Overdue: late, Status: status });\n    const row = { ...pick(f, ['Fee_ID', 'Student_Name', 'Parent_Name', 'Parent_Phone', 'Course', 'Due_Date', 'Payment_Link', 'Reminder_Count']), Balance_INR: bal, Days_Overdue: late, Director: director };\n    if ([1, 7, 15].includes(late)) remind.push(post(C, 'remind', 'FEE_RUN', row));\n    else if (dayDiff(S(f.Due_Date).slice(0, 10), today) === 3) link.push(post(C, 'send_link', 'FEE_RUN', row));\n  }\n  return { patches, posts: [...remind, ...link], remind: remind.length, link: link.length, today };\n}\n\n// ACADEMIC_RUN (Monday 11:00) — attendance < 75 or last score < 60, worst first, at most 50.\nfunction academicRun(i) {\n  const C = i.C || {}; const worst = (s) => Math.min(N(s.Attendance_Pct) ?? 100, N(s.Last_Score) ?? 100);\n  const due = list(i.students).filter((s) => active(s) && ((N(s.Attendance_Pct) ?? 100) < 75 || (N(s.Last_Score) ?? 100) < 60)).sort((a, b) => worst(a) - worst(b)).slice(0, N(C.max_calls) ?? 50);\n  return { posts: due.map((s) => post(C, 'counsel', 'ACADEMIC_RUN', pick(s, ['Student_ID', 'Name', 'Student_Phone', 'Course', 'Attendance_Pct', 'Last_Score', 'Weak_Subjects', 'Mentor']))), count: due.length };\n}\n\n// PARENT_RUN (Friday and Monday 17:00 IST) — Friday: report to every active parent, a call only for at-risk students; Monday: one retry.\nfunction parentRun(i) {\n  const C = i.C || {}; const day = C.force_weekday !== undefined && C.force_weekday !== '' ? Number(C.force_weekday) : istWeekday(); const today = istDate();\n  const keys = ['Student_ID', 'Name', 'Parent_Name', 'Parent_Phone', 'Course', 'Attendance_Pct', 'Last_Score', 'Class_Rank', 'Performance_Trend', 'Strong_Subjects', 'Weak_Subjects'];\n  const students = list(i.students).filter(active); const byId = new Map(students.map((s) => [S(s.Student_ID), s]));\n  const risky = (s) => ['At Risk', 'Critical'].includes(S(s.Status)) || (N(s.Attendance_Pct) ?? 100) < 75 || (N(s.Last_Score) ?? 100) < 60;\n  if (day === 5) return { reports: students.map((s) => post(C, 'weekly_report', 'PARENT_RUN', { ...pick(s, keys), Is_Retry: 'No' })), calls: students.filter(risky).map((s) => post(C, 'update_call', 'PARENT_RUN', { ...pick(s, keys), Is_Retry: 'No' })), retried: [], day: 'Friday' };\n  if (day !== 1) return { reports: [], calls: [], retried: [], day: 'not a run day' };\n  const friday = istDate(Date.now() - 3 * 864e5);\n  const missed = list(i.calls).filter((c) => S(c.Agent) === 'Parent' && S(c.Status) === 'No Answer' && !S(c.Retry_At) && istDate(Date.parse(S(c.Called_At)) || 0) === friday && byId.has(S(c.Student_ID)));\n  return { reports: [], calls: missed.map((c) => post(C, 'update_call', 'PARENT_RUN', { ...pick(byId.get(S(c.Student_ID)), keys), Is_Retry: 'Yes' })), retried: missed.map((c) => ({ Call_ID: S(c.Call_ID), Retry_At: nowIso() })), day: `Monday (${today})` };\n}\n\n// ROLLUP (01:30 daily) — per student from attendance + tests; Status; Fee_Status; alerts without duplicates while one is open.\nfunction rollup(i) {\n  const today = istDate(); const from = istDate(Date.now() - 29 * 864e5); const att = list(i.attendance), tests = list(i.tests), fees = list(i.fees);\n  const open = new Set(list(i.alerts).filter((a) => S(a.Status) !== 'Resolved').map((a) => `${S(a.Kind)}|${S(a.Student_ID) || S(a.Lead_ID)}`));\n  const stats = list(i.students).filter(active).map((s) => {\n    const id = S(s.Student_ID); const a = att.filter((r) => S(r.Student_ID) === id && S(r.Date).slice(0, 10) >= from);\n    const ts = tests.filter((t) => S(t.Student_ID) === id && S(t.Status) !== 'Absent' && N(t.Score_Pct) !== null).sort((x, y) => S(x.Test_Date).localeCompare(S(y.Test_Date)));\n    const pct = ts.map((t) => N(t.Score_Pct)); const avg = pct.length ? Math.round(pct.reduce((x, y) => x + y, 0) / pct.length) : null;\n    const last3 = pct.slice(-3); const trend = last3.length < 2 ? 'Stable' : last3[last3.length - 1] - last3[0] >= 5 ? 'Improving' : last3[0] - last3[last3.length - 1] >= 5 ? 'Declining' : 'Stable';\n    const subj = {}; for (const t of ts) (subj[S(t.Subject)] ||= []).push(N(t.Score_Pct)); const ranked = Object.entries(subj).map(([k, v]) => [k, v.reduce((x, y) => x + y, 0) / v.length]).sort((x, y) => y[1] - x[1]);\n    const attPct = a.length ? Math.round(a.filter((r) => S(r.Status) === 'Present').length * 100 / a.length) : (N(s.Attendance_Pct) ?? null);\n    const due = fees.filter((f) => S(f.Student_ID) === id && S(f.Status) !== 'Paid'); const worstLate = Math.max(0, ...due.map((f) => N(f.Days_Overdue) ?? 0));\n    const status = (attPct ?? 100) < 60 || (avg ?? 100) < 40 ? 'Critical' : (attPct ?? 100) < 75 || (avg ?? 100) < 60 ? 'At Risk' : 'Active';\n    return { s, id, patch: { Student_ID: id, Attendance_Pct: attPct ?? '', Last_Score: pct.length ? pct[pct.length - 1] : '', Avg_Score: avg ?? '', Performance_Trend: trend, Strong_Subjects: ranked.filter((x) => x[1] >= 75).map((x) => x[0]).join(', '),\n      Weak_Subjects: ranked.filter((x) => x[1] < 60).map((x) => x[0]).join(', '), Status: status, Fee_Status: !due.length ? 'Paid' : due.some((f) => S(f.Status) === 'Overdue') ? 'Overdue' : 'Due' }, worstLate };\n  });\n  for (const x of stats) { const peers = stats.filter((y) => S(y.s.Course) === S(x.s.Course) && S(y.s.Batch) === S(x.s.Batch) && y.patch.Avg_Score !== '').sort((p, q) => q.patch.Avg_Score - p.patch.Avg_Score); x.patch.Class_Rank = x.patch.Avg_Score === '' ? '' : peers.indexOf(x) + 1; }\n  const alerts = []; const add = (kind, id, row) => { if (!open.has(`${kind}|${id}`)) { open.add(`${kind}|${id}`); alerts.push({ Raised_At: nowIso(), Lead_ID: '', Student_ID: '', Raised_By: 'flow:ROLLUP', Owner: '', Status: 'Open', Kind: kind, ...row }); } };\n  for (const x of stats) {\n    if (x.patch.Attendance_Pct !== '' && x.patch.Attendance_Pct < 75) add('Attendance', x.id, { Student_ID: x.id, Severity: 'HIGH', Title: `Attendance ${x.patch.Attendance_Pct}% — ${S(x.s.Name)}`, Detail: `Last 30 days, ${S(x.s.Course)} · ${S(x.s.Batch)}.`, Owner: S(x.s.Mentor) });\n    if (x.worstLate >= 15) add('Fee', x.id, { Student_ID: x.id, Severity: 'CRITICAL', Title: `Fee overdue ${x.worstLate} days — ${S(x.s.Name)}`, Detail: 'Reminder calls have not cleared it.' });\n  }\n  for (const l of list(i.leads)) if (S(l.Grade) === 'HOT' && !['Enrolled', 'Lost'].includes(S(l.Stage)) && S(l.Next_Followup_At) && S(l.Next_Followup_At).slice(0, 10) < today)\n    add('Lead', S(l.Lead_ID), { Lead_ID: S(l.Lead_ID), Severity: 'MEDIUM', Title: `HOT lead past 48 h — ${S(l.Name)}`, Detail: `${S(l.Course)} · follow-up was due ${S(l.Next_Followup_At).slice(0, 10)}.`, Owner: S(l.Assigned_To) });\n  return { patches: stats.map((x) => x.patch), alerts, students: stats.length, today };\n}\n// end lib\nexport const code = async (inputs) => afterSend(inputs);",
                       "packageJson": "{}"
                     },
                     "errorHandlingOptions": {
@@ -410,13 +767,7 @@
                         "body_type": "json",
                         "body": {
                           "data": {
-                            "Student_Name": "{{step_send_link_build['patch']['Student_Name']}}",
-                            "Parent_Name": "{{step_send_link_build['patch']['Parent_Name']}}",
-                            "Parent_Phone": "{{step_send_link_build['patch']['Parent_Phone']}}",
-                            "Balance_INR": "{{step_send_link_build['patch']['Balance_INR']}}",
-                            "Due_Date": "{{step_send_link_build['patch']['Due_Date']}}",
-                            "Last_Reminder_At": "{{step_send_link_build['patch']['Last_Reminder_At']}}",
-                            "Payment_Link": "{{step_send_link_build['patch']['Payment_Link']}}"
+                            "Last_Reminder_At": "{{step_send_link_after['patch']['Last_Reminder_At']}}"
                           }
                         }
                       },
@@ -460,56 +811,54 @@
                       }
                     },
                     "nextAction": {
-                      "name": "step_send_link_done",
+                      "name": "step_send_link_log",
                       "skip": false,
                       "type": "PIECE",
                       "valid": true,
                       "settings": {
                         "input": {
-                          "fields": {
-                            "body": {
-                              "ok": "true",
-                              "action": "send_link",
-                              "Fee_ID": "{{trigger['body']['Fee_ID']}}",
-                              "updated": "{{step_send_link_update['body'][0]}}"
-                            },
-                            "status": 200,
-                            "headers": {}
+                          "method": "POST",
+                          "url": "{{step_constants['app_url']}}/api/data/messages",
+                          "headers": {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer {{step_constants['inbound_token']}}",
+                            "X-Flow": "{{step_constants['flow']}}"
                           },
-                          "respond": "stop",
-                          "responseType": "json"
+                          "queryParams": {},
+                          "authType": "NONE",
+                          "body_type": "json",
+                          "body": {
+                            "data": "{{step_send_link_after['messages']}}"
+                          }
                         },
-                        "pieceName": "@puchoaistudio/tool-webhook",
-                        "actionName": "return_response",
+                        "pieceName": "@puchoaistudio/tool-http",
+                        "actionName": "send_request",
                         "sampleData": {},
-                        "pieceVersion": "^2.0.4",
+                        "pieceVersion": "^2.0.0",
                         "propertySettings": {
-                          "fields": {
+                          "method": {
+                            "type": "MANUAL"
+                          },
+                          "url": {
+                            "type": "MANUAL"
+                          },
+                          "headers": {
                             "type": "MANUAL",
-                            "schema": {
-                              "body": {
-                                "type": "JSON",
-                                "required": true,
-                                "displayName": "JSON Body"
-                              },
-                              "status": {
-                                "type": "NUMBER",
-                                "required": false,
-                                "displayName": "Status",
-                                "defaultValue": 200
-                              },
-                              "headers": {
-                                "type": "OBJECT",
-                                "required": false,
-                                "displayName": "Headers"
-                              }
-                            }
+                            "schema": {}
                           },
-                          "respond": {
+                          "queryParams": {
+                            "type": "MANUAL",
+                            "schema": {}
+                          },
+                          "authType": {
                             "type": "MANUAL"
                           },
-                          "responseType": {
+                          "body_type": {
                             "type": "MANUAL"
+                          },
+                          "body": {
+                            "type": "MANUAL",
+                            "schema": {}
                           }
                         },
                         "errorHandlingOptions": {
@@ -521,15 +870,79 @@
                           }
                         }
                       },
-                      "displayName": "Return send_link: Fee_ID, updated"
+                      "nextAction": {
+                        "name": "step_send_link_done",
+                        "skip": false,
+                        "type": "PIECE",
+                        "valid": true,
+                        "settings": {
+                          "input": {
+                            "fields": {
+                              "body": {
+                                "ok": "true",
+                                "action": "send_link",
+                                "Fee_ID": "{{trigger['body']['Fee_ID']}}",
+                                "sent": "{{step_send_link_after['ok']}}"
+                              },
+                              "status": 200,
+                              "headers": {}
+                            },
+                            "respond": "stop",
+                            "responseType": "json"
+                          },
+                          "pieceName": "@puchoaistudio/tool-webhook",
+                          "actionName": "return_response",
+                          "sampleData": {},
+                          "pieceVersion": "^2.0.4",
+                          "propertySettings": {
+                            "fields": {
+                              "type": "MANUAL",
+                              "schema": {
+                                "body": {
+                                  "type": "JSON",
+                                  "required": true,
+                                  "displayName": "JSON Body"
+                                },
+                                "status": {
+                                  "type": "NUMBER",
+                                  "required": false,
+                                  "displayName": "Status",
+                                  "defaultValue": 200
+                                },
+                                "headers": {
+                                  "type": "OBJECT",
+                                  "required": false,
+                                  "displayName": "Headers"
+                                }
+                              }
+                            },
+                            "respond": {
+                              "type": "MANUAL"
+                            },
+                            "responseType": {
+                              "type": "MANUAL"
+                            }
+                          },
+                          "errorHandlingOptions": {
+                            "retryOnFailure": {
+                              "value": false
+                            },
+                            "continueOnFailure": {
+                              "value": false
+                            }
+                          }
+                        },
+                        "displayName": "Return send_link"
+                      },
+                      "displayName": "Log the message"
                     },
-                    "displayName": "Update fees: Student_Name, Parent_Name, Parent_Phone, Balance_INR, Due_Date, Last_Reminder_At +1 more"
+                    "displayName": "Update the fee: Last_Reminder_At"
                   },
-                  "displayName": "Build the patch (rules in CODE)"
+                  "displayName": "Sent or Failed (code)"
                 },
-                "displayName": "Send WhatsApp template \"eduflow_fee_payment_link\": 1, 2, 3, 4, 5"
+                "displayName": "WhatsApp the payment link"
               },
-              "displayName": "Fill the template variables from the record (CODE)"
+              "displayName": "Fill the template from the record (code)"
             },
             {
               "name": "step_unknown_action",
@@ -541,12 +954,7 @@
                   "fields": {
                     "body": {
                       "ok": "false",
-                      "error": "unknown action",
-                      "action": "{{trigger['body']['action']}}",
-                      "known": [
-                        "remind",
-                        "send_link"
-                      ]
+                      "error": "unknown action"
                     },
                     "status": 400,
                     "headers": {}

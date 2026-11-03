@@ -2,17 +2,18 @@
 ```json
 {
   "action": "remind",
-  "Fee_ID": "<string>",
-  "Student_Name": "<string>",
-  "Parent_Name": "<string>",
-  "Parent_Phone": "<string>",
-  "Course": "<string>",
-  "Balance_INR": 0,
-  "Due_Date": "<string>",
-  "Days_Overdue": 0,
-  "Payment_Link": "<string>",
-  "Reminder_Count": 0,
-  "Director": "<string>"
+  "_who": "flow:FEE_RUN",
+  "Fee_ID": "FE-2026-0302",
+  "Student_Name": "Kavya Patel",
+  "Parent_Name": "Mrs. M. Patel",
+  "Parent_Phone": "+919425009611",
+  "Course": "NEET",
+  "Balance_INR": 18000,
+  "Due_Date": "2026-10-15",
+  "Days_Overdue": 15,
+  "Payment_Link": "https://rzp.io/l/eduflow-sim",
+  "Reminder_Count": 2,
+  "Director": "Dev Dabi"
 }
 ```
 (samples are .md on purpose — never .json in a workflows folder)
