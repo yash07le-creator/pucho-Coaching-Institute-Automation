@@ -1,0 +1,651 @@
+{
+  "created": "1700000000000",
+  "updated": "1700000000000",
+  "name": "Pucho EduFlow - FEE_REMINDER",
+  "description": "EduFlow · FEE_REMINDER: one flow, router on action (remind, send_link); input = the action's payload fields (Balance_INR, Course, Days_Overdue, Due_Date, Fee_ID, Parent_Name, Parent_Phone, Payment_Link, Student_Name); rules in CODE nodes; writes through the app's /api/data; every path ends in a Return.",
+  "tags": [],
+  "pieces": [
+    "@puchoaistudio/tool-webhook",
+    "@puchoaistudio/tool-http",
+    "@puchoaistudio/tool-pucho-cdm",
+    "@puchoaistudio/tool-pucho-whatsapp"
+  ],
+  "template": {
+    "displayName": "Pucho EduFlow - FEE_REMINDER",
+    "trigger": {
+      "name": "trigger",
+      "valid": true,
+      "displayName": "FEE_REMINDER — UI → action (remind, send_link)",
+      "type": "TOOL_TRIGGER",
+      "settings": {
+        "pieceName": "@puchoaistudio/tool-webhook",
+        "pieceVersion": "^2.0.4",
+        "input": {
+          "authType": "none",
+          "authFields": {}
+        },
+        "sampleData": {},
+        "propertySettings": {
+          "authType": {
+            "type": "MANUAL"
+          },
+          "authFields": {
+            "type": "MANUAL",
+            "schema": {}
+          },
+          "liveMarkdown": {
+            "type": "MANUAL"
+          },
+          "syncMarkdown": {
+            "type": "MANUAL"
+          },
+          "testMarkdown": {
+            "type": "MANUAL"
+          }
+        },
+        "triggerName": "catch_webhook"
+      },
+      "nextAction": {
+        "name": "step_constants",
+        "skip": false,
+        "type": "CODE",
+        "valid": true,
+        "settings": {
+          "input": {
+            "trigger": "{{trigger}}",
+            "body": "{{trigger['body']}}",
+            "app_url": "{{trigger['body']['app_url']}}",
+            "inbound_token": "{{trigger['body']['inbound_token']}}",
+            "company_name": "{{trigger['body']['company_name']}}"
+          },
+          "sampleData": {},
+          "sourceCode": {
+            "code": "// @ts-nocheck\nexport const code = async (inputs) => {\n  const C = {\n    \"app_url\": \"{{trigger['body']['app_url']}}\",\n    \"inbound_token\": \"{{trigger['body']['inbound_token']}}\",\n    \"company_name\": \"{{trigger['body']['company_name']}}\",\n    \"flow\": \"FEE_REMINDER\",\n    \"brand_tone\": \"formal, precise, courteous\",\n    \"brand_signature\": \"\",\n    \"followup_days\": [\n      2,\n      5,\n      10\n    ],\n    \"quote_validity_days\": 30,\n    \"same_day_quote_hours\": 8,\n    \"default_owner\": \"\",\n    \"own_domain\": \"\",\n    \"quote_series\": \"SMT/Q\",\n    \"catalogue\": [],\n    \"options\": [],\n    \"owners\": [],\n    \"whatsapp_account_id\": \"SET_IN_STUDIO_WHATSAPP_ACCOUNT_ID\",\n    \"whatsapp_templates\": {\n      \"send_link\": \"SET_IN_STUDIO_TEMPLATE_ID_SEND_LINK\"\n    },\n    \"whatsapp_template_names\": {\n      \"send_link\": \"eduflow_fee_payment_link\"\n    },\n    \"voice_language\": \"hi\"\n  };\n  // v5.1: the app sends app_url, inbound_token and company_name with every call (the step's inputs, from the trigger body)\n  C.app_url = String(inputs.app_url || '').replace(/\\/+$/, ''); C.inbound_token = String(inputs.inbound_token || ''); C.company_name = String(inputs.company_name || '');\n  if (!C.brand_signature) C.brand_signature = 'For ' + C.company_name;\n  C.today = new Date().toISOString(); C.year = new Date().getFullYear();\n  C.catalogue_text = C.catalogue.map(c => c.code + ' = ' + c.name + (c.product_line ? ' (' + c.product_line + ')' : '')).join('; ');\n  C.options_for_model = (C.options || []).filter(o => o.model === ((inputs.body || {}).Model_Code || '')).map(o => o.code + ' = ' + o.description).join('; ');\n  return C;\n};",
+            "packageJson": "{}"
+          },
+          "errorHandlingOptions": {
+            "retryOnFailure": {
+              "value": false
+            },
+            "continueOnFailure": {
+              "value": false
+            }
+          }
+        },
+        "nextAction": {
+          "name": "step_router",
+          "skip": false,
+          "type": "ROUTER",
+          "valid": true,
+          "children": [
+            {
+              "name": "step_remind_ai",
+              "skip": false,
+              "type": "PIECE",
+              "valid": true,
+              "settings": {
+                "input": {
+                  "text": "Parent Name: {{trigger['body']['Parent_Name']}}\nStudent Name: {{trigger['body']['Student_Name']}}\nCourse: {{trigger['body']['Course']}}\nDue Date: {{trigger['body']['Due_Date']}}",
+                  "fields": [
+                    {
+                      "name": "parent_response",
+                      "type": "string",
+                      "description": "what the parent said about paying, in their words"
+                    },
+                    {
+                      "name": "promise_date",
+                      "type": "string",
+                      "description": "the date the parent promised to pay, if they named one"
+                    }
+                  ]
+                },
+                "pieceName": "@puchoaistudio/tool-pucho-cdm",
+                "actionName": "extract",
+                "sampleData": {},
+                "pieceVersion": "^2.0.1",
+                "propertySettings": {
+                  "text": {
+                    "type": "MANUAL"
+                  },
+                  "fields": {
+                    "type": "MANUAL"
+                  },
+                  "schema": {
+                    "type": "MANUAL"
+                  },
+                  "threshold": {
+                    "type": "MANUAL"
+                  }
+                },
+                "errorHandlingOptions": {
+                  "retryOnFailure": {
+                    "value": true
+                  },
+                  "continueOnFailure": {
+                    "value": false
+                  }
+                }
+              },
+              "nextAction": {
+                "name": "step_remind_build",
+                "skip": false,
+                "type": "CODE",
+                "valid": true,
+                "settings": {
+                  "input": {
+                    "ai_fields": "{{step_remind_ai['fields']}}",
+                    "C": "{{step_constants}}",
+                    "b": "{{trigger['body']}}"
+                  },
+                  "sampleData": {},
+                  "sourceCode": {
+                    "code": "// @ts-nocheck\nexport const code = async (inputs) => {\n  let parsed = {\"parent_response\": \"\", \"promise_date\": \"\"};\n  function cdmNum(s, integer) { const t = String(s).replace(/₹|\\b(?:rs\\.?|inr)(?![a-z])/gi, ' ').trim(); if (/0x[0-9a-f]/i.test(t) || /\\d\\s*e\\s*[+-]?\\d/i.test(t) || /\\d\\.\\d{3},\\d/.test(t) || /\\d\\.\\d+\\.\\d/.test(t)) return null; const m = t.match(/-?\\d[\\d,]*(\\.\\d+)?/); if (!m) return null; let x = Number(m[0].replace(/,/g, '')); if (!isFinite(x)) return null; const u = t.slice(m.index + m[0].length).trim().toLowerCase().match(/^(thousand|k|lakhs?|lacs?|l|crores?|cr|million|mn)(?![a-z])/); if (u) x = x * (/^(thousand|k)$/.test(u[1]) ? 1e3 : /^(million|mn)$/.test(u[1]) ? 1e6 : /^(lakhs?|lacs?|l)$/.test(u[1]) ? 1e5 : 1e7); x = parseFloat(x.toPrecision(15)); return integer && !Number.isInteger(x) ? null : x; }\n  function cdmBool(s) { const t = String(s).trim().toLowerCase().replace(/[.!?।]+$/, ''); if (['yes', 'y', 'true', '1', 'haan', 'हाँ', 'हां', 'હા'].includes(t)) return true; if (['no', 'n', 'false', '0', 'nahi', 'नहीं', 'ना', 'ના'].includes(t)) return false; return null; }\n  function cdmChoice(s, ch) { const t = String(s).trim().toLowerCase(); const L = ch.map((c) => [c, String(c).toLowerCase()]); const exact = L.find((x) => x[1] === t); if (exact) return exact[0]; const esc = (x) => x.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&'); const inSpan = L.filter((x) => new RegExp('(^|[^a-z0-9])' + esc(x[1]) + '([^a-z0-9]|$)').test(t)).sort((a, b) => b[1].length - a[1].length); if (inSpan.length) return inSpan[0][0]; const inChoice = t.length >= 2 ? L.find((x) => x[1].includes(t)) : null; return inChoice ? inChoice[0] : null; }\n  function cdmFields(fields, decl, conf, choices) { if (typeof fields === 'string') { try { fields = JSON.parse(fields); } catch (e) { fields = null; } } const ents = fields && Array.isArray(fields.entities) ? fields.entities : null; const keys = Object.keys(decl); const out = Object.create(null); for (const k of keys) out[k] = null; if (!ents) { out._parse_error = 'true'; if (conf) out[conf] = 0; out.fields_found = 0; out.fields_total = keys.length; return out; } const best = Object.create(null); for (const e of ents) { if (!e || !Object.prototype.hasOwnProperty.call(decl, e.type) || e.text === undefined || e.text === null || String(e.text).trim() === '') continue; const c = Number(e.confidence) || 0; if (!best[e.type] || c > best[e.type].c) best[e.type] = { v: String(e.text).trim(), c }; } const cs = []; for (const k of keys) { const b = best[k]; if (!b) continue; const t = decl[k]; const ch = choices && Array.isArray(choices[k]) && choices[k].length ? choices[k] : null; const v = (t === 'integer' || t === 'number') ? cdmNum(b.v, t === 'integer') : t === 'boolean' ? cdmBool(b.v) : ch ? cdmChoice(b.v, ch) : b.v; if (v === null) continue; out[k] = v; cs.push(b.c); } if (conf) out[conf] = cs.length ? Math.min(...cs) : 0; out.fields_found = cs.length; out.fields_total = keys.length; return out; }\n  { const got = cdmFields(inputs.ai_fields, {\"parent_response\": \"string\", \"promise_date\": \"string\"}, null, {}); for (const [k, v] of Object.entries(got)) if (v !== null) parsed[k] = v; }   // Pucho CDM extract → one value per field\n  const JEVP = {}; for (const k of Object.keys(inputs)) if (k.indexOf('jev_') === 0 && k.slice(-11) !== '_confidence') { const f = k.slice(4), v = inputs[k], conf = Number(inputs[k + '_confidence']); const pol = JEVP[f] || [0.5, null]; if (v !== undefined && v !== '' && (isNaN(conf) || conf >= pol[0])) parsed[f] = v; else if (pol[1] !== null && pol[1] !== undefined) parsed[f] = pol[1]; } /* a Jev answer lands only when confident; else the fallback */\n  const build = async (inputs) => {\n  const C = inputs.C, p = inputs.b || {}, r = parsed || {};\n  const allowed = [\"Fee_ID\", \"Created_At\", \"Student_ID\", \"Student_Name\", \"Parent_Name\", \"Parent_Phone\", \"Course\", \"Instalment\", \"Amount_INR\", \"Paid_INR\", \"Balance_INR\", \"Due_Date\", \"Days_Overdue\", \"Status\", \"Reminder_Count\", \"Last_Reminder_At\", \"Payment_Link\", \"Promise_Date\", \"Parent_Response\", \"Paid_At\", \"Payment_Mode\", \"Receipt_No\"]; const fills = {\"Last_Reminder_At\": \"now\", \"Parent_Response\": \"Simulated call — will pay by Friday\"};\n  const title = (s) => s.replace(/(^|_)(\\w)/g, (m, a, b) => a + b.toUpperCase());\n  const row = {}; for (const k of allowed) { if (p[k] !== undefined) row[k] = p[k]; else if (r[k] !== undefined) row[k] = r[k]; else if (r[k.toLowerCase()] !== undefined) row[k] = r[k.toLowerCase()]; }\n  for (const k of Object.keys(r)) { const t = title(k); if (allowed.includes(t) && row[t] === undefined) row[t] = Array.isArray(r[k]) ? r[k].join('; ') : r[k]; }\n  for (const [k, v] of Object.entries(fills)) row[k] = v === 'now' ? new Date().toISOString() : v;\n  const id = p['Fee_ID']; const patch = {}; for (const k of allowed) if (k !== 'Fee_ID' && row[k] !== undefined && row[k] !== '') patch[k] = row[k];\n  return { patch, id };\n};\n  const out = await build(inputs);\n  return { ...out, result: parsed };\n};",
+                    "packageJson": "{}"
+                  },
+                  "errorHandlingOptions": {
+                    "retryOnFailure": {
+                      "value": false
+                    },
+                    "continueOnFailure": {
+                      "value": false
+                    }
+                  }
+                },
+                "nextAction": {
+                  "name": "step_remind_update",
+                  "skip": false,
+                  "type": "PIECE",
+                  "valid": true,
+                  "settings": {
+                    "input": {
+                      "method": "PATCH",
+                      "url": "{{step_constants['app_url']}}/api/data/fees",
+                      "headers": {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer {{step_constants['inbound_token']}}",
+                        "X-Flow": "{{step_constants['flow']}}"
+                      },
+                      "queryParams": {
+                        "Fee_ID": "eq.{{trigger['body']['Fee_ID']}}"
+                      },
+                      "authType": "NONE",
+                      "body_type": "json",
+                      "body": {
+                        "data": {
+                          "Student_Name": "{{step_remind_build['patch']['Student_Name']}}",
+                          "Parent_Name": "{{step_remind_build['patch']['Parent_Name']}}",
+                          "Parent_Phone": "{{step_remind_build['patch']['Parent_Phone']}}",
+                          "Course": "{{step_remind_build['patch']['Course']}}",
+                          "Balance_INR": "{{step_remind_build['patch']['Balance_INR']}}",
+                          "Due_Date": "{{step_remind_build['patch']['Due_Date']}}",
+                          "Days_Overdue": "{{step_remind_build['patch']['Days_Overdue']}}",
+                          "Last_Reminder_At": "{{step_remind_build['patch']['Last_Reminder_At']}}",
+                          "Payment_Link": "{{step_remind_build['patch']['Payment_Link']}}",
+                          "Promise_Date": "{{step_remind_build['patch']['Promise_Date']}}",
+                          "Parent_Response": "{{step_remind_build['patch']['Parent_Response']}}"
+                        }
+                      }
+                    },
+                    "pieceName": "@puchoaistudio/tool-http",
+                    "actionName": "send_request",
+                    "sampleData": {},
+                    "pieceVersion": "^2.0.0",
+                    "propertySettings": {
+                      "method": {
+                        "type": "MANUAL"
+                      },
+                      "url": {
+                        "type": "MANUAL"
+                      },
+                      "headers": {
+                        "type": "MANUAL",
+                        "schema": {}
+                      },
+                      "queryParams": {
+                        "type": "MANUAL",
+                        "schema": {}
+                      },
+                      "authType": {
+                        "type": "MANUAL"
+                      },
+                      "body_type": {
+                        "type": "MANUAL"
+                      },
+                      "body": {
+                        "type": "MANUAL",
+                        "schema": {}
+                      }
+                    },
+                    "errorHandlingOptions": {
+                      "retryOnFailure": {
+                        "value": false
+                      },
+                      "continueOnFailure": {
+                        "value": false
+                      }
+                    }
+                  },
+                  "nextAction": {
+                    "name": "step_remind_done",
+                    "skip": false,
+                    "type": "PIECE",
+                    "valid": true,
+                    "settings": {
+                      "input": {
+                        "fields": {
+                          "body": {
+                            "ok": "true",
+                            "action": "remind",
+                            "Fee_ID": "{{trigger['body']['Fee_ID']}}",
+                            "updated": "{{step_remind_update['body'][0]}}",
+                            "result": "{{step_remind_build['result']}}"
+                          },
+                          "status": 200,
+                          "headers": {}
+                        },
+                        "respond": "stop",
+                        "responseType": "json"
+                      },
+                      "pieceName": "@puchoaistudio/tool-webhook",
+                      "actionName": "return_response",
+                      "sampleData": {},
+                      "pieceVersion": "^2.0.4",
+                      "propertySettings": {
+                        "fields": {
+                          "type": "MANUAL",
+                          "schema": {
+                            "body": {
+                              "type": "JSON",
+                              "required": true,
+                              "displayName": "JSON Body"
+                            },
+                            "status": {
+                              "type": "NUMBER",
+                              "required": false,
+                              "displayName": "Status",
+                              "defaultValue": 200
+                            },
+                            "headers": {
+                              "type": "OBJECT",
+                              "required": false,
+                              "displayName": "Headers"
+                            }
+                          }
+                        },
+                        "respond": {
+                          "type": "MANUAL"
+                        },
+                        "responseType": {
+                          "type": "MANUAL"
+                        }
+                      },
+                      "errorHandlingOptions": {
+                        "retryOnFailure": {
+                          "value": false
+                        },
+                        "continueOnFailure": {
+                          "value": false
+                        }
+                      }
+                    },
+                    "displayName": "Return remind: Fee_ID, updated, result"
+                  },
+                  "displayName": "Update fees: Student_Name, Parent_Name, Parent_Phone, Course, Balance_INR, Due_Date +5 more"
+                },
+                "displayName": "Read the CDM output · build the patch (CODE)"
+              },
+              "displayName": "Extract the fields (Pucho CDM)"
+            },
+            {
+              "name": "step_send_link_message",
+              "skip": false,
+              "type": "CODE",
+              "valid": true,
+              "settings": {
+                "input": {
+                  "b": "{{trigger['body']}}",
+                  "C": "{{step_constants}}"
+                },
+                "sampleData": {},
+                "sourceCode": {
+                  "code": "// @ts-nocheck\n// lib: the app's src/lib/renderMessage.js, copied verbatim so the flow and the app word a message the same way\n// src/lib/renderMessage.js — a client message from a fixed template (os.yaml `sends.message`), rule zero: the words\n// are the firm's, the values are the record's, no model is involved. ONE source: the app imports it to show what a\n// simulated send would have said, and build_flows.py embeds this same file in the flow's CODE node, so the wired flow\n// and the simulation can never word a message differently. Plain JS, no imports — it must run inside Studio as is.\n//   send = { to: <payload key>, lang: <payload key>, message: { en, hi, mr, … }, words: { hi: { Adjourned: '…' } }, template: { name, variables: { '1': '{{Col}}' } } }\n//   {{Key}} → the payload value · {{constants.x}} → the flow constant · [[ … ]] → dropped when any value inside is empty\n//   dates (YYYY-MM-DD or ISO) → \"Thu, 2 Oct 2026\" / \"Thu, 2 Oct 2026, 4:30 pm\" in IST · phone → digits with 91 prefix\nfunction renderMessage(send, vars, constants) {\n  const LANG = { english: 'en', en: 'en', hindi: 'hi', hi: 'hi', marathi: 'mr', mr: 'mr', gujarati: 'gu', gu: 'gu', tamil: 'ta', ta: 'ta', telugu: 'te', te: 'te', kannada: 'kn', kn: 'kn', bengali: 'bn', bn: 'bn', malayalam: 'ml', ml: 'ml', punjabi: 'pa', pa: 'pa' };\n  const msg = (send && send.message) || {};\n  const asked = LANG[String((vars || {})[send.lang] || '').trim().toLowerCase()] || 'en';\n  const lang = msg[asked] ? asked : (msg.en ? 'en' : Object.keys(msg)[0]);\n  const words = ((send.words || {})[lang]) || {};\n  const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];\n  const date = (v) => {\n    const only = /^\\d{4}-\\d{2}-\\d{2}$/.test(v);\n    const t = only ? Date.UTC(+v.slice(0, 4), +v.slice(5, 7) - 1, +v.slice(8, 10)) : Date.parse(v) + 330 * 60000;   // IST without Intl\n    if (isNaN(t)) return v; const d = new Date(t);\n    let s = `${DAYS[d.getUTCDay()]}, ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;\n    if (!only) { const h = d.getUTCHours(), m = d.getUTCMinutes(); s += `, ${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`; }\n    return s;\n  };\n  const val = (k) => {\n    let v = k.indexOf('constants.') === 0 ? (constants || {})[k.slice(10)] : (vars || {})[k];\n    if (v === undefined || v === null) return '';\n    v = String(v).trim();\n    if (/^\\d{4}-\\d{2}-\\d{2}([T ][\\d:.]+(Z|[+-]\\d{2}:?\\d{2})?)?$/.test(v)) v = date(v);\n    return words[v] !== undefined ? words[v] : v;\n  };\n  const fill = (s) => s.replace(/\\{\\{\\s*([\\w.]+)\\s*\\}\\}/g, (_, k) => val(k));\n  let text = String(msg[lang] || '')\n    .replace(/\\[\\[([\\s\\S]*?)\\]\\]/g, (_, part) => (part.match(/\\{\\{\\s*([\\w.]+)\\s*\\}\\}/g) || []).every((p) => val(p.replace(/[{}\\s]/g, '')) !== '') ? part : '');\n  text = fill(text).replace(/[ \\t]{2,}/g, ' ').replace(/ +([.,।])/g, '$1').trim();\n  const digits = String((vars || {})[send.to] || '').replace(/\\D/g, '');\n  const to = digits.length === 10 ? '91' + digits : digits;\n  // v4.4 — an approved WhatsApp template (os.yaml `sends.template`): the words live on whatsapp.pucho.ai, the flow fills only the\n  // variables, each a {{Column}} template rendered the same way as a message. `to_e164` is the `+91…` form pucho-whatsapp takes.\n  const tpl = send && send.template; const variables = {};\n  if (tpl && tpl.variables) for (const k of Object.keys(tpl.variables)) variables[k] = fill(String(tpl.variables[k])).trim();\n  return { to, to_e164: to ? '+' + to : '', lang, text, template: tpl ? (tpl.name || '') : '', variables };\n}\n\n// end lib\nconst SEND = {\"tool\": \"whatsapp\", \"to\": \"Parent_Phone\", \"template\": {\"name\": \"eduflow_fee_payment_link\", \"variables\": {\"1\": \"{{Parent_Name}}\", \"2\": \"{{Student_Name}}\", \"3\": \"{{Balance_INR}}\", \"4\": \"{{Due_Date}}\", \"5\": \"{{Payment_Link}}\"}}};\nexport const code = async (inputs) => renderMessage(SEND, { ...(inputs.b || {}) }, inputs.C || {});",
+                  "packageJson": "{}"
+                },
+                "errorHandlingOptions": {
+                  "retryOnFailure": {
+                    "value": false
+                  },
+                  "continueOnFailure": {
+                    "value": false
+                  }
+                }
+              },
+              "nextAction": {
+                "name": "step_send_link_send",
+                "skip": false,
+                "type": "PIECE",
+                "valid": true,
+                "settings": {
+                  "input": {
+                    "account_id": "{{step_constants['whatsapp_account_id']}}",
+                    "to": "{{step_send_link_message['to_e164']}}",
+                    "template_id": "{{step_constants['whatsapp_templates']['send_link']}}",
+                    "template_variables": {
+                      "1": "{{step_send_link_message['variables']['1']}}",
+                      "2": "{{step_send_link_message['variables']['2']}}",
+                      "3": "{{step_send_link_message['variables']['3']}}",
+                      "4": "{{step_send_link_message['variables']['4']}}",
+                      "5": "{{step_send_link_message['variables']['5']}}"
+                    }
+                  },
+                  "pieceName": "@puchoaistudio/tool-pucho-whatsapp",
+                  "actionName": "send_template_message",
+                  "sampleData": {},
+                  "pieceVersion": "^2.1.6",
+                  "propertySettings": {
+                    "account_id": {
+                      "type": "MANUAL"
+                    },
+                    "to": {
+                      "type": "MANUAL"
+                    },
+                    "template_id": {
+                      "type": "MANUAL"
+                    },
+                    "template_variables": {
+                      "type": "MANUAL",
+                      "schema": {}
+                    }
+                  },
+                  "errorHandlingOptions": {
+                    "retryOnFailure": {
+                      "value": false
+                    },
+                    "continueOnFailure": {
+                      "value": false
+                    }
+                  }
+                },
+                "nextAction": {
+                  "name": "step_send_link_build",
+                  "skip": false,
+                  "type": "CODE",
+                  "valid": true,
+                  "settings": {
+                    "input": {
+                      "b": "{{trigger['body']}}"
+                    },
+                    "sampleData": {},
+                    "sourceCode": {
+                      "code": "// @ts-nocheck\nexport const code = async (inputs) => {\n  const p0 = { ...(inputs.b || {}) }; const JEVP = {}; for (const k of Object.keys(inputs)) if (k.indexOf('jev_') === 0 && k.slice(-11) !== '_confidence') { const f = k.slice(4), v = inputs[k], conf = Number(inputs[k + '_confidence']); const pol = JEVP[f] || [0.5, null]; if (v !== undefined && v !== '' && (isNaN(conf) || conf >= pol[0])) p0[f] = v; else if (pol[1] !== null && pol[1] !== undefined) p0[f] = pol[1]; } /* a Jev answer lands only when confident; else the fallback */ const now = new Date().toISOString();\n  const p = { ...p0 }; for (const [k, c] of Object.entries({})) if (p0[k] !== undefined) p[c] = p0[k];\n  const allowed = [\"Fee_ID\", \"Created_At\", \"Student_ID\", \"Student_Name\", \"Parent_Name\", \"Parent_Phone\", \"Course\", \"Instalment\", \"Amount_INR\", \"Paid_INR\", \"Balance_INR\", \"Due_Date\", \"Days_Overdue\", \"Status\", \"Reminder_Count\", \"Last_Reminder_At\", \"Payment_Link\", \"Promise_Date\", \"Parent_Response\", \"Paid_At\", \"Payment_Mode\", \"Receipt_No\"];\n  const patch = {}; for (const k of allowed) if (p[k] !== undefined && p[k] !== null && p[k] !== '') patch[k] = p[k];\n  patch[\"Last_Reminder_At\"] = now;\n  if (p.Stage && ['Won','Lost','Closed'].includes(p.Stage) && !p.Close_Reason) return { ok: 'false', error: 'Close_Reason required' };\n  return { ok: 'true', patch, id: p[allowed[0]] || '' };\n};",
+                      "packageJson": "{}"
+                    },
+                    "errorHandlingOptions": {
+                      "retryOnFailure": {
+                        "value": false
+                      },
+                      "continueOnFailure": {
+                        "value": false
+                      }
+                    }
+                  },
+                  "nextAction": {
+                    "name": "step_send_link_update",
+                    "skip": false,
+                    "type": "PIECE",
+                    "valid": true,
+                    "settings": {
+                      "input": {
+                        "method": "PATCH",
+                        "url": "{{step_constants['app_url']}}/api/data/fees",
+                        "headers": {
+                          "Content-Type": "application/json",
+                          "Authorization": "Bearer {{step_constants['inbound_token']}}",
+                          "X-Flow": "{{step_constants['flow']}}"
+                        },
+                        "queryParams": {
+                          "Fee_ID": "eq.{{trigger['body']['Fee_ID']}}"
+                        },
+                        "authType": "NONE",
+                        "body_type": "json",
+                        "body": {
+                          "data": {
+                            "Student_Name": "{{step_send_link_build['patch']['Student_Name']}}",
+                            "Parent_Name": "{{step_send_link_build['patch']['Parent_Name']}}",
+                            "Parent_Phone": "{{step_send_link_build['patch']['Parent_Phone']}}",
+                            "Balance_INR": "{{step_send_link_build['patch']['Balance_INR']}}",
+                            "Due_Date": "{{step_send_link_build['patch']['Due_Date']}}",
+                            "Last_Reminder_At": "{{step_send_link_build['patch']['Last_Reminder_At']}}",
+                            "Payment_Link": "{{step_send_link_build['patch']['Payment_Link']}}"
+                          }
+                        }
+                      },
+                      "pieceName": "@puchoaistudio/tool-http",
+                      "actionName": "send_request",
+                      "sampleData": {},
+                      "pieceVersion": "^2.0.0",
+                      "propertySettings": {
+                        "method": {
+                          "type": "MANUAL"
+                        },
+                        "url": {
+                          "type": "MANUAL"
+                        },
+                        "headers": {
+                          "type": "MANUAL",
+                          "schema": {}
+                        },
+                        "queryParams": {
+                          "type": "MANUAL",
+                          "schema": {}
+                        },
+                        "authType": {
+                          "type": "MANUAL"
+                        },
+                        "body_type": {
+                          "type": "MANUAL"
+                        },
+                        "body": {
+                          "type": "MANUAL",
+                          "schema": {}
+                        }
+                      },
+                      "errorHandlingOptions": {
+                        "retryOnFailure": {
+                          "value": false
+                        },
+                        "continueOnFailure": {
+                          "value": false
+                        }
+                      }
+                    },
+                    "nextAction": {
+                      "name": "step_send_link_done",
+                      "skip": false,
+                      "type": "PIECE",
+                      "valid": true,
+                      "settings": {
+                        "input": {
+                          "fields": {
+                            "body": {
+                              "ok": "true",
+                              "action": "send_link",
+                              "Fee_ID": "{{trigger['body']['Fee_ID']}}",
+                              "updated": "{{step_send_link_update['body'][0]}}"
+                            },
+                            "status": 200,
+                            "headers": {}
+                          },
+                          "respond": "stop",
+                          "responseType": "json"
+                        },
+                        "pieceName": "@puchoaistudio/tool-webhook",
+                        "actionName": "return_response",
+                        "sampleData": {},
+                        "pieceVersion": "^2.0.4",
+                        "propertySettings": {
+                          "fields": {
+                            "type": "MANUAL",
+                            "schema": {
+                              "body": {
+                                "type": "JSON",
+                                "required": true,
+                                "displayName": "JSON Body"
+                              },
+                              "status": {
+                                "type": "NUMBER",
+                                "required": false,
+                                "displayName": "Status",
+                                "defaultValue": 200
+                              },
+                              "headers": {
+                                "type": "OBJECT",
+                                "required": false,
+                                "displayName": "Headers"
+                              }
+                            }
+                          },
+                          "respond": {
+                            "type": "MANUAL"
+                          },
+                          "responseType": {
+                            "type": "MANUAL"
+                          }
+                        },
+                        "errorHandlingOptions": {
+                          "retryOnFailure": {
+                            "value": false
+                          },
+                          "continueOnFailure": {
+                            "value": false
+                          }
+                        }
+                      },
+                      "displayName": "Return send_link: Fee_ID, updated"
+                    },
+                    "displayName": "Update fees: Student_Name, Parent_Name, Parent_Phone, Balance_INR, Due_Date, Last_Reminder_At +1 more"
+                  },
+                  "displayName": "Build the patch (rules in CODE)"
+                },
+                "displayName": "Send WhatsApp template \"eduflow_fee_payment_link\": 1, 2, 3, 4, 5"
+              },
+              "displayName": "Fill the template variables from the record (CODE)"
+            },
+            {
+              "name": "step_unknown_action",
+              "skip": false,
+              "type": "PIECE",
+              "valid": true,
+              "settings": {
+                "input": {
+                  "fields": {
+                    "body": {
+                      "ok": "false",
+                      "error": "unknown action",
+                      "action": "{{trigger['body']['action']}}",
+                      "known": [
+                        "remind",
+                        "send_link"
+                      ]
+                    },
+                    "status": 400,
+                    "headers": {}
+                  },
+                  "respond": "stop",
+                  "responseType": "json"
+                },
+                "pieceName": "@puchoaistudio/tool-webhook",
+                "actionName": "return_response",
+                "sampleData": {},
+                "pieceVersion": "^2.0.4",
+                "propertySettings": {
+                  "fields": {
+                    "type": "MANUAL",
+                    "schema": {
+                      "body": {
+                        "type": "JSON",
+                        "required": true,
+                        "displayName": "JSON Body"
+                      },
+                      "status": {
+                        "type": "NUMBER",
+                        "required": false,
+                        "displayName": "Status",
+                        "defaultValue": 200
+                      },
+                      "headers": {
+                        "type": "OBJECT",
+                        "required": false,
+                        "displayName": "Headers"
+                      }
+                    }
+                  },
+                  "respond": {
+                    "type": "MANUAL"
+                  },
+                  "responseType": {
+                    "type": "MANUAL"
+                  }
+                },
+                "errorHandlingOptions": {
+                  "retryOnFailure": {
+                    "value": false
+                  },
+                  "continueOnFailure": {
+                    "value": false
+                  }
+                }
+              },
+              "displayName": "Return 400 unknown action"
+            }
+          ],
+          "settings": {
+            "branches": [
+              {
+                "branchName": "remind",
+                "branchType": "CONDITION",
+                "conditions": [
+                  [
+                    {
+                      "operator": "TEXT_EXACTLY_MATCHES",
+                      "firstValue": "{{trigger['body']['action']}}",
+                      "secondValue": "remind",
+                      "caseSensitive": false
+                    }
+                  ]
+                ]
+              },
+              {
+                "branchName": "send_link",
+                "branchType": "CONDITION",
+                "conditions": [
+                  [
+                    {
+                      "operator": "TEXT_EXACTLY_MATCHES",
+                      "firstValue": "{{trigger['body']['action']}}",
+                      "secondValue": "send_link",
+                      "caseSensitive": false
+                    }
+                  ]
+                ]
+              },
+              {
+                "branchName": "unknown action",
+                "branchType": "FALLBACK"
+              }
+            ],
+            "sampleData": {},
+            "executionType": "EXECUTE_FIRST_MATCH"
+          },
+          "displayName": "Route by action"
+        },
+        "displayName": "Constants"
+      }
+    },
+    "valid": true,
+    "agentIds": [],
+    "connectionIds": [],
+    "schemaVersion": "7"
+  },
+  "blogUrl": ""
+}

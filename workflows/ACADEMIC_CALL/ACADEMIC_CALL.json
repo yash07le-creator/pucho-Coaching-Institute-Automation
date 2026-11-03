@@ -1,0 +1,409 @@
+{
+  "created": "1700000000000",
+  "updated": "1700000000000",
+  "name": "Pucho EduFlow - ACADEMIC_CALL",
+  "description": "EduFlow · ACADEMIC_CALL: one flow, router on action (counsel); input = the action's payload fields (Attendance_Pct, Course, Last_Score, Mentor, Name, Student_ID, Student_Phone, Weak_Subjects); rules in CODE nodes; writes through the app's /api/data; every path ends in a Return.",
+  "tags": [],
+  "pieces": [
+    "@puchoaistudio/tool-webhook",
+    "@puchoaistudio/tool-http",
+    "@puchoaistudio/tool-pucho-cdm"
+  ],
+  "template": {
+    "displayName": "Pucho EduFlow - ACADEMIC_CALL",
+    "trigger": {
+      "name": "trigger",
+      "valid": true,
+      "displayName": "ACADEMIC_CALL — UI → action (counsel)",
+      "type": "TOOL_TRIGGER",
+      "settings": {
+        "pieceName": "@puchoaistudio/tool-webhook",
+        "pieceVersion": "^2.0.4",
+        "input": {
+          "authType": "none",
+          "authFields": {}
+        },
+        "sampleData": {},
+        "propertySettings": {
+          "authType": {
+            "type": "MANUAL"
+          },
+          "authFields": {
+            "type": "MANUAL",
+            "schema": {}
+          },
+          "liveMarkdown": {
+            "type": "MANUAL"
+          },
+          "syncMarkdown": {
+            "type": "MANUAL"
+          },
+          "testMarkdown": {
+            "type": "MANUAL"
+          }
+        },
+        "triggerName": "catch_webhook"
+      },
+      "nextAction": {
+        "name": "step_constants",
+        "skip": false,
+        "type": "CODE",
+        "valid": true,
+        "settings": {
+          "input": {
+            "trigger": "{{trigger}}",
+            "body": "{{trigger['body']}}",
+            "app_url": "{{trigger['body']['app_url']}}",
+            "inbound_token": "{{trigger['body']['inbound_token']}}",
+            "company_name": "{{trigger['body']['company_name']}}"
+          },
+          "sampleData": {},
+          "sourceCode": {
+            "code": "// @ts-nocheck\nexport const code = async (inputs) => {\n  const C = {\n    \"app_url\": \"{{trigger['body']['app_url']}}\",\n    \"inbound_token\": \"{{trigger['body']['inbound_token']}}\",\n    \"company_name\": \"{{trigger['body']['company_name']}}\",\n    \"flow\": \"ACADEMIC_CALL\",\n    \"brand_tone\": \"formal, precise, courteous\",\n    \"brand_signature\": \"\",\n    \"followup_days\": [\n      2,\n      5,\n      10\n    ],\n    \"quote_validity_days\": 30,\n    \"same_day_quote_hours\": 8,\n    \"default_owner\": \"\",\n    \"own_domain\": \"\",\n    \"quote_series\": \"SMT/Q\",\n    \"catalogue\": [],\n    \"options\": [],\n    \"owners\": [],\n    \"mentors_from\": \"team\",\n    \"voice_language\": \"hi\"\n  };\n  // v5.1: the app sends app_url, inbound_token and company_name with every call (the step's inputs, from the trigger body)\n  C.app_url = String(inputs.app_url || '').replace(/\\/+$/, ''); C.inbound_token = String(inputs.inbound_token || ''); C.company_name = String(inputs.company_name || '');\n  if (!C.brand_signature) C.brand_signature = 'For ' + C.company_name;\n  C.today = new Date().toISOString(); C.year = new Date().getFullYear();\n  C.catalogue_text = C.catalogue.map(c => c.code + ' = ' + c.name + (c.product_line ? ' (' + c.product_line + ')' : '')).join('; ');\n  C.options_for_model = (C.options || []).filter(o => o.model === ((inputs.body || {}).Model_Code || '')).map(o => o.code + ' = ' + o.description).join('; ');\n  return C;\n};",
+            "packageJson": "{}"
+          },
+          "errorHandlingOptions": {
+            "retryOnFailure": {
+              "value": false
+            },
+            "continueOnFailure": {
+              "value": false
+            }
+          }
+        },
+        "nextAction": {
+          "name": "step_router",
+          "skip": false,
+          "type": "ROUTER",
+          "valid": true,
+          "children": [
+            {
+              "name": "step_counsel_ai",
+              "skip": false,
+              "type": "PIECE",
+              "valid": true,
+              "settings": {
+                "input": {
+                  "text": "Name: {{trigger['body']['Name']}}\nCourse: {{trigger['body']['Course']}}\nWeak Subjects: {{trigger['body']['Weak_Subjects']}}",
+                  "fields": [
+                    {
+                      "name": "issue_type",
+                      "type": "string",
+                      "description": "the kind of problem: ACADEMIC, PERSONAL, ATTENDANCE, FINANCIAL or OTHER (one of: ACADEMIC, PERSONAL, ATTENDANCE, FINANCIAL, OTHER)"
+                    },
+                    {
+                      "name": "main_issue",
+                      "type": "string",
+                      "description": "the student's main problem in one line"
+                    },
+                    {
+                      "name": "needs_mentor",
+                      "type": "string",
+                      "description": "Yes when the student needs a subject mentor session (one of: Yes, No)"
+                    },
+                    {
+                      "name": "needs_counsellor",
+                      "type": "string",
+                      "description": "Yes when the student needs a counsellor (stress, family, motivation) (one of: Yes, No)"
+                    }
+                  ]
+                },
+                "pieceName": "@puchoaistudio/tool-pucho-cdm",
+                "actionName": "extract",
+                "sampleData": {},
+                "pieceVersion": "^2.0.1",
+                "propertySettings": {
+                  "text": {
+                    "type": "MANUAL"
+                  },
+                  "fields": {
+                    "type": "MANUAL"
+                  },
+                  "schema": {
+                    "type": "MANUAL"
+                  },
+                  "threshold": {
+                    "type": "MANUAL"
+                  }
+                },
+                "errorHandlingOptions": {
+                  "retryOnFailure": {
+                    "value": true
+                  },
+                  "continueOnFailure": {
+                    "value": false
+                  }
+                }
+              },
+              "nextAction": {
+                "name": "step_counsel_build",
+                "skip": false,
+                "type": "CODE",
+                "valid": true,
+                "settings": {
+                  "input": {
+                    "ai_fields": "{{step_counsel_ai['fields']}}",
+                    "C": "{{step_constants}}",
+                    "b": "{{trigger['body']}}"
+                  },
+                  "sampleData": {},
+                  "sourceCode": {
+                    "code": "// @ts-nocheck\nexport const code = async (inputs) => {\n  let parsed = {\"issue_type\": 0, \"main_issue\": \"\", \"needs_mentor\": 0, \"needs_counsellor\": 0};\n  function cdmNum(s, integer) { const t = String(s).replace(/₹|\\b(?:rs\\.?|inr)(?![a-z])/gi, ' ').trim(); if (/0x[0-9a-f]/i.test(t) || /\\d\\s*e\\s*[+-]?\\d/i.test(t) || /\\d\\.\\d{3},\\d/.test(t) || /\\d\\.\\d+\\.\\d/.test(t)) return null; const m = t.match(/-?\\d[\\d,]*(\\.\\d+)?/); if (!m) return null; let x = Number(m[0].replace(/,/g, '')); if (!isFinite(x)) return null; const u = t.slice(m.index + m[0].length).trim().toLowerCase().match(/^(thousand|k|lakhs?|lacs?|l|crores?|cr|million|mn)(?![a-z])/); if (u) x = x * (/^(thousand|k)$/.test(u[1]) ? 1e3 : /^(million|mn)$/.test(u[1]) ? 1e6 : /^(lakhs?|lacs?|l)$/.test(u[1]) ? 1e5 : 1e7); x = parseFloat(x.toPrecision(15)); return integer && !Number.isInteger(x) ? null : x; }\n  function cdmBool(s) { const t = String(s).trim().toLowerCase().replace(/[.!?।]+$/, ''); if (['yes', 'y', 'true', '1', 'haan', 'हाँ', 'हां', 'હા'].includes(t)) return true; if (['no', 'n', 'false', '0', 'nahi', 'नहीं', 'ना', 'ના'].includes(t)) return false; return null; }\n  function cdmChoice(s, ch) { const t = String(s).trim().toLowerCase(); const L = ch.map((c) => [c, String(c).toLowerCase()]); const exact = L.find((x) => x[1] === t); if (exact) return exact[0]; const esc = (x) => x.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&'); const inSpan = L.filter((x) => new RegExp('(^|[^a-z0-9])' + esc(x[1]) + '([^a-z0-9]|$)').test(t)).sort((a, b) => b[1].length - a[1].length); if (inSpan.length) return inSpan[0][0]; const inChoice = t.length >= 2 ? L.find((x) => x[1].includes(t)) : null; return inChoice ? inChoice[0] : null; }\n  function cdmFields(fields, decl, conf, choices) { if (typeof fields === 'string') { try { fields = JSON.parse(fields); } catch (e) { fields = null; } } const ents = fields && Array.isArray(fields.entities) ? fields.entities : null; const keys = Object.keys(decl); const out = Object.create(null); for (const k of keys) out[k] = null; if (!ents) { out._parse_error = 'true'; if (conf) out[conf] = 0; out.fields_found = 0; out.fields_total = keys.length; return out; } const best = Object.create(null); for (const e of ents) { if (!e || !Object.prototype.hasOwnProperty.call(decl, e.type) || e.text === undefined || e.text === null || String(e.text).trim() === '') continue; const c = Number(e.confidence) || 0; if (!best[e.type] || c > best[e.type].c) best[e.type] = { v: String(e.text).trim(), c }; } const cs = []; for (const k of keys) { const b = best[k]; if (!b) continue; const t = decl[k]; const ch = choices && Array.isArray(choices[k]) && choices[k].length ? choices[k] : null; const v = (t === 'integer' || t === 'number') ? cdmNum(b.v, t === 'integer') : t === 'boolean' ? cdmBool(b.v) : ch ? cdmChoice(b.v, ch) : b.v; if (v === null) continue; out[k] = v; cs.push(b.c); } if (conf) out[conf] = cs.length ? Math.min(...cs) : 0; out.fields_found = cs.length; out.fields_total = keys.length; return out; }\n  { const got = cdmFields(inputs.ai_fields, {\"issue_type\": \"string\", \"main_issue\": \"string\", \"needs_mentor\": \"string\", \"needs_counsellor\": \"string\"}, null, {\"issue_type\": [\"ACADEMIC\", \"PERSONAL\", \"ATTENDANCE\", \"FINANCIAL\", \"OTHER\"], \"needs_mentor\": [\"Yes\", \"No\"], \"needs_counsellor\": [\"Yes\", \"No\"]}); for (const [k, v] of Object.entries(got)) if (v !== null) parsed[k] = v; }   // Pucho CDM extract → one value per field\n  const JEVP = {}; for (const k of Object.keys(inputs)) if (k.indexOf('jev_') === 0 && k.slice(-11) !== '_confidence') { const f = k.slice(4), v = inputs[k], conf = Number(inputs[k + '_confidence']); const pol = JEVP[f] || [0.5, null]; if (v !== undefined && v !== '' && (isNaN(conf) || conf >= pol[0])) parsed[f] = v; else if (pol[1] !== null && pol[1] !== undefined) parsed[f] = pol[1]; } /* a Jev answer lands only when confident; else the fallback */\n  const build = async (inputs) => {\n  const C = inputs.C, p = inputs.b || {}, r = parsed || {};\n  const allowed = [\"Student_ID\", \"Enrolled_At\", \"Name\", \"Student_Phone\", \"Parent_Name\", \"Parent_Phone\", \"Course\", \"Batch\", \"Address\", \"Status\", \"Attendance_Pct\", \"Last_Score\", \"Avg_Score\", \"Class_Rank\", \"Strong_Subjects\", \"Weak_Subjects\", \"Performance_Trend\", \"Fee_Status\", \"Fee_Amount_INR\", \"Fee_Due_Date\", \"Mentor\", \"Counsellor\", \"Issue_Type\", \"Main_Issue\", \"Last_Counselled_At\", \"Last_Report_At\", \"Last_Parent_Call_At\", \"Parent_Sentiment\", \"Parent_Concern\"]; const fills = {\"Issue_Type\": \"ACADEMIC\", \"Main_Issue\": \"Simulated call — struggling with the weak subjects; asked for extra doubt sessions\", \"Last_Counselled_At\": \"now\"};\n  const title = (s) => s.replace(/(^|_)(\\w)/g, (m, a, b) => a + b.toUpperCase());\n  const row = {}; for (const k of allowed) { if (p[k] !== undefined) row[k] = p[k]; else if (r[k] !== undefined) row[k] = r[k]; else if (r[k.toLowerCase()] !== undefined) row[k] = r[k.toLowerCase()]; }\n  for (const k of Object.keys(r)) { const t = title(k); if (allowed.includes(t) && row[t] === undefined) row[t] = Array.isArray(r[k]) ? r[k].join('; ') : r[k]; }\n  for (const [k, v] of Object.entries(fills)) row[k] = v === 'now' ? new Date().toISOString() : v;\n  const id = p['Student_ID']; const patch = {}; for (const k of allowed) if (k !== 'Student_ID' && row[k] !== undefined && row[k] !== '') patch[k] = row[k];\n  return { patch, id };\n};\n  const out = await build(inputs);\n  return { ...out, result: parsed };\n};",
+                    "packageJson": "{}"
+                  },
+                  "errorHandlingOptions": {
+                    "retryOnFailure": {
+                      "value": false
+                    },
+                    "continueOnFailure": {
+                      "value": false
+                    }
+                  }
+                },
+                "nextAction": {
+                  "name": "step_counsel_update",
+                  "skip": false,
+                  "type": "PIECE",
+                  "valid": true,
+                  "settings": {
+                    "input": {
+                      "method": "PATCH",
+                      "url": "{{step_constants['app_url']}}/api/data/students",
+                      "headers": {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer {{step_constants['inbound_token']}}",
+                        "X-Flow": "{{step_constants['flow']}}"
+                      },
+                      "queryParams": {
+                        "Student_ID": "eq.{{trigger['body']['Student_ID']}}"
+                      },
+                      "authType": "NONE",
+                      "body_type": "json",
+                      "body": {
+                        "data": {
+                          "Name": "{{step_counsel_build['patch']['Name']}}",
+                          "Student_Phone": "{{step_counsel_build['patch']['Student_Phone']}}",
+                          "Course": "{{step_counsel_build['patch']['Course']}}",
+                          "Attendance_Pct": "{{step_counsel_build['patch']['Attendance_Pct']}}",
+                          "Last_Score": "{{step_counsel_build['patch']['Last_Score']}}",
+                          "Weak_Subjects": "{{step_counsel_build['patch']['Weak_Subjects']}}",
+                          "Mentor": "{{step_counsel_build['patch']['Mentor']}}",
+                          "Issue_Type": "{{step_counsel_build['patch']['Issue_Type']}}",
+                          "Main_Issue": "{{step_counsel_build['patch']['Main_Issue']}}",
+                          "Last_Counselled_At": "{{step_counsel_build['patch']['Last_Counselled_At']}}"
+                        }
+                      }
+                    },
+                    "pieceName": "@puchoaistudio/tool-http",
+                    "actionName": "send_request",
+                    "sampleData": {},
+                    "pieceVersion": "^2.0.0",
+                    "propertySettings": {
+                      "method": {
+                        "type": "MANUAL"
+                      },
+                      "url": {
+                        "type": "MANUAL"
+                      },
+                      "headers": {
+                        "type": "MANUAL",
+                        "schema": {}
+                      },
+                      "queryParams": {
+                        "type": "MANUAL",
+                        "schema": {}
+                      },
+                      "authType": {
+                        "type": "MANUAL"
+                      },
+                      "body_type": {
+                        "type": "MANUAL"
+                      },
+                      "body": {
+                        "type": "MANUAL",
+                        "schema": {}
+                      }
+                    },
+                    "errorHandlingOptions": {
+                      "retryOnFailure": {
+                        "value": false
+                      },
+                      "continueOnFailure": {
+                        "value": false
+                      }
+                    }
+                  },
+                  "nextAction": {
+                    "name": "step_counsel_done",
+                    "skip": false,
+                    "type": "PIECE",
+                    "valid": true,
+                    "settings": {
+                      "input": {
+                        "fields": {
+                          "body": {
+                            "ok": "true",
+                            "action": "counsel",
+                            "Student_ID": "{{trigger['body']['Student_ID']}}",
+                            "updated": "{{step_counsel_update['body'][0]}}",
+                            "result": "{{step_counsel_build['result']}}"
+                          },
+                          "status": 200,
+                          "headers": {}
+                        },
+                        "respond": "stop",
+                        "responseType": "json"
+                      },
+                      "pieceName": "@puchoaistudio/tool-webhook",
+                      "actionName": "return_response",
+                      "sampleData": {},
+                      "pieceVersion": "^2.0.4",
+                      "propertySettings": {
+                        "fields": {
+                          "type": "MANUAL",
+                          "schema": {
+                            "body": {
+                              "type": "JSON",
+                              "required": true,
+                              "displayName": "JSON Body"
+                            },
+                            "status": {
+                              "type": "NUMBER",
+                              "required": false,
+                              "displayName": "Status",
+                              "defaultValue": 200
+                            },
+                            "headers": {
+                              "type": "OBJECT",
+                              "required": false,
+                              "displayName": "Headers"
+                            }
+                          }
+                        },
+                        "respond": {
+                          "type": "MANUAL"
+                        },
+                        "responseType": {
+                          "type": "MANUAL"
+                        }
+                      },
+                      "errorHandlingOptions": {
+                        "retryOnFailure": {
+                          "value": false
+                        },
+                        "continueOnFailure": {
+                          "value": false
+                        }
+                      }
+                    },
+                    "displayName": "Return counsel: Student_ID, updated, result"
+                  },
+                  "displayName": "Update students: Name, Student_Phone, Course, Attendance_Pct, Last_Score, Weak_Subjects +4 more"
+                },
+                "displayName": "Read the CDM output · build the patch (CODE)"
+              },
+              "displayName": "Extract the fields (Pucho CDM)"
+            },
+            {
+              "name": "step_unknown_action",
+              "skip": false,
+              "type": "PIECE",
+              "valid": true,
+              "settings": {
+                "input": {
+                  "fields": {
+                    "body": {
+                      "ok": "false",
+                      "error": "unknown action",
+                      "action": "{{trigger['body']['action']}}",
+                      "known": [
+                        "counsel"
+                      ]
+                    },
+                    "status": 400,
+                    "headers": {}
+                  },
+                  "respond": "stop",
+                  "responseType": "json"
+                },
+                "pieceName": "@puchoaistudio/tool-webhook",
+                "actionName": "return_response",
+                "sampleData": {},
+                "pieceVersion": "^2.0.4",
+                "propertySettings": {
+                  "fields": {
+                    "type": "MANUAL",
+                    "schema": {
+                      "body": {
+                        "type": "JSON",
+                        "required": true,
+                        "displayName": "JSON Body"
+                      },
+                      "status": {
+                        "type": "NUMBER",
+                        "required": false,
+                        "displayName": "Status",
+                        "defaultValue": 200
+                      },
+                      "headers": {
+                        "type": "OBJECT",
+                        "required": false,
+                        "displayName": "Headers"
+                      }
+                    }
+                  },
+                  "respond": {
+                    "type": "MANUAL"
+                  },
+                  "responseType": {
+                    "type": "MANUAL"
+                  }
+                },
+                "errorHandlingOptions": {
+                  "retryOnFailure": {
+                    "value": false
+                  },
+                  "continueOnFailure": {
+                    "value": false
+                  }
+                }
+              },
+              "displayName": "Return 400 unknown action"
+            }
+          ],
+          "settings": {
+            "branches": [
+              {
+                "branchName": "counsel",
+                "branchType": "CONDITION",
+                "conditions": [
+                  [
+                    {
+                      "operator": "TEXT_EXACTLY_MATCHES",
+                      "firstValue": "{{trigger['body']['action']}}",
+                      "secondValue": "counsel",
+                      "caseSensitive": false
+                    }
+                  ]
+                ]
+              },
+              {
+                "branchName": "unknown action",
+                "branchType": "FALLBACK"
+              }
+            ],
+            "sampleData": {},
+            "executionType": "EXECUTE_FIRST_MATCH"
+          },
+          "displayName": "Route by action"
+        },
+        "displayName": "Constants"
+      }
+    },
+    "valid": true,
+    "agentIds": [],
+    "connectionIds": [],
+    "schemaVersion": "7"
+  },
+  "blogUrl": ""
+}

@@ -1,0 +1,32 @@
+{
+  "flow": "FEE_REMINDER",
+  "covers": [
+    "R24",
+    "R25",
+    "R27"
+  ],
+  "connections": "portable",
+  "fire_and_forget": false,
+  "allow_pieces": [
+    "http",
+    "pucho-cdm",
+    "pucho-whatsapp",
+    "webhook"
+  ],
+  "allow_names": [
+    "catch_webhook",
+    "extract",
+    "return_response",
+    "send_request",
+    "send_template_message"
+  ],
+  "require_capabilities": [
+    "receive_FEE_REMINDER=webhook:trigger",
+    "respond_FEE_REMINDER=webhook:respond",
+    "model_FEE_REMINDER_remind=pucho-cdm:transform",
+    "persist_FEE_REMINDER_remind=http:write",
+    "persist_FEE_REMINDER_send_link=http:write",
+    "dispatch_FEE_REMINDER_send_link=pucho-whatsapp:write"
+  ],
+  "unverified_outputs": []
+}

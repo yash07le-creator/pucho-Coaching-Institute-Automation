@@ -1,0 +1,34 @@
+{
+  "flow": "PARENT_UPDATE",
+  "covers": [
+    "R29",
+    "R30",
+    "R31",
+    "R33"
+  ],
+  "connections": "portable",
+  "fire_and_forget": false,
+  "allow_pieces": [
+    "http",
+    "pucho-cdm",
+    "pucho-whatsapp",
+    "webhook"
+  ],
+  "allow_names": [
+    "catch_webhook",
+    "extract",
+    "return_response",
+    "send_request",
+    "send_template_message"
+  ],
+  "require_capabilities": [
+    "receive_PARENT_UPDATE=webhook:trigger",
+    "respond_PARENT_UPDATE=webhook:respond",
+    "persist_PARENT_UPDATE_weekly_report=http:write",
+    "dispatch_PARENT_UPDATE_weekly_report=pucho-whatsapp:write",
+    "model_PARENT_UPDATE_update_call=pucho-cdm:transform",
+    "persist_PARENT_UPDATE_update_call=http:write",
+    "also_PARENT_UPDATE_update_call=step_update_call_also_update:http:write"
+  ],
+  "unverified_outputs": []
+}

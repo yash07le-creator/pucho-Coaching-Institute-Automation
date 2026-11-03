@@ -1,0 +1,23 @@
+{
+  "flow": "SCORES",
+  "covers": [
+    "R19"
+  ],
+  "connections": "portable",
+  "fire_and_forget": false,
+  "allow_pieces": [
+    "http",
+    "webhook"
+  ],
+  "allow_names": [
+    "catch_webhook",
+    "return_response",
+    "send_request"
+  ],
+  "require_capabilities": [
+    "receive_SCORES=webhook:trigger",
+    "respond_SCORES=webhook:respond",
+    "persist_SCORES_save_batch=http:write"
+  ],
+  "unverified_outputs": []
+}

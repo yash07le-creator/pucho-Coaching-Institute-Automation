@@ -1,0 +1,24 @@
+{
+  "flow": "ATTENDANCE",
+  "covers": [
+    "R14",
+    "R15"
+  ],
+  "connections": "portable",
+  "fire_and_forget": false,
+  "allow_pieces": [
+    "http",
+    "webhook"
+  ],
+  "allow_names": [
+    "catch_webhook",
+    "return_response",
+    "send_request"
+  ],
+  "require_capabilities": [
+    "receive_ATTENDANCE=webhook:trigger",
+    "respond_ATTENDANCE=webhook:respond",
+    "persist_ATTENDANCE_save_batch=http:write"
+  ],
+  "unverified_outputs": []
+}

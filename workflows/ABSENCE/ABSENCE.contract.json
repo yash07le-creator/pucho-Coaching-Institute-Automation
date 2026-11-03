@@ -1,0 +1,29 @@
+{
+  "flow": "ABSENCE",
+  "covers": [
+    "R14",
+    "R15",
+    "R16",
+    "R17"
+  ],
+  "connections": "portable",
+  "fire_and_forget": false,
+  "allow_pieces": [
+    "http",
+    "pucho-whatsapp",
+    "webhook"
+  ],
+  "allow_names": [
+    "catch_webhook",
+    "return_response",
+    "send_request",
+    "send_template_message"
+  ],
+  "require_capabilities": [
+    "receive_ABSENCE=webhook:trigger",
+    "respond_ABSENCE=webhook:respond",
+    "persist_ABSENCE_absent=http:write",
+    "dispatch_ABSENCE_absent=pucho-whatsapp:write"
+  ],
+  "unverified_outputs": []
+}

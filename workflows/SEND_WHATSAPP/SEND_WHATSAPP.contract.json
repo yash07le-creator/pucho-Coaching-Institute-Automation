@@ -1,0 +1,26 @@
+{
+  "flow": "SEND_WHATSAPP",
+  "covers": [
+    "R34"
+  ],
+  "connections": "portable",
+  "fire_and_forget": false,
+  "allow_pieces": [
+    "http",
+    "pucho-whatsapp",
+    "webhook"
+  ],
+  "allow_names": [
+    "catch_webhook",
+    "return_response",
+    "send_request",
+    "send_template_message"
+  ],
+  "require_capabilities": [
+    "receive_SEND_WHATSAPP=webhook:trigger",
+    "respond_SEND_WHATSAPP=webhook:respond",
+    "persist_SEND_WHATSAPP_send_update=http:write",
+    "dispatch_SEND_WHATSAPP_send_update=pucho-whatsapp:write"
+  ],
+  "unverified_outputs": []
+}

@@ -1,53 +1,67 @@
 # Operating cost estimate · EduFlow
-_Pucho EduFlow OS · 2026-11-03 · step 2 · from os.yaml · 1 credit = ₹0.30_
+_Pucho EduFlow OS · 2026-11-03 · step 6 · counted on the built flows · 1 credit = ₹0.30_
 
 After the OS is live, this is what it consumes. Credits are the only unit; the rupee column is credits × rate. The volumes
 come from your own numbers (listed under Assumptions) — change a volume and the total moves with it.
 
-| Workflow | Action | What triggers it | Runs / month | Credits / run | Credits / month |
-|---|---|---|---:|---:|---:|
-| ADMISSION_CALL | new lead | new lead from the OS | 120 | 44 | 5,280 |
-|  | call | call from the OS | 30 | 44 | 1,320 |
-| | **ADMISSION_CALL total** | | | | **6,600** |
-| STUDENT_MANAGE | enrol | enrol from the OS | 30 | 7 | 210 |
-| SCORES | save batch | save batch from the OS | 40 | 3 | 120 |
-| ATTENDANCE | save batch | save batch from the OS | 90 | 6 | 540 |
-| ABSENCE | absent | absent from the OS | 1,144 | 7 | 8,008 |
-| ACADEMIC_CALL | counsel | counsel from the OS | 147 | 54 | 7,938 |
-| FEE_REMINDER | remind | remind from the OS | 69 | 29 | 2,001 |
-|  | send link | send link from the OS | 80 | 7 | 560 |
-| | **FEE_REMINDER total** | | | | **2,561** |
-| PARENT_UPDATE | weekly report | weekly report from the OS | 1,481 | 7 | 10,367 |
-|  | update call | update call from the OS | 160 | 49 | 7,840 |
-| | **PARENT_UPDATE total** | | | | **18,207** |
-| SEND_WHATSAPP | send update | send update from the OS | 57 | 7 | 399 |
-| FEE_RUN | run | schedule | 30 | 5 | 150 |
-| ACADEMIC_RUN | run | schedule | 4 | 5 | 20 |
-| PARENT_RUN | run | schedule | 9 | 5 | 45 |
-| ROLLUP | run | schedule | 30 | 5 | 150 |
-| | **Total** | | | | **44,948 credits ≈ ₹13,484 / month** |
+| Workflow | Action | What triggers it | Runs / month | Declared / run | Counted / run | Credits / month |
+|---|---|---|---:|---:|---:|---:|
+| ADMISSION_CALL | new lead | new lead from the OS | 120 | 44 | 6 | 720 |
+|  | call | call from the OS | 30 | 44 | 6 | 180 |
+| | **ADMISSION_CALL total** | | | | | **900** |
+| STUDENT_MANAGE | enrol | enrol from the OS | 30 | 7 | 7 | 210 |
+| SCORES | save batch | save batch from the OS | 40 | 3 | 7 | 280 |
+| ATTENDANCE | save batch | save batch from the OS | 90 | 6 | 7 | 630 |
+| ABSENCE | absent | absent from the OS | 1,144 | 7 | 7 | 8,008 |
+| ACADEMIC_CALL | counsel | counsel from the OS | 147 | 54 | 6 | 882 |
+| FEE_REMINDER | remind | remind from the OS | 69 | 29 | 6 | 414 |
+|  | send link | send link from the OS | 80 | 7 | 7 | 560 |
+| | **FEE_REMINDER total** | | | | | **974** |
+| PARENT_UPDATE | weekly report | weekly report from the OS | 1,481 | 7 | 7 | 10,367 |
+|  | update call | update call from the OS | 160 | 49 | 8 | 1,280 |
+| | **PARENT_UPDATE total** | | | | | **11,647** |
+| SEND_WHATSAPP | send update | send update from the OS | 57 | 7 | 7 | 399 |
+| FEE_RUN | run | schedule | 30 | 5 | 5 | 150 |
+| ACADEMIC_RUN | run | schedule | 4 | 5 | 5 | 20 |
+| PARENT_RUN | run | schedule | 9 | 5 | 5 | 45 |
+| ROLLUP | run | schedule | 30 | 5 | 5 | 150 |
+| | **Total** | | | | | **24,295 credits ≈ ₹7,288 / month** |
 
-**Range at ±30 % volume:** 31,464 – 58,432 credits (₹9,439 – ₹17,530 / month).
+**Range at ±30 % volume:** 17,006 – 31,584 credits (₹5,102 – ₹9,475 / month).
+
+## Steps whose AI / tool surcharge is UNVERIFIED (their base credit IS in the total above)
+Each of these steps is counted at the confirmed base (1 credit per executed step). Whether it also cuts an AI / tool charge on top is not known: Pucho CDM (classify / extract / summarize) showed no credits in Studio on 31 Oct 2026 — its `usage.cost` is the upstream USD cost, not Pucho credits; a tool a flow calls through `uses:` that flow/credit-table.md does not list is the same. Ask the Studio team for the rate.
+
+| Workflow | Action | Tool steps per run | Runs / month | Steps / month |
+|---|---|---|---:|---:|
+| ADMISSION_CALL | new lead | pucho-cdm ×1 | 120 | 120 |
+| ADMISSION_CALL | call | pucho-cdm ×1 | 30 | 30 |
+| ACADEMIC_CALL | counsel | pucho-cdm ×1 | 147 | 147 |
+| FEE_REMINDER | remind | pucho-cdm ×1 | 69 | 69 |
+| PARENT_UPDATE | update call | pucho-cdm ×1 | 160 | 160 |
 
 **WhatsApp:** about 2,792 outbound messages/month leave the OS. Meta bills conversations separately at the client's WhatsApp Business rate; they are not credits and are not in the total above.
 
 ## Assumptions (correct these first)
 - 4,200 events/month (os.volume_per_month)
-- ADMISSION_CALL.new_lead: 120 runs/month, 44 credits/run (declared, standard model)
-- ADMISSION_CALL.call: 30 runs/month, 44 credits/run (declared, standard model)
-- STUDENT_MANAGE.enrol: 30 runs/month, 7 credits/run (declared, none model, sends whatsapp)
-- SCORES.save_batch: 40 runs/month, 3 credits/run (declared, none model)
-- ATTENDANCE.save_batch: 90 runs/month, 6 credits/run (declared, none model)
-- ABSENCE.absent: 1,144 runs/month, 7 credits/run (declared, none model, sends whatsapp)
-- ACADEMIC_CALL.counsel: 147 runs/month, 54 credits/run (declared, standard model)
-- FEE_REMINDER.remind: 69 runs/month, 29 credits/run (declared, standard model)
-- FEE_REMINDER.send_link: 80 runs/month, 7 credits/run (declared, none model, sends whatsapp)
-- PARENT_UPDATE.weekly_report: 1,481 runs/month, 7 credits/run (declared, none model, sends whatsapp)
-- PARENT_UPDATE.update_call: 160 runs/month, 49 credits/run (declared, standard model)
-- SEND_WHATSAPP.send_update: 57 runs/month, 7 credits/run (declared, none model, sends whatsapp)
+- ADMISSION_CALL.new_lead: 120 runs/month, 6 credits/run (flow json, standard model)
+- ADMISSION_CALL.call: 30 runs/month, 6 credits/run (flow json, standard model)
+- STUDENT_MANAGE.enrol: 30 runs/month, 7 credits/run (flow json, none model, sends whatsapp)
+- SCORES.save_batch: 40 runs/month, 7 credits/run (flow json, none model)
+- ATTENDANCE.save_batch: 90 runs/month, 7 credits/run (flow json, none model)
+- ABSENCE.absent: 1,144 runs/month, 7 credits/run (flow json, none model, sends whatsapp)
+- ACADEMIC_CALL.counsel: 147 runs/month, 6 credits/run (flow json, standard model)
+- FEE_REMINDER.remind: 69 runs/month, 6 credits/run (flow json, standard model)
+- FEE_REMINDER.send_link: 80 runs/month, 7 credits/run (flow json, none model, sends whatsapp)
+- PARENT_UPDATE.weekly_report: 1,481 runs/month, 7 credits/run (flow json, none model, sends whatsapp)
+- PARENT_UPDATE.update_call: 160 runs/month, 8 credits/run (flow json, standard model)
+- SEND_WHATSAPP.send_update: 57 runs/month, 7 credits/run (flow json, none model, sends whatsapp)
 - FEE_RUN.run: 30 runs/month, 5 credits/run (declared, none model)
 - ACADEMIC_RUN.run: 4 runs/month, 5 credits/run (declared, none model)
 - PARENT_RUN.run: 9 runs/month, 5 credits/run (declared, none model)
 - ROLLUP.run: 30 runs/month, 5 credits/run (declared, none model)
+
+## Gaps in the declaration
+- counted credits/run (base 1 per executed step, router free) exceed the declared value by more than 1.5× on 1 action(s) — the AI step's multiplier per model tier is the unconfirmed part (flow/credit-table.md); say so to the client
 
 _Generated by scripts/estimate_os.py. Credits/run marked “table default” use flow/credit-table.md (base 5/7/8 for none/standard/advanced); “flow json” was counted on the built workflow; “declared” is os.yaml._

@@ -1,0 +1,32 @@
+{
+  "flow": "ADMISSION_CALL",
+  "covers": [
+    "R2",
+    "R3",
+    "R4",
+    "R5",
+    "R7"
+  ],
+  "connections": "portable",
+  "fire_and_forget": false,
+  "allow_pieces": [
+    "http",
+    "pucho-cdm",
+    "webhook"
+  ],
+  "allow_names": [
+    "catch_webhook",
+    "extract",
+    "return_response",
+    "send_request"
+  ],
+  "require_capabilities": [
+    "receive_ADMISSION_CALL=webhook:trigger",
+    "respond_ADMISSION_CALL=webhook:respond",
+    "model_ADMISSION_CALL_new_lead=pucho-cdm:transform",
+    "persist_ADMISSION_CALL_new_lead=http:write",
+    "model_ADMISSION_CALL_call=pucho-cdm:transform",
+    "persist_ADMISSION_CALL_call=http:write"
+  ],
+  "unverified_outputs": []
+}

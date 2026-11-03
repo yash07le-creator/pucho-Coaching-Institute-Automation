@@ -1,0 +1,27 @@
+{
+  "flow": "STUDENT_MANAGE",
+  "covers": [
+    "R10",
+    "R11"
+  ],
+  "connections": "portable",
+  "fire_and_forget": false,
+  "allow_pieces": [
+    "http",
+    "pucho-whatsapp",
+    "webhook"
+  ],
+  "allow_names": [
+    "catch_webhook",
+    "return_response",
+    "send_request",
+    "send_template_message"
+  ],
+  "require_capabilities": [
+    "receive_STUDENT_MANAGE=webhook:trigger",
+    "respond_STUDENT_MANAGE=webhook:respond",
+    "persist_STUDENT_MANAGE_enrol=http:write",
+    "dispatch_STUDENT_MANAGE_enrol=pucho-whatsapp:write"
+  ],
+  "unverified_outputs": []
+}

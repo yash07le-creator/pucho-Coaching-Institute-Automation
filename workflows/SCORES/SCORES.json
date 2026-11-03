@@ -1,0 +1,433 @@
+{
+  "created": "1700000000000",
+  "updated": "1700000000000",
+  "name": "Pucho EduFlow - SCORES",
+  "description": "EduFlow · SCORES: one flow, router on action (save_batch); input = the action's payload fields (Absent_Count, Avg_Pct, Batch, Marked_By, Max_Marks, Scored_Count, Subject, Test_Date, Test_Name, Total_Count, lines); rules in CODE nodes; writes through the app's /api/data; every path ends in a Return.",
+  "tags": [],
+  "pieces": [
+    "@puchoaistudio/tool-webhook",
+    "@puchoaistudio/tool-http"
+  ],
+  "template": {
+    "displayName": "Pucho EduFlow - SCORES",
+    "trigger": {
+      "name": "trigger",
+      "valid": true,
+      "displayName": "SCORES — UI → action (save_batch)",
+      "type": "TOOL_TRIGGER",
+      "settings": {
+        "pieceName": "@puchoaistudio/tool-webhook",
+        "pieceVersion": "^2.0.4",
+        "input": {
+          "authType": "none",
+          "authFields": {}
+        },
+        "sampleData": {},
+        "propertySettings": {
+          "authType": {
+            "type": "MANUAL"
+          },
+          "authFields": {
+            "type": "MANUAL",
+            "schema": {}
+          },
+          "liveMarkdown": {
+            "type": "MANUAL"
+          },
+          "syncMarkdown": {
+            "type": "MANUAL"
+          },
+          "testMarkdown": {
+            "type": "MANUAL"
+          }
+        },
+        "triggerName": "catch_webhook"
+      },
+      "nextAction": {
+        "name": "step_constants",
+        "skip": false,
+        "type": "CODE",
+        "valid": true,
+        "settings": {
+          "input": {
+            "trigger": "{{trigger}}",
+            "body": "{{trigger['body']}}",
+            "app_url": "{{trigger['body']['app_url']}}",
+            "inbound_token": "{{trigger['body']['inbound_token']}}",
+            "company_name": "{{trigger['body']['company_name']}}"
+          },
+          "sampleData": {},
+          "sourceCode": {
+            "code": "// @ts-nocheck\nexport const code = async (inputs) => {\n  const C = {\n    \"app_url\": \"{{trigger['body']['app_url']}}\",\n    \"inbound_token\": \"{{trigger['body']['inbound_token']}}\",\n    \"company_name\": \"{{trigger['body']['company_name']}}\",\n    \"flow\": \"SCORES\",\n    \"brand_tone\": \"formal, precise, courteous\",\n    \"brand_signature\": \"\",\n    \"followup_days\": [\n      2,\n      5,\n      10\n    ],\n    \"quote_validity_days\": 30,\n    \"same_day_quote_hours\": 8,\n    \"default_owner\": \"\",\n    \"own_domain\": \"\",\n    \"quote_series\": \"SMT/Q\",\n    \"catalogue\": [],\n    \"options\": [],\n    \"owners\": []\n  };\n  // v5.1: the app sends app_url, inbound_token and company_name with every call (the step's inputs, from the trigger body)\n  C.app_url = String(inputs.app_url || '').replace(/\\/+$/, ''); C.inbound_token = String(inputs.inbound_token || ''); C.company_name = String(inputs.company_name || '');\n  if (!C.brand_signature) C.brand_signature = 'For ' + C.company_name;\n  C.today = new Date().toISOString(); C.year = new Date().getFullYear();\n  C.catalogue_text = C.catalogue.map(c => c.code + ' = ' + c.name + (c.product_line ? ' (' + c.product_line + ')' : '')).join('; ');\n  C.options_for_model = (C.options || []).filter(o => o.model === ((inputs.body || {}).Model_Code || '')).map(o => o.code + ' = ' + o.description).join('; ');\n  return C;\n};",
+            "packageJson": "{}"
+          },
+          "errorHandlingOptions": {
+            "retryOnFailure": {
+              "value": false
+            },
+            "continueOnFailure": {
+              "value": false
+            }
+          }
+        },
+        "nextAction": {
+          "name": "step_router",
+          "skip": false,
+          "type": "ROUTER",
+          "valid": true,
+          "children": [
+            {
+              "name": "step_save_batch_build",
+              "skip": false,
+              "type": "CODE",
+              "valid": true,
+              "settings": {
+                "input": {
+                  "b": "{{trigger['body']}}"
+                },
+                "sampleData": {},
+                "sourceCode": {
+                  "code": "// @ts-nocheck\nexport const code = async (inputs) => { const p = { ...(inputs.b || {}) }; const JEVP = {}; for (const k of Object.keys(inputs)) if (k.indexOf('jev_') === 0 && k.slice(-11) !== '_confidence') { const f = k.slice(4), v = inputs[k], conf = Number(inputs[k + '_confidence']); const pol = JEVP[f] || [0.5, null]; if (v !== undefined && v !== '' && (isNaN(conf) || conf >= pol[0])) p[f] = v; else if (pol[1] !== null && pol[1] !== undefined) p[f] = pol[1]; } /* a Jev answer lands only when confident; else the fallback */ const now = new Date().toISOString(); const allowed = [\"Run_ID\", \"Test_Date\", \"Test_Name\", \"Batch\", \"Subject\", \"Max_Marks\", \"Total_Count\", \"Scored_Count\", \"Absent_Count\", \"Avg_Pct\", \"Marked_By\", \"Saved_At\"]; const map = {}; const fill = {\"Saved_At\": \"now\"};\n  const src = { ...p }; for (const [k, c] of Object.entries(map)) if (p[k] !== undefined) src[c] = p[k];\n  const row = {}; for (const k of allowed) row[k] = src[k] === undefined ? '' : src[k]; for (const [k, v] of Object.entries(fill)) row[k] = v === 'now' ? now : v;\n  if (!row['Saved_At']) row['Saved_At'] = now;\n  return { row };\n};",
+                  "packageJson": "{}"
+                },
+                "errorHandlingOptions": {
+                  "retryOnFailure": {
+                    "value": false
+                  },
+                  "continueOnFailure": {
+                    "value": false
+                  }
+                }
+              },
+              "nextAction": {
+                "name": "step_save_batch_insert",
+                "skip": false,
+                "type": "PIECE",
+                "valid": true,
+                "settings": {
+                  "input": {
+                    "method": "POST",
+                    "url": "{{step_constants['app_url']}}/api/data/test_runs",
+                    "headers": {
+                      "Content-Type": "application/json",
+                      "Authorization": "Bearer {{step_constants['inbound_token']}}",
+                      "X-Flow": "{{step_constants['flow']}}"
+                    },
+                    "queryParams": {},
+                    "authType": "NONE",
+                    "body_type": "json",
+                    "body": {
+                      "data": {
+                        "Run_ID": "{{step_save_batch_build['row']['Run_ID']}}",
+                        "Test_Date": "{{step_save_batch_build['row']['Test_Date']}}",
+                        "Test_Name": "{{step_save_batch_build['row']['Test_Name']}}",
+                        "Batch": "{{step_save_batch_build['row']['Batch']}}",
+                        "Subject": "{{step_save_batch_build['row']['Subject']}}",
+                        "Max_Marks": "{{step_save_batch_build['row']['Max_Marks']}}",
+                        "Total_Count": "{{step_save_batch_build['row']['Total_Count']}}",
+                        "Scored_Count": "{{step_save_batch_build['row']['Scored_Count']}}",
+                        "Absent_Count": "{{step_save_batch_build['row']['Absent_Count']}}",
+                        "Avg_Pct": "{{step_save_batch_build['row']['Avg_Pct']}}",
+                        "Marked_By": "{{step_save_batch_build['row']['Marked_By']}}",
+                        "Saved_At": "{{step_save_batch_build['row']['Saved_At']}}"
+                      }
+                    }
+                  },
+                  "pieceName": "@puchoaistudio/tool-http",
+                  "actionName": "send_request",
+                  "sampleData": {},
+                  "pieceVersion": "^2.0.0",
+                  "propertySettings": {
+                    "method": {
+                      "type": "MANUAL"
+                    },
+                    "url": {
+                      "type": "MANUAL"
+                    },
+                    "headers": {
+                      "type": "MANUAL",
+                      "schema": {}
+                    },
+                    "queryParams": {
+                      "type": "MANUAL",
+                      "schema": {}
+                    },
+                    "authType": {
+                      "type": "MANUAL"
+                    },
+                    "body_type": {
+                      "type": "MANUAL"
+                    },
+                    "body": {
+                      "type": "MANUAL",
+                      "schema": {}
+                    }
+                  },
+                  "errorHandlingOptions": {
+                    "retryOnFailure": {
+                      "value": false
+                    },
+                    "continueOnFailure": {
+                      "value": false
+                    }
+                  }
+                },
+                "nextAction": {
+                  "name": "step_save_batch_lines",
+                  "skip": false,
+                  "type": "CODE",
+                  "valid": true,
+                  "settings": {
+                    "input": {
+                      "b": "{{trigger['body']}}",
+                      "id": "{{step_save_batch_insert['body'][0]['Run_ID']}}"
+                    },
+                    "sampleData": {},
+                    "sourceCode": {
+                      "code": "// @ts-nocheck\nexport const code = async (inputs) => {\n  const raw = inputs.b['lines']; const lines = Array.isArray(raw) ? raw : (typeof raw === 'string' ? (JSON.parse(raw || '[]')) : []);\n  const cols = [\"Test_Date\", \"Test_Name\", \"Student_ID\", \"Name\", \"Course\", \"Batch\", \"Subject\", \"Marks\", \"Max_Marks\", \"Score_Pct\", \"Status\", \"Run_ID\"]; const id = inputs.id; const stamp = Date.now();\n  const rows = lines.map((l, i) => { const r = {}; for (const c of cols) r[c] = l[c] === undefined ? '' : l[c]; r['Run_ID'] = id; r['Score_ID'] = (l['Score_ID'] && !String(l['Score_ID']).startsWith('new-')) ? l['Score_ID'] : 'TS-' + stamp + '-' + String(i + 1).padStart(2, '0'); return r; });\n  return { rows, count: rows.length };\n};",
+                      "packageJson": "{}"
+                    },
+                    "errorHandlingOptions": {
+                      "retryOnFailure": {
+                        "value": false
+                      },
+                      "continueOnFailure": {
+                        "value": false
+                      }
+                    }
+                  },
+                  "nextAction": {
+                    "name": "step_save_batch_insert_lines",
+                    "skip": false,
+                    "type": "PIECE",
+                    "valid": true,
+                    "settings": {
+                      "input": {
+                        "method": "POST",
+                        "url": "{{step_constants['app_url']}}/api/data/tests",
+                        "headers": {
+                          "Content-Type": "application/json",
+                          "Authorization": "Bearer {{step_constants['inbound_token']}}",
+                          "X-Flow": "{{step_constants['flow']}}"
+                        },
+                        "queryParams": {},
+                        "authType": "NONE",
+                        "body_type": "json",
+                        "body": {
+                          "data": "{{step_save_batch_lines['rows']}}"
+                        }
+                      },
+                      "pieceName": "@puchoaistudio/tool-http",
+                      "actionName": "send_request",
+                      "sampleData": {},
+                      "pieceVersion": "^2.0.0",
+                      "propertySettings": {
+                        "method": {
+                          "type": "MANUAL"
+                        },
+                        "url": {
+                          "type": "MANUAL"
+                        },
+                        "headers": {
+                          "type": "MANUAL",
+                          "schema": {}
+                        },
+                        "queryParams": {
+                          "type": "MANUAL",
+                          "schema": {}
+                        },
+                        "authType": {
+                          "type": "MANUAL"
+                        },
+                        "body_type": {
+                          "type": "MANUAL"
+                        },
+                        "body": {
+                          "type": "MANUAL",
+                          "schema": {}
+                        }
+                      },
+                      "errorHandlingOptions": {
+                        "retryOnFailure": {
+                          "value": false
+                        },
+                        "continueOnFailure": {
+                          "value": false
+                        }
+                      }
+                    },
+                    "nextAction": {
+                      "name": "step_save_batch_done",
+                      "skip": false,
+                      "type": "PIECE",
+                      "valid": true,
+                      "settings": {
+                        "input": {
+                          "fields": {
+                            "body": {
+                              "ok": "true",
+                              "action": "save_batch",
+                              "Run_ID": "{{step_save_batch_insert['body'][0]['Run_ID']}}",
+                              "row": "{{step_save_batch_insert['body'][0]}}"
+                            },
+                            "status": 200,
+                            "headers": {}
+                          },
+                          "respond": "stop",
+                          "responseType": "json"
+                        },
+                        "pieceName": "@puchoaistudio/tool-webhook",
+                        "actionName": "return_response",
+                        "sampleData": {},
+                        "pieceVersion": "^2.0.4",
+                        "propertySettings": {
+                          "fields": {
+                            "type": "MANUAL",
+                            "schema": {
+                              "body": {
+                                "type": "JSON",
+                                "required": true,
+                                "displayName": "JSON Body"
+                              },
+                              "status": {
+                                "type": "NUMBER",
+                                "required": false,
+                                "displayName": "Status",
+                                "defaultValue": 200
+                              },
+                              "headers": {
+                                "type": "OBJECT",
+                                "required": false,
+                                "displayName": "Headers"
+                              }
+                            }
+                          },
+                          "respond": {
+                            "type": "MANUAL"
+                          },
+                          "responseType": {
+                            "type": "MANUAL"
+                          }
+                        },
+                        "errorHandlingOptions": {
+                          "retryOnFailure": {
+                            "value": false
+                          },
+                          "continueOnFailure": {
+                            "value": false
+                          }
+                        }
+                      },
+                      "displayName": "Return save_batch: Run_ID, row"
+                    },
+                    "displayName": "Insert tests (all lines, one call)"
+                  },
+                  "displayName": "Build tests rows from the lines (CODE)"
+                },
+                "displayName": "Insert test_runs: Test_Date, Test_Name, Batch, Subject, Max_Marks, Total_Count +5 more (Run_ID numbered by the app)"
+              },
+              "displayName": "Build the row from the payload (CODE)"
+            },
+            {
+              "name": "step_unknown_action",
+              "skip": false,
+              "type": "PIECE",
+              "valid": true,
+              "settings": {
+                "input": {
+                  "fields": {
+                    "body": {
+                      "ok": "false",
+                      "error": "unknown action",
+                      "action": "{{trigger['body']['action']}}",
+                      "known": [
+                        "save_batch"
+                      ]
+                    },
+                    "status": 400,
+                    "headers": {}
+                  },
+                  "respond": "stop",
+                  "responseType": "json"
+                },
+                "pieceName": "@puchoaistudio/tool-webhook",
+                "actionName": "return_response",
+                "sampleData": {},
+                "pieceVersion": "^2.0.4",
+                "propertySettings": {
+                  "fields": {
+                    "type": "MANUAL",
+                    "schema": {
+                      "body": {
+                        "type": "JSON",
+                        "required": true,
+                        "displayName": "JSON Body"
+                      },
+                      "status": {
+                        "type": "NUMBER",
+                        "required": false,
+                        "displayName": "Status",
+                        "defaultValue": 200
+                      },
+                      "headers": {
+                        "type": "OBJECT",
+                        "required": false,
+                        "displayName": "Headers"
+                      }
+                    }
+                  },
+                  "respond": {
+                    "type": "MANUAL"
+                  },
+                  "responseType": {
+                    "type": "MANUAL"
+                  }
+                },
+                "errorHandlingOptions": {
+                  "retryOnFailure": {
+                    "value": false
+                  },
+                  "continueOnFailure": {
+                    "value": false
+                  }
+                }
+              },
+              "displayName": "Return 400 unknown action"
+            }
+          ],
+          "settings": {
+            "branches": [
+              {
+                "branchName": "save_batch",
+                "branchType": "CONDITION",
+                "conditions": [
+                  [
+                    {
+                      "operator": "TEXT_EXACTLY_MATCHES",
+                      "firstValue": "{{trigger['body']['action']}}",
+                      "secondValue": "save_batch",
+                      "caseSensitive": false
+                    }
+                  ]
+                ]
+              },
+              {
+                "branchName": "unknown action",
+                "branchType": "FALLBACK"
+              }
+            ],
+            "sampleData": {},
+            "executionType": "EXECUTE_FIRST_MATCH"
+          },
+          "displayName": "Route by action"
+        },
+        "displayName": "Constants"
+      }
+    },
+    "valid": true,
+    "agentIds": [],
+    "connectionIds": [],
+    "schemaVersion": "7"
+  },
+  "blogUrl": ""
+}

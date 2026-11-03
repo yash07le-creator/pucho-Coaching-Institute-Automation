@@ -1,0 +1,28 @@
+{
+  "flow": "ACADEMIC_CALL",
+  "covers": [
+    "R20",
+    "R21",
+    "R22"
+  ],
+  "connections": "portable",
+  "fire_and_forget": false,
+  "allow_pieces": [
+    "http",
+    "pucho-cdm",
+    "webhook"
+  ],
+  "allow_names": [
+    "catch_webhook",
+    "extract",
+    "return_response",
+    "send_request"
+  ],
+  "require_capabilities": [
+    "receive_ACADEMIC_CALL=webhook:trigger",
+    "respond_ACADEMIC_CALL=webhook:respond",
+    "model_ACADEMIC_CALL_counsel=pucho-cdm:transform",
+    "persist_ACADEMIC_CALL_counsel=http:write"
+  ],
+  "unverified_outputs": []
+}
