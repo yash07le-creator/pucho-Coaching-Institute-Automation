@@ -1003,7 +1003,7 @@ pages:
         period: { column: Date, presets: [today, yesterday, 7d, 30d], default: today }
         columns: [ { key: Name, header: Student, type: text, sub: Parent_Name }, { key: Batch, type: tag }, { key: Status, type: badge }, { key: Absences_This_Week, header: "This week", type: number }, { key: Call_Status, header: WhatsApp Notice, type: badge }, { key: Needs_Followup, header: Follow-up, type: badge } ]
         search: [Name, Parent_Name, Student_ID]
-        filters: [Batch, Call_Status, Needs_Followup]
+        filters: [Batch, { column: Call_Status, label: WhatsApp Notice }, Needs_Followup]
         actions: { row: [followup_done] }   # marking is the sheet above only (owner, 3 Nov 2026) — no one-student form
     modals:
       - { id: followup_done, covers: [R17], kind: status, title: Follow-up done, direct: patch, summary: [Name, Reason], fill: { Followup_Done: "Yes" }, fields: [] }

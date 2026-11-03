@@ -1606,7 +1606,10 @@ export const PAGES = [
         ],
         "filters": [
           "Batch",
-          "Call_Status",
+          {
+            "column": "Call_Status",
+            "label": "WhatsApp Notice"
+          },
           "Needs_Followup"
         ],
         "actions": {
