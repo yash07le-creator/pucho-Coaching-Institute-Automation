@@ -69,7 +69,7 @@ export const NAV = [
       "entity": "attendance",
       "where": "Needs_Followup=Yes and Followup_Done!=Yes"
     },
-    "subtitle": "Mark a batch; absent parents get a WhatsApp, a repeat absence gets an AI call"
+    "subtitle": "Mark a batch; parents of absent students get a formal WhatsApp notice"
   },
   {
     "id": "academic",

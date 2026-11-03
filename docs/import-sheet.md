@@ -4,7 +4,7 @@
 | ADMISSION_CALL | webhook.catch_webhook | new_lead, call | | |
 | STUDENT_MANAGE | webhook.catch_webhook | enrol | | |
 | ATTENDANCE | webhook.catch_webhook | save_batch | | |
-| ABSENCE | webhook.catch_webhook | absent, reason_call | | |
+| ABSENCE | webhook.catch_webhook | absent | | |
 | ACADEMIC_CALL | webhook.catch_webhook | counsel | | |
 | FEE_REMINDER | webhook.catch_webhook | remind, send_link | | |
 | PARENT_UPDATE | webhook.catch_webhook | weekly_report, update_call | | |

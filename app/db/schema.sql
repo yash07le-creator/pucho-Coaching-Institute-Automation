@@ -552,10 +552,10 @@ DO $$ DECLARE r record; BEGIN
     ALTER TABLE "attendance" ADD CONSTRAINT "attendance_absences_this_month_v49_e883a55a" CHECK ("absences_this_month" >= 0) NOT VALID; END IF;
 END $$;
 DO $$ DECLARE r record; BEGIN
-  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"attendance"'::regclass AND left(conname, 27) = 'attendance_call_status_v49_' AND conname <> 'attendance_call_status_v49_967dd1c4' LOOP
+  FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"attendance"'::regclass AND left(conname, 27) = 'attendance_call_status_v49_' AND conname <> 'attendance_call_status_v49_058fd9d5' LOOP
     EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', 'attendance', r.conname); END LOOP;
-  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"attendance"'::regclass AND conname = 'attendance_call_status_v49_967dd1c4') THEN
-    ALTER TABLE "attendance" ADD CONSTRAINT "attendance_call_status_v49_967dd1c4" CHECK (("call_status" IN ('Not Needed', 'Queued', 'WhatsApp Sent', 'Calling', 'Call Done', 'No Answer') OR "call_status" = '')) NOT VALID; END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = '"attendance"'::regclass AND conname = 'attendance_call_status_v49_058fd9d5') THEN
+    ALTER TABLE "attendance" ADD CONSTRAINT "attendance_call_status_v49_058fd9d5" CHECK (("call_status" IN ('Present', 'Queued', 'WhatsApp Sent', 'Delivered', 'Failed') OR "call_status" = '')) NOT VALID; END IF;
 END $$;
 DO $$ DECLARE r record; BEGIN
   FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = '"attendance"'::regclass AND left(conname, 24) = 'attendance_category_v49_' AND conname <> 'attendance_category_v49_b0394d05' LOOP

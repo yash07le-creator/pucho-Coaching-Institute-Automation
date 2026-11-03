@@ -12,7 +12,7 @@ _Generated from os.yaml. The step-2 summary: roles and homes, journeys, entities
 ## D2 · Journeys
 - **admin** · Clear today's escalations — lands on `overview` · 2 steps: Overview opens on Needs action → Open alerts row → Acknowledge
 - **admin** · Give a HOT lead to a counsellor — lands on `overview` · 2 steps: HOT leads past 48 h on Needs action → Assign → pick the counsellor
-- **office** · Mark today's attendance for a batch — lands on `attendance` · 3 steps: Attendance opens with the batch sheet → Tap P or A per student → Save — absent parents get WhatsApp / a call
+- **office** · Mark today's attendance for a batch — lands on `attendance` · 3 steps: Attendance opens with the batch sheet → Tap P or A per student → Save — parents of absent students get a formal WhatsApp notice
 - **office** · Record a fee payment — lands on `fees` · 3 steps: Fees, Overdue tab → Record payment on the row → Amount + mode → Save
 - **counsellor** · Follow up a HOT lead the AI qualified — lands on `leads` · 3 steps: Leads, HOT chip → Open the lead — summary and transcript → Enrol, or Call again
 - **mentor** · Counsel an at-risk student — lands on `academic` · 2 steps: Academic opens on the at-risk tab → Start AI call, or Assign mentor on the row
@@ -115,7 +115,6 @@ Data: **PostgreSQL** (one database per client, single-tenant) · security: **§1
 | Students | AI call to parent | status: 0 fields · PARENT_UPDATE |
 | Students | Send weekly report | status: 0 fields · PARENT_UPDATE |
 | Students | WhatsApp the parent | custom: 1 field · SEND_WHATSAPP |
-| Attendance | Call the parent | status: 0 fields · ABSENCE |
 | Attendance | Follow-up done | status: 0 fields · direct |
 | Academic | AI counselling call | status: 0 fields · ACADEMIC_CALL |
 | Academic | Assign mentor / counsellor | edit: 2 fields · direct |
@@ -135,7 +134,7 @@ Data: **PostgreSQL** (one database per client, single-tenant) · security: **§1
 - **ADMISSION_CALL** — `webhook.catch_webhook`; actions new_lead, call; AI in new_lead, call
 - **STUDENT_MANAGE** — `webhook.catch_webhook`; actions enrol; no model call
 - **ATTENDANCE** — `webhook.catch_webhook`; actions save_batch; no model call
-- **ABSENCE** — `webhook.catch_webhook`; actions absent, reason_call; AI in absent, reason_call
+- **ABSENCE** — `webhook.catch_webhook`; actions absent; no model call
 - **ACADEMIC_CALL** — `webhook.catch_webhook`; actions counsel; AI in counsel
 - **FEE_REMINDER** — `webhook.catch_webhook`; actions remind, send_link; AI in remind
 - **PARENT_UPDATE** — `webhook.catch_webhook`; actions weekly_report, update_call; AI in update_call
@@ -144,7 +143,7 @@ Data: **PostgreSQL** (one database per client, single-tenant) · security: **§1
 - **ACADEMIC_RUN** — `schedule.cron_expression`; actions run; no model call
 - **PARENT_RUN** — `schedule.cron_expression`; actions run; no model call
 - **ROLLUP** — `schedule.cron_expression`; actions run; no model call
-- Rules in code: HOT needs grade HOT and score ≥ 80, else WARM; HOT sets Next_Followup_At = now + 48 h (ADMISSION_CALL code); HOT lead with no counsellor → the counsellor (team, Role Counsellor) with the fewest open HOT leads for that course; Absence: Absences_This_Week counted in code; below call_from_absence (2) → WhatsApp only, else the AI call (ABSENCE.absent); Present marks are direct inserts (no flow, no credits); one mark per student per date (unique Date + Student_ID); Attendance_Pct over the last 30 days, Last_Score, Avg_Score, Class_Rank, Performance_Trend (last 3 tests), Strong/Weak subjects — nightly ROLLUP; Student Status: Critical when Attendance_Pct < 60 or Avg_Score < 40; At Risk when < 75 or < 60; else Active (ROLLUP); Fee Balance_INR = Amount_INR − Paid_INR (computed on every write); Days_Overdue and Status Due → Overdue from the day after Due_Date (FEE_RUN); Fee reminder calls on day 1, 7 and 15 overdue; WhatsApp link 3 days before Due_Date (FEE_RUN); At-risk queue: Attendance_Pct < 75 or Last_Score < 60, worst first, at most 50 a week (ACADEMIC_RUN); Friday: report to every active parent, call only At Risk / Critical; Monday: one retry for last Friday's No Answer (PARENT_RUN); Alerts raised once while one is open for the same record and kind (ROLLUP and the agents); Every number in a WhatsApp template comes from the record, never from a model
+- Rules in code: HOT needs grade HOT and score ≥ 80, else WARM; HOT sets Next_Followup_At = now + 48 h (ADMISSION_CALL code); HOT lead with no counsellor → the counsellor (team, Role Counsellor) with the fewest open HOT leads for that course; Absence: every absentee's parent gets the formal WhatsApp notice (ABSENCE.absent), never a call; Absences_This_Week counted in code — from the 2nd in 7 days Needs_Followup Yes and the counsellor is alerted; Present marks are direct inserts (no flow, no credits); one mark per student per date (unique Date + Student_ID); Attendance_Pct over the last 30 days, Last_Score, Avg_Score, Class_Rank, Performance_Trend (last 3 tests), Strong/Weak subjects — nightly ROLLUP; Student Status: Critical when Attendance_Pct < 60 or Avg_Score < 40; At Risk when < 75 or < 60; else Active (ROLLUP); Fee Balance_INR = Amount_INR − Paid_INR (computed on every write); Days_Overdue and Status Due → Overdue from the day after Due_Date (FEE_RUN); Fee reminder calls on day 1, 7 and 15 overdue; WhatsApp link 3 days before Due_Date (FEE_RUN); At-risk queue: Attendance_Pct < 75 or Last_Score < 60, worst first, at most 50 a week (ACADEMIC_RUN); Friday: report to every active parent, call only At Risk / Critical; Monday: one retry for last Friday's No Answer (PARENT_RUN); Alerts raised once while one is open for the same record and kind (ROLLUP and the agents); Every number in a WhatsApp template comes from the record, never from a model
 
 ## D8 · Overview order
 - Needs action (alerts_open · hot_overdue · overdue_15) → KPI strip → charts: funnel, trend
@@ -164,7 +163,7 @@ Data: **PostgreSQL** (one database per client, single-tenant) · security: **§1
 - The n8n AI Agents Status page — replaced by Settings → Flow webhook URLs and /api/health (X6)
 
 ## Footprint (lean frontend, v4.3)
-- footprint: 14 pages in the nav (0 hidden) · 37 KPIs · 2 charts · 30 modals · 3 drawer tabs · for 41 requirements
+- footprint: 14 pages in the nav (0 hidden) · 37 KPIs · 2 charts · 29 modals · 3 drawer tabs · for 41 requirements
 - Budget: overview ≤ 4 KPIs · ≤ 2 charts · ≤ 3 queues; a page ≤ 4 KPIs · ≤ 6 modals · drawer ≤ 3 tabs; nav pages ≤ requirements. Pages marked `badge: Preview` stay off the nav until `os.show_preview: true`.
 - Within budget.
 

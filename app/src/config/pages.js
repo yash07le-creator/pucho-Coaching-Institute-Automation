@@ -1490,7 +1490,7 @@ export const PAGES = [
     ],
     "route": "/attendance",
     "label": "Attendance",
-    "subtitle": "Mark a batch; absent parents get a WhatsApp, a repeat absence gets an AI call",
+    "subtitle": "Mark a batch; parents of absent students get a formal WhatsApp notice",
     "icon": "CalendarCheck",
     "group": "Students",
     "entity": "attendance",
@@ -1590,16 +1590,8 @@ export const PAGES = [
           },
           {
             "key": "Call_Status",
-            "header": "Parent reached",
+            "header": "WhatsApp Notice",
             "type": "badge"
-          },
-          {
-            "key": "Reason",
-            "type": "truncate"
-          },
-          {
-            "key": "Category",
-            "type": "tag"
           },
           {
             "key": "Needs_Followup",
@@ -1614,12 +1606,11 @@ export const PAGES = [
         ],
         "filters": [
           "Batch",
-          "Category",
+          "Call_Status",
           "Needs_Followup"
         ],
         "actions": {
           "row": [
-            "reason_call",
             "followup_done"
           ]
         },
@@ -1627,35 +1618,6 @@ export const PAGES = [
       }
     ],
     "modals": [
-      {
-        "id": "reason_call",
-        "covers": [
-          "R15",
-          "R16"
-        ],
-        "kind": "status",
-        "title": "Call the parent",
-        "flow": "ABSENCE",
-        "action": "reason_call",
-        "summary": [
-          "Name",
-          "Date",
-          "Call_Status"
-        ],
-        "pass": [
-          "Att_ID",
-          "Date",
-          "Batch",
-          "Student_ID",
-          "Name",
-          "Course",
-          "Parent_Name",
-          "Parent_Phone"
-        ],
-        "submit": "Start AI call",
-        "success": "AI call started — the reason appears here in a few minutes",
-        "fields": []
-      },
       {
         "id": "followup_done",
         "covers": [

@@ -31,9 +31,8 @@ _Generated 2026-11-03 from os.yaml._
   - `enrol` — model none, ~5s, ~7 credits; payload Name, Phone, Student_Phone, Parent_Name, Parent_Phone, Course, Batch, Fee_Amount_INR, Fee_Due_Date, Address, Counsellor → result 
 - **ATTENDANCE** — trigger `webhook.catch_webhook`; writes attendance_sessions, attendance, audit_log
   - `save_batch` — model none, ~6s, ~6 credits; payload Date, Batch, Total_Count, Present_Count, Absent_Count, Absentees, Marked_By, lines → result 
-- **ABSENCE** — trigger `webhook.catch_webhook`; writes attendance, calls, messages, alerts, audit_log
-  - `absent` — model standard, ~300s, ~14 credits; payload Date, Batch, Student_ID, Name, Course, Parent_Name, Parent_Phone, Absences_This_Week, Absences_This_Month, Marked_By → result reason, category, needs_followup
-  - `reason_call` — model standard, ~300s, ~29 credits; payload Att_ID, Date, Batch, Student_ID, Name, Course, Parent_Name, Parent_Phone → result reason, category, needs_followup
+- **ABSENCE** — trigger `webhook.catch_webhook`; writes attendance, messages, alerts, audit_log
+  - `absent` — model none, ~4s, ~7 credits; payload Att_ID, Date, Batch, Student_ID, Name, Course, Parent_Name, Parent_Phone, Absences_This_Week, Needs_Followup → result 
 - **ACADEMIC_CALL** — trigger `webhook.catch_webhook`; writes students, calls, alerts, messages, audit_log
   - `counsel` — model standard, ~360s, ~54 credits; payload Student_ID, Name, Student_Phone, Course, Attendance_Pct, Last_Score, Weak_Subjects, Mentor → result issue_type, main_issue, needs_mentor, needs_counsellor
 - **FEE_REMINDER** — trigger `webhook.catch_webhook`; writes fees, calls, messages, alerts, audit_log
@@ -56,7 +55,7 @@ _Generated 2026-11-03 from os.yaml._
 ## Rules in code
 - HOT needs grade HOT and score ≥ 80, else WARM; HOT sets Next_Followup_At = now + 48 h (ADMISSION_CALL code)
 - HOT lead with no counsellor → the counsellor (team, Role Counsellor) with the fewest open HOT leads for that course
-- Absence: Absences_This_Week counted in code; below call_from_absence (2) → WhatsApp only, else the AI call (ABSENCE.absent)
+- Absence: every absentee's parent gets the formal WhatsApp notice (ABSENCE.absent), never a call; Absences_This_Week counted in code — from the 2nd in 7 days Needs_Followup Yes and the counsellor is alerted
 - Present marks are direct inserts (no flow, no credits); one mark per student per date (unique Date + Student_ID)
 - Attendance_Pct over the last 30 days, Last_Score, Avg_Score, Class_Rank, Performance_Trend (last 3 tests), Strong/Weak subjects — nightly ROLLUP
 - Student Status: Critical when Attendance_Pct < 60 or Avg_Score < 40; At Risk when < 75 or < 60; else Active (ROLLUP)
@@ -76,4 +75,4 @@ _Generated 2026-11-03 from os.yaml._
 - The n8n AI Agents Status page — replaced by Settings → Flow webhook URLs and /api/health (X6)
 
 ## Success metric
-Fees overdue going down month on month, and every absence with a reason collected
+Fees overdue going down month on month, and every absent student's parent told the same day

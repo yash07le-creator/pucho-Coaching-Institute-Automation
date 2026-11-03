@@ -2,6 +2,7 @@
 ```json
 {
   "action": "absent",
+  "Att_ID": "<string>",
   "Date": "<string>",
   "Batch": "<string>",
   "Student_ID": "<string>",
@@ -10,8 +11,7 @@
   "Parent_Name": "<string>",
   "Parent_Phone": "<string>",
   "Absences_This_Week": 0,
-  "Absences_This_Month": 0,
-  "Marked_By": "<string>"
+  "Needs_Followup": "<string>"
 }
 ```
 (samples are .md on purpose — never .json in a workflows folder)

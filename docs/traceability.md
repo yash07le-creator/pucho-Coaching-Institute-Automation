@@ -17,9 +17,9 @@ Every client requirement and where the OS covers it. `scaffold_os.py` refuses to
 | R12 | The office admin filters students by course, batch and status | page students |
 | R13 | The director opens a student profile with attendance, last test, rank, strong and weak subjects and parent info | page students; flow ROLLUP |
 | R14 | The office admin marks each student of a batch present or absent for a date | page attendance; flow ATTENDANCE; flow ATTENDANCE.save_batch; flow ABSENCE; flow ABSENCE.absent |
-| R15 | A parent gets an AI call asking the reason when the student is marked absent | page attendance; page attendance › modal reason_call; flow ATTENDANCE; flow ATTENDANCE.save_batch; flow ABSENCE; flow ABSENCE.absent; flow ABSENCE.reason_call |
-| R16 | The office admin sees the reason and category collected by the call against each absence | page attendance; page attendance › modal reason_call; flow ABSENCE; flow ABSENCE.reason_call |
-| R17 | A counsellor is alerted on WhatsApp when an absence needs follow-up | page attendance; page attendance › modal followup_done; page team; flow ABSENCE; flow ABSENCE.reason_call |
+| R15 | A parent gets a formal WhatsApp notice when the student is marked absent — no call (owner, 3 Nov 2026) | page attendance; flow ATTENDANCE; flow ATTENDANCE.save_batch; flow ABSENCE; flow ABSENCE.absent |
+| R16 | The office admin sees whether each absence notice was sent, delivered or failed | page attendance; flow ABSENCE; flow ABSENCE.absent |
+| R17 | A counsellor is alerted on WhatsApp when an absence needs follow-up | page attendance; page attendance › modal followup_done; page team; flow ABSENCE; flow ABSENCE.absent |
 | R18 | The director sees students below 75% attendance as critical | page students; page attendance; flow ROLLUP |
 | R19 | The office admin records each student's test score per subject | page scores; page scores › modal add_score; page scores › modal edit_score |
 | R20 | A student below 75% attendance or 60% score joins the at-risk queue every Monday at 11 AM | page academic; flow ACADEMIC_CALL; flow ACADEMIC_RUN; flow ROLLUP |

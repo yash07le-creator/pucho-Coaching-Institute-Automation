@@ -7,7 +7,7 @@ _Generated 2026-11-03._
 - Leads `/leads` → `ADMISSION_CALL.new_lead` (Add lead), `ADMISSION_CALL.call` (Call again with AI), direct patch (Assign counsellor), direct patch (Change stage), `STUDENT_MANAGE.enrol` (Enrol as student)
 - AI call log `/calls` → no workflow
 - Students `/students` → `STUDENT_MANAGE.enrol` (Enrol student), direct patch (Assign mentor / counsellor), `PARENT_UPDATE.update_call` (AI call to parent), `PARENT_UPDATE.weekly_report` (Send weekly report), `SEND_WHATSAPP.send_update` (WhatsApp the parent)
-- Attendance `/attendance` → `ABSENCE.reason_call` (Call the parent), direct patch (Follow-up done)
+- Attendance `/attendance` → direct patch (Follow-up done)
 - Academic `/academic` → `ACADEMIC_CALL.counsel` (AI counselling call), direct patch (Assign mentor / counsellor)
 - Test scores `/scores` → direct insert (Add score), direct patch (Correct marks)
 - Fees `/fees` → direct patch (Record payment), `FEE_REMINDER.send_link` (Send payment link), `FEE_REMINDER.remind` (AI reminder call)
@@ -27,9 +27,8 @@ _Generated 2026-11-03._
   - `enrol` — model none, ~5s, ~7 credits; payload Name, Phone, Student_Phone, Parent_Name, Parent_Phone, Course, Batch, Fee_Amount_INR, Fee_Due_Date, Address, Counsellor → result 
 - **ATTENDANCE** — trigger `webhook.catch_webhook`; writes attendance_sessions, attendance, audit_log
   - `save_batch` — model none, ~6s, ~6 credits; payload Date, Batch, Total_Count, Present_Count, Absent_Count, Absentees, Marked_By, lines → result 
-- **ABSENCE** — trigger `webhook.catch_webhook`; writes attendance, calls, messages, alerts, audit_log
-  - `absent` — model standard, ~300s, ~14 credits; payload Date, Batch, Student_ID, Name, Course, Parent_Name, Parent_Phone, Absences_This_Week, Absences_This_Month, Marked_By → result reason, category, needs_followup
-  - `reason_call` — model standard, ~300s, ~29 credits; payload Att_ID, Date, Batch, Student_ID, Name, Course, Parent_Name, Parent_Phone → result reason, category, needs_followup
+- **ABSENCE** — trigger `webhook.catch_webhook`; writes attendance, messages, alerts, audit_log
+  - `absent` — model none, ~4s, ~7 credits; payload Att_ID, Date, Batch, Student_ID, Name, Course, Parent_Name, Parent_Phone, Absences_This_Week, Needs_Followup → result 
 - **ACADEMIC_CALL** — trigger `webhook.catch_webhook`; writes students, calls, alerts, messages, audit_log
   - `counsel` — model standard, ~360s, ~54 credits; payload Student_ID, Name, Student_Phone, Course, Attendance_Pct, Last_Score, Weak_Subjects, Mentor → result issue_type, main_issue, needs_mentor, needs_counsellor
 - **FEE_REMINDER** — trigger `webhook.catch_webhook`; writes fees, calls, messages, alerts, audit_log
@@ -56,8 +55,7 @@ _Generated 2026-11-03._
 | `ADMISSION_CALL.call` | standard | 30 | 44 | 1,320 |
 | `STUDENT_MANAGE.enrol` | none | 30 | 7 | 210 |
 | `ATTENDANCE.save_batch` | none | 90 | 6 | 540 |
-| `ABSENCE.absent` | standard | 1144 | 14 | 16,016 |
-| `ABSENCE.reason_call` | standard | 60 | 29 | 1,740 |
+| `ABSENCE.absent` | none | 1144 | 7 | 8,008 |
 | `ACADEMIC_CALL.counsel` | standard | 147 | 54 | 7,938 |
 | `FEE_REMINDER.remind` | standard | 69 | 29 | 2,001 |
 | `FEE_REMINDER.send_link` | none | 80 | 7 | 560 |
@@ -68,6 +66,6 @@ _Generated 2026-11-03._
 | `ACADEMIC_RUN.run` | none | 4 | 5 | 20 |
 | `PARENT_RUN.run` | none | 9 | 5 | 45 |
 | `ROLLUP.run` | none | 30 | 5 | 150 |
-| **total** | | | | **54,576** credits ≈ ₹16,373 / month (declared; `docs/estimate.md` is the client page and is re-counted on the built flows at step 6) |
+| **total** | | | | **44,828** credits ≈ ₹13,448 / month (declared; `docs/estimate.md` is the client page and is re-counted on the built flows at step 6) |
 
 Credits are the only unit the client is quoted — no plan fit. Per-step base per `flow/credit-table.md`.

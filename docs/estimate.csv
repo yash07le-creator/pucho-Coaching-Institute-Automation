@@ -3,8 +3,7 @@ ADMISSION_CALL,new_lead,new lead from the OS,120,44,5280,standard,,declared
 ADMISSION_CALL,call,call from the OS,30,44,1320,standard,,declared
 STUDENT_MANAGE,enrol,enrol from the OS,30,7,210,none,whatsapp,declared
 ATTENDANCE,save_batch,save batch from the OS,90,6,540,none,,declared
-ABSENCE,absent,absent from the OS,1144,14,16016,standard,,declared
-ABSENCE,reason_call,reason call from the OS,60,29,1740,standard,,declared
+ABSENCE,absent,absent from the OS,1144,7,8008,none,whatsapp,declared
 ACADEMIC_CALL,counsel,counsel from the OS,147,54,7938,standard,,declared
 FEE_REMINDER,remind,remind from the OS,69,29,2001,standard,,declared
 FEE_REMINDER,send_link,send link from the OS,80,7,560,none,whatsapp,declared

@@ -11,9 +11,7 @@ come from your own numbers (listed under Assumptions) — change a volume and th
 | | **ADMISSION_CALL total** | | | | **6,600** |
 | STUDENT_MANAGE | enrol | enrol from the OS | 30 | 7 | 210 |
 | ATTENDANCE | save batch | save batch from the OS | 90 | 6 | 540 |
-| ABSENCE | absent | absent from the OS | 1,144 | 14 | 16,016 |
-|  | reason call | reason call from the OS | 60 | 29 | 1,740 |
-| | **ABSENCE total** | | | | **17,756** |
+| ABSENCE | absent | absent from the OS | 1,144 | 7 | 8,008 |
 | ACADEMIC_CALL | counsel | counsel from the OS | 147 | 54 | 7,938 |
 | FEE_REMINDER | remind | remind from the OS | 69 | 29 | 2,001 |
 |  | send link | send link from the OS | 80 | 7 | 560 |
@@ -26,11 +24,11 @@ come from your own numbers (listed under Assumptions) — change a volume and th
 | ACADEMIC_RUN | run | schedule | 4 | 5 | 20 |
 | PARENT_RUN | run | schedule | 9 | 5 | 45 |
 | ROLLUP | run | schedule | 30 | 5 | 150 |
-| | **Total** | | | | **54,576 credits ≈ ₹16,373 / month** |
+| | **Total** | | | | **44,828 credits ≈ ₹13,448 / month** |
 
-**Range at ±30 % volume:** 38,203 – 70,949 credits (₹11,461 – ₹21,285 / month).
+**Range at ±30 % volume:** 31,380 – 58,276 credits (₹9,414 – ₹17,483 / month).
 
-**WhatsApp:** about 1,648 outbound messages/month leave the OS. Meta bills conversations separately at the client's WhatsApp Business rate; they are not credits and are not in the total above.
+**WhatsApp:** about 2,792 outbound messages/month leave the OS. Meta bills conversations separately at the client's WhatsApp Business rate; they are not credits and are not in the total above.
 
 ## Assumptions (correct these first)
 - 4,200 events/month (os.volume_per_month)
@@ -38,8 +36,7 @@ come from your own numbers (listed under Assumptions) — change a volume and th
 - ADMISSION_CALL.call: 30 runs/month, 44 credits/run (declared, standard model)
 - STUDENT_MANAGE.enrol: 30 runs/month, 7 credits/run (declared, none model, sends whatsapp)
 - ATTENDANCE.save_batch: 90 runs/month, 6 credits/run (declared, none model)
-- ABSENCE.absent: 1,144 runs/month, 14 credits/run (declared, standard model)
-- ABSENCE.reason_call: 60 runs/month, 29 credits/run (declared, standard model)
+- ABSENCE.absent: 1,144 runs/month, 7 credits/run (declared, none model, sends whatsapp)
 - ACADEMIC_CALL.counsel: 147 runs/month, 54 credits/run (declared, standard model)
 - FEE_REMINDER.remind: 69 runs/month, 29 credits/run (declared, standard model)
 - FEE_REMINDER.send_link: 80 runs/month, 7 credits/run (declared, none model, sends whatsapp)
