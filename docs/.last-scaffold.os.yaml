@@ -1029,9 +1029,8 @@ pages:
         columns: [ { key: Name, header: Student, type: text, sub: Parent_Name }, { key: Batch, type: tag }, { key: Status, type: badge }, { key: Absences_This_Week, header: "This week", type: number }, { key: Call_Status, header: Parent reached, type: badge }, { key: Reason, type: truncate }, { key: Category, type: tag }, { key: Needs_Followup, header: Follow-up, type: badge } ]
         search: [Name, Parent_Name, Student_ID]
         filters: [Batch, Category, Needs_Followup]
-        actions: { header: [mark_one], row: [reason_call, followup_done] }
+        actions: { row: [reason_call, followup_done] }   # marking is the sheet above only (owner, 3 Nov 2026) — no one-student form
     modals:
-      - { id: mark_one, covers: [R14], kind: create, title: Mark one student, direct: insert, columns: 2, fields: [ { key: Date, label: Date, type: date, default: today, required: true }, { key: Name, label: Student, type: select, options_from: students.Name, required: true }, { type: panel, key: who, title: Student, icon: GraduationCap, lookup: { entity: students, match: Name, by: Name }, copy: [Student_ID, Course, Batch, Parent_Name, Parent_Phone], show: [ { key: Batch, label: "{v}", badge: true }, { key: Course, label: Course }, { key: Parent_Name, label: Parent } ], empty: "Pick a student to see the batch." }, { key: Status, label: Status, type: select, options: [Present], default: Present, required: true, help: "Absences are marked on the sheet above so the parent is told" } ] }
       - { id: reason_call, covers: [R15, R16], kind: status, title: Call the parent, flow: ABSENCE, action: reason_call, summary: [Name, Date, Call_Status], pass: [Att_ID, Date, Batch, Student_ID, Name, Course, Parent_Name, Parent_Phone], submit: Start AI call, success: "AI call started — the reason appears here in a few minutes", fields: [] }
       - { id: followup_done, covers: [R17], kind: status, title: Follow-up done, direct: patch, summary: [Name, Reason], fill: { Followup_Done: "Yes" }, fields: [] }
 

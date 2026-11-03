@@ -115,7 +115,6 @@ Data: **PostgreSQL** (one database per client, single-tenant) · security: **§1
 | Students | AI call to parent | status: 0 fields · PARENT_UPDATE |
 | Students | Send weekly report | status: 0 fields · PARENT_UPDATE |
 | Students | WhatsApp the parent | custom: 1 field · SEND_WHATSAPP |
-| Attendance | Mark one student | create: 4 fields · panel · direct |
 | Attendance | Call the parent | status: 0 fields · ABSENCE |
 | Attendance | Follow-up done | status: 0 fields · direct |
 | Academic | AI counselling call | status: 0 fields · ACADEMIC_CALL |
@@ -165,7 +164,7 @@ Data: **PostgreSQL** (one database per client, single-tenant) · security: **§1
 - The n8n AI Agents Status page — replaced by Settings → Flow webhook URLs and /api/health (X6)
 
 ## Footprint (lean frontend, v4.3)
-- footprint: 14 pages in the nav (0 hidden) · 37 KPIs · 2 charts · 31 modals · 3 drawer tabs · for 41 requirements
+- footprint: 14 pages in the nav (0 hidden) · 37 KPIs · 2 charts · 30 modals · 3 drawer tabs · for 41 requirements
 - Budget: overview ≤ 4 KPIs · ≤ 2 charts · ≤ 3 queues; a page ≤ 4 KPIs · ≤ 6 modals · drawer ≤ 3 tabs; nav pages ≤ requirements. Pages marked `badge: Preview` stay off the nav until `os.show_preview: true`.
 - Within budget.
 

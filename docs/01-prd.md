@@ -1,5 +1,5 @@
 # 01 — PRD · EduFlow
-_Generated 2026-11-02 from os.yaml._
+_Generated 2026-11-03 from os.yaml._
 
 **Client:** Pucho EduFlow OS  
 **Outcome:** Every lead, absence, overdue fee, slipping student and parent gets an AI call or a WhatsApp on time, and the director sees what needs action on one screen.  

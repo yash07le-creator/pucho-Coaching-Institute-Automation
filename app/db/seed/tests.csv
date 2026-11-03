@@ -1,30 +1,30 @@
 Score_ID,Test_Date,Test_Name,Student_ID,Name,Course,Batch,Subject,Marks,Max_Marks,Score_Pct
-TS-2026-0801,2026-10-26,Weekly Test 14,ST-2026-0101,Rohan Mehra,JEE Mains,Batch A — Morning,Physics,89,100,89
-TS-2026-0802,2026-10-26,Weekly Test 14,ST-2026-0102,Aarav Jain,JEE Mains,Batch A — Morning,Physics,81,100,81
-TS-2026-0803,2026-10-26,Weekly Test 14,ST-2026-0103,Ishita Saxena,JEE Mains,Batch A — Morning,Physics,74,100,74
-TS-2026-0804,2026-10-26,Weekly Test 14,ST-2026-0104,Kunal Raghuwanshi,JEE Mains,Batch A — Morning,Physics,77,100,77
-TS-2026-0805,2026-10-26,Weekly Test 14,ST-2026-0105,Tanvi Dubey,JEE Mains,Batch A — Morning,Physics,85,100,85
-TS-2026-0806,2026-10-26,Weekly Test 14,ST-2026-0106,Yash Choudhary,JEE Mains,Batch A — Morning,Physics,68,100,68
-TS-2026-0807,2026-10-26,Weekly Test 14,ST-2026-0107,Nikhil Kumar,JEE Mains,Batch A — Morning,Physics,42,100,42
-TS-2026-0808,2026-10-26,Weekly Test 14,ST-2026-0108,Kavya Patel,NEET,Batch B — Evening,Biology,42,100,42
-TS-2026-0809,2026-10-26,Weekly Test 14,ST-2026-0109,Ananya Shrivastava,NEET,Batch B — Evening,Biology,88,100,88
-TS-2026-0810,2026-10-26,Weekly Test 14,ST-2026-0110,Harsh Rajput,NEET,Batch B — Evening,Biology,52,100,52
-TS-2026-0811,2026-10-26,Weekly Test 14,ST-2026-0111,Sakshi Pandey,NEET,Batch B — Evening,Biology,79,100,79
-TS-2026-0812,2026-10-26,Weekly Test 14,ST-2026-0112,Mohit Yadav,NEET,Batch B — Evening,Biology,36,100,36
-TS-2026-0813,2026-10-26,Weekly Test 14,ST-2026-0113,Riya Malviya,NEET,Batch B — Evening,Biology,71,100,71
-TS-2026-0814,2026-10-26,Weekly Test 14,ST-2026-0114,Neha Kumar,NEET,Batch B — Evening,Biology,66,100,66
-TS-2026-0815,2026-10-26,Weekly Test 14,ST-2026-0115,Dev Singh,CA Foundation,Batch A — Morning,Accounts,82,100,82
-TS-2026-0816,2026-10-26,Weekly Test 14,ST-2026-0116,Muskan Agrawal,CA Foundation,Batch A — Morning,Accounts,76,100,76
-TS-2026-0817,2026-10-26,Weekly Test 14,ST-2026-0117,Aditi Soni,CA Foundation,Batch A — Morning,Accounts,72,100,72
-TS-2026-0818,2026-10-26,Weekly Test 14,ST-2026-0119,Sneha Joshi,UPSC,Batch C — Weekend,History,38,100,38
-TS-2026-0819,2026-10-26,Weekly Test 14,ST-2026-0120,Vikram Pal,UPSC,Batch C — Weekend,History,61,100,61
-TS-2026-0820,2026-10-26,Weekly Test 14,ST-2026-0121,Anjali Mishra,UPSC,Batch C — Weekend,History,78,100,78
-TS-2026-0821,2026-10-26,Weekly Test 14,ST-2026-0122,Saurabh Tiwari,UPSC,Batch C — Weekend,History,58,100,58
-TS-2026-0822,2026-10-26,Weekly Test 14,ST-2026-0123,Pallavi Gour,UPSC,Batch C — Weekend,History,74,100,74
-TS-2026-0823,2026-10-26,Weekly Test 14,ST-2026-0124,Arjun Thakur,UPSC,Batch C — Weekend,History,69,100,69
-TS-2026-0824,2026-10-19,Weekly Test 13,ST-2026-0108,Kavya Patel,NEET,Batch B — Evening,Biology,46,100,46
-TS-2026-0825,2026-10-19,Weekly Test 13,ST-2026-0112,Mohit Yadav,NEET,Batch B — Evening,Biology,38,100,38
-TS-2026-0826,2026-10-19,Weekly Test 13,ST-2026-0119,Sneha Joshi,UPSC,Batch C — Weekend,History,41,100,41
-TS-2026-0827,2026-10-19,Weekly Test 13,ST-2026-0110,Harsh Rajput,NEET,Batch B — Evening,Biology,55,100,55
-TS-2026-0828,2026-10-19,Weekly Test 13,ST-2026-0107,Nikhil Kumar,JEE Mains,Batch A — Morning,Physics,63,100,63
-TS-2026-0829,2026-10-19,Weekly Test 13,ST-2026-0101,Rohan Mehra,JEE Mains,Batch A — Morning,Physics,84,100,84
+TS-2026-0801,2026-10-27,Weekly Test 14,ST-2026-0101,Rohan Mehra,JEE Mains,Batch A — Morning,Physics,89,100,89
+TS-2026-0802,2026-10-27,Weekly Test 14,ST-2026-0102,Aarav Jain,JEE Mains,Batch A — Morning,Physics,81,100,81
+TS-2026-0803,2026-10-27,Weekly Test 14,ST-2026-0103,Ishita Saxena,JEE Mains,Batch A — Morning,Physics,74,100,74
+TS-2026-0804,2026-10-27,Weekly Test 14,ST-2026-0104,Kunal Raghuwanshi,JEE Mains,Batch A — Morning,Physics,77,100,77
+TS-2026-0805,2026-10-27,Weekly Test 14,ST-2026-0105,Tanvi Dubey,JEE Mains,Batch A — Morning,Physics,85,100,85
+TS-2026-0806,2026-10-27,Weekly Test 14,ST-2026-0106,Yash Choudhary,JEE Mains,Batch A — Morning,Physics,68,100,68
+TS-2026-0807,2026-10-27,Weekly Test 14,ST-2026-0107,Nikhil Kumar,JEE Mains,Batch A — Morning,Physics,42,100,42
+TS-2026-0808,2026-10-27,Weekly Test 14,ST-2026-0108,Kavya Patel,NEET,Batch B — Evening,Biology,42,100,42
+TS-2026-0809,2026-10-27,Weekly Test 14,ST-2026-0109,Ananya Shrivastava,NEET,Batch B — Evening,Biology,88,100,88
+TS-2026-0810,2026-10-27,Weekly Test 14,ST-2026-0110,Harsh Rajput,NEET,Batch B — Evening,Biology,52,100,52
+TS-2026-0811,2026-10-27,Weekly Test 14,ST-2026-0111,Sakshi Pandey,NEET,Batch B — Evening,Biology,79,100,79
+TS-2026-0812,2026-10-27,Weekly Test 14,ST-2026-0112,Mohit Yadav,NEET,Batch B — Evening,Biology,36,100,36
+TS-2026-0813,2026-10-27,Weekly Test 14,ST-2026-0113,Riya Malviya,NEET,Batch B — Evening,Biology,71,100,71
+TS-2026-0814,2026-10-27,Weekly Test 14,ST-2026-0114,Neha Kumar,NEET,Batch B — Evening,Biology,66,100,66
+TS-2026-0815,2026-10-27,Weekly Test 14,ST-2026-0115,Dev Singh,CA Foundation,Batch A — Morning,Accounts,82,100,82
+TS-2026-0816,2026-10-27,Weekly Test 14,ST-2026-0116,Muskan Agrawal,CA Foundation,Batch A — Morning,Accounts,76,100,76
+TS-2026-0817,2026-10-27,Weekly Test 14,ST-2026-0117,Aditi Soni,CA Foundation,Batch A — Morning,Accounts,72,100,72
+TS-2026-0818,2026-10-27,Weekly Test 14,ST-2026-0119,Sneha Joshi,UPSC,Batch C — Weekend,History,38,100,38
+TS-2026-0819,2026-10-27,Weekly Test 14,ST-2026-0120,Vikram Pal,UPSC,Batch C — Weekend,History,61,100,61
+TS-2026-0820,2026-10-27,Weekly Test 14,ST-2026-0121,Anjali Mishra,UPSC,Batch C — Weekend,History,78,100,78
+TS-2026-0821,2026-10-27,Weekly Test 14,ST-2026-0122,Saurabh Tiwari,UPSC,Batch C — Weekend,History,58,100,58
+TS-2026-0822,2026-10-27,Weekly Test 14,ST-2026-0123,Pallavi Gour,UPSC,Batch C — Weekend,History,74,100,74
+TS-2026-0823,2026-10-27,Weekly Test 14,ST-2026-0124,Arjun Thakur,UPSC,Batch C — Weekend,History,69,100,69
+TS-2026-0824,2026-10-20,Weekly Test 13,ST-2026-0108,Kavya Patel,NEET,Batch B — Evening,Biology,46,100,46
+TS-2026-0825,2026-10-20,Weekly Test 13,ST-2026-0112,Mohit Yadav,NEET,Batch B — Evening,Biology,38,100,38
+TS-2026-0826,2026-10-20,Weekly Test 13,ST-2026-0119,Sneha Joshi,UPSC,Batch C — Weekend,History,41,100,41
+TS-2026-0827,2026-10-20,Weekly Test 13,ST-2026-0110,Harsh Rajput,NEET,Batch B — Evening,Biology,55,100,55
+TS-2026-0828,2026-10-20,Weekly Test 13,ST-2026-0107,Nikhil Kumar,JEE Mains,Batch A — Morning,Physics,63,100,63
+TS-2026-0829,2026-10-20,Weekly Test 13,ST-2026-0101,Rohan Mehra,JEE Mains,Batch A — Morning,Physics,84,100,84

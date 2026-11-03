@@ -16,7 +16,7 @@ Every client requirement and where the OS covers it. `scaffold_os.py` refuses to
 | R11 | A parent of a newly enrolled student gets a welcome message on WhatsApp | page leads › modal enrol; page students › modal add_student; flow STUDENT_MANAGE |
 | R12 | The office admin filters students by course, batch and status | page students |
 | R13 | The director opens a student profile with attendance, last test, rank, strong and weak subjects and parent info | page students; flow ROLLUP |
-| R14 | The office admin marks each student of a batch present or absent for a date | page attendance; page attendance › modal mark_one; flow ATTENDANCE; flow ATTENDANCE.save_batch; flow ABSENCE; flow ABSENCE.absent |
+| R14 | The office admin marks each student of a batch present or absent for a date | page attendance; flow ATTENDANCE; flow ATTENDANCE.save_batch; flow ABSENCE; flow ABSENCE.absent |
 | R15 | A parent gets an AI call asking the reason when the student is marked absent | page attendance; page attendance › modal reason_call; flow ATTENDANCE; flow ATTENDANCE.save_batch; flow ABSENCE; flow ABSENCE.absent; flow ABSENCE.reason_call |
 | R16 | The office admin sees the reason and category collected by the call against each absence | page attendance; page attendance › modal reason_call; flow ABSENCE; flow ABSENCE.reason_call |
 | R17 | A counsellor is alerted on WhatsApp when an absence needs follow-up | page attendance; page attendance › modal followup_done; page team; flow ABSENCE; flow ABSENCE.reason_call |

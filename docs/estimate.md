@@ -1,5 +1,5 @@
 # Operating cost estimate · EduFlow
-_Pucho EduFlow OS · 2026-11-02 · step 2 · from os.yaml · 1 credit = ₹0.30_
+_Pucho EduFlow OS · 2026-11-03 · step 2 · from os.yaml · 1 credit = ₹0.30_
 
 After the OS is live, this is what it consumes. Credits are the only unit; the rupee column is credits × rate. The volumes
 come from your own numbers (listed under Assumptions) — change a volume and the total moves with it.

@@ -1618,9 +1618,6 @@ export const PAGES = [
           "Needs_Followup"
         ],
         "actions": {
-          "header": [
-            "mark_one"
-          ],
           "row": [
             "reason_call",
             "followup_done"
@@ -1630,77 +1627,6 @@ export const PAGES = [
       }
     ],
     "modals": [
-      {
-        "id": "mark_one",
-        "covers": [
-          "R14"
-        ],
-        "kind": "create",
-        "title": "Mark one student",
-        "direct": "insert",
-        "columns": 2,
-        "fields": [
-          {
-            "key": "Date",
-            "label": "Date",
-            "type": "date",
-            "default": "today",
-            "required": true
-          },
-          {
-            "key": "Name",
-            "label": "Student",
-            "type": "select",
-            "options_from": "students.Name",
-            "required": true
-          },
-          {
-            "type": "panel",
-            "key": "who",
-            "title": "Student",
-            "icon": "GraduationCap",
-            "lookup": {
-              "entity": "students",
-              "match": "Name",
-              "by": "Name"
-            },
-            "copy": [
-              "Student_ID",
-              "Course",
-              "Batch",
-              "Parent_Name",
-              "Parent_Phone"
-            ],
-            "show": [
-              {
-                "key": "Batch",
-                "label": "{v}",
-                "badge": true
-              },
-              {
-                "key": "Course",
-                "label": "Course"
-              },
-              {
-                "key": "Parent_Name",
-                "label": "Parent"
-              }
-            ],
-            "empty": "Pick a student to see the batch."
-          },
-          {
-            "key": "Status",
-            "label": "Status",
-            "type": "select",
-            "options": [
-              "Present"
-            ],
-            "default": "Present",
-            "required": true,
-            "help": "Absences are marked on the sheet above so the parent is told"
-          }
-        ]
-      },
       {
         "id": "reason_call",
         "covers": [

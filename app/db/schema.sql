@@ -1,4 +1,4 @@
--- db/schema.sql — GENERATED from os.yaml by pucho-os (2026-11-02). Idempotent: apply, then apply again.
+-- db/schema.sql — GENERATED from os.yaml by pucho-os (2026-11-03). Idempotent: apply, then apply again.
 -- Entity tables are named after os.yaml entities; columns are the declared names in lower case.
 
 -- db/base.sql — the tables every Pucho OS has, whatever os.yaml says: people, sessions, one-time codes, files, jobs, settings, roles.
