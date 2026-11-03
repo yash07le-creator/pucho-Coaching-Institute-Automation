@@ -137,14 +137,29 @@ export default function AttendanceSheet({ data }) {
                   {done ? (
                     <StatusBadge status={optimistic.has(s.Student_ID) && !stored.has(s.Student_ID) ? `${done} · saving` : done} size="small" />
                   ) : (
-                    // ONE tab stop per student: Space / Enter flips Present ↔ Absent; P and A set it directly.
-                    <button type="button" role="switch" aria-checked={isAbsent} aria-label={`${s.Name}: ${isAbsent ? 'Absent' : 'Present'}`} disabled={saving}
-                      onClick={() => setOne(s.Student_ID, !isAbsent)}
-                      onKeyDown={(e) => { if (e.key === 'a' || e.key === 'A') { e.preventDefault(); setOne(s.Student_ID, true); } if (e.key === 'p' || e.key === 'P') { e.preventDefault(); setOne(s.Student_ID, false); } }}
-                      className="inline-flex shrink-0 rounded-[var(--r-8)] border border-[color:var(--hair-5)] p-0.5 text-[13px] font-medium" data-os-pa-toggle>
-                      <span className={`px-3 h-7 inline-flex items-center rounded-[calc(var(--r-8)-2px)] transition-colors duration-150 ${!isAbsent ? 'bg-ok-soft text-ok-text' : 'text-ink-3'}`}>P<span className="hidden sm:inline">resent</span></span>
-                      <span className={`px-3 h-7 inline-flex items-center rounded-[calc(var(--r-8)-2px)] transition-colors duration-150 ${isAbsent ? 'bg-bad-soft text-bad-text' : 'text-ink-3'}`}>A<span className="hidden sm:inline">bsent</span></span>
-                    </button>
+                    // Two choices, not a flip: clicking Present marks present, clicking Absent marks absent (owner, 3 Nov 2026).
+                    // ONE tab stop per student (the chosen option); Space flips Present ↔ Absent, arrows move, P and A set it directly.
+                    <div role="radiogroup" aria-label={`${s.Name} — attendance`} className="inline-flex shrink-0 gap-0.5 rounded-[var(--r-8)] border border-[color:var(--hair-5)] p-0.5 text-[13px] font-medium" data-os-pa-toggle
+                      onKeyDown={(e) => {
+                        const k = e.key; let to = null;
+                        if (k === ' ' || k.startsWith('Arrow')) to = !isAbsent; else if (k === 'a' || k === 'A') to = true; else if (k === 'p' || k === 'P') to = false;
+                        if (to === null) return;
+                        e.preventDefault(); setOne(s.Student_ID, to);
+                        // focus follows the choice, so the row keeps ONE tab stop (setTimeout, not rAF: rAF waits in a hidden tab)
+                        const group = e.currentTarget; setTimeout(() => group.querySelector(`[data-os-pa="${to ? 'Absent' : 'Present'}"]`)?.focus(), 0);
+                      }}>
+                      {['Present', 'Absent'].map((v) => {
+                        const on = (v === 'Absent') === isAbsent;
+                        const tint = v === 'Absent' ? 'bg-bad-soft text-bad-text' : 'bg-ok-soft text-ok-text';
+                        return (
+                          <button key={v} type="button" role="radio" aria-checked={on} tabIndex={on ? 0 : -1} disabled={saving} data-os-pa={v}
+                            onClick={() => setOne(s.Student_ID, v === 'Absent')}
+                            className={`px-3 h-7 inline-flex items-center rounded-[calc(var(--r-8)-2px)] transition-colors duration-150 ${on ? tint : 'text-ink-3 hover:bg-black/[0.04]'}`}>
+                            {v[0]}<span className="hidden sm:inline">{v.slice(1)}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   )}
                 </li>
               );
