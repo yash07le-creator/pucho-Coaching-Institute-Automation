@@ -80,3 +80,17 @@ Verified: "Batch D — Night", 7:00–9:00 PM typed into the picker, Mon–Fri +
   gets a class only on a node React already owns. A fresh tab shows no console error. Under the Pucho tone Delivered is
   the DS pill with a green dot and Failed reads red.
 - ui_check NOT re-run after this change (needs a production build while the owner's dev server holds `.next`).
+
+## Attendance: Present / Absent on every row, saved batches can be corrected (owner, 3 Nov 2026)
+- Each student has two choices (a radiogroup): clicking Present marks present, clicking Absent marks absent — before, the whole
+  control flipped, so clicking "Present" on a present student made them absent. One tab stop per row; Space flips, arrows move,
+  P / A set it; focus follows the choice.
+- A batch already saved for the date shows the same choices, pre-set to the saved marks (it showed read-only badges before).
+  A change is a `direct: patch` on that student's mark; Present → Absent also posts `ABSENCE.absent` (declared by the hidden
+  `absence_notice` modal on the page, as Batches declares its writes), so the parent still gets the notice. Absent → Present
+  keeps a notice status that already left (WhatsApp Sent / Delivered / Failed) — a sent WhatsApp cannot be recalled, and the
+  confirmation says so. Corrections are saved one student at a time (a refusal names the student); a first save of a batch is
+  still ONE transaction. The attendance_sessions row keeps the counts of the first save.
+- Observed (dev server, office persona, Batch A today): Present click on a saved Present → no change; Absent → "changed",
+  "Save & Send WhatsApp (1)", confirm, toast (SIMULATED), table Absent / WhatsApp Sent; back to Present → "Save changes",
+  the cannot-be-recalled line, toast "Attendance updated — no new WhatsApp notice.", table Present / WhatsApp Sent. No console errors.
