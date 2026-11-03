@@ -1,0 +1,168 @@
+{
+  "os": "eduflow-os",
+  "built": "2026-11-03T16:15:59",
+  "checks": {
+    "typecheck": "pass",
+    "zip": {
+      "files": 182,
+      "mb": 0.75,
+      "no_env": true,
+      "no_build_output": true,
+      "dockerfile_expose_80": true,
+      "demo_users_in_zip": true,
+      "links_skipped": 0
+    },
+    "docker_build": "not run (docker is not on PATH)",
+    "secrets": {
+      "fresh": [
+        "AUTH_PEPPER",
+        "INBOUND_TOKEN"
+      ],
+      "kept": [],
+      "given": [],
+      "differ_from_dev": true
+    },
+    "env": {
+      "file": "eduflow-os.env",
+      "verified": true,
+      "keys": 22,
+      "webhook_flows": 9,
+      "providers": 0,
+      "encrypted_keys": false
+    },
+    "db": {
+      "schema": "eduflow-os-schema.sql",
+      "demo": "eduflow-os-DEMO-ONLY-db.sql",
+      "demo_rows": 231,
+      "demo_logins": 0,
+      "temporary_admin": true,
+      "rls_statements": 0
+    },
+    "flows": {
+      "count": 13,
+      "pucho_studio_format": true,
+      "files": {
+        "Pucho EduFlow - ADMISSION_CALL.json": {
+          "flow": "ADMISSION_CALL",
+          "trigger": "app"
+        },
+        "Pucho EduFlow - STUDENT_MANAGE.json": {
+          "flow": "STUDENT_MANAGE",
+          "trigger": "app"
+        },
+        "Pucho EduFlow - SCORES.json": {
+          "flow": "SCORES",
+          "trigger": "app"
+        },
+        "Pucho EduFlow - ATTENDANCE.json": {
+          "flow": "ATTENDANCE",
+          "trigger": "app"
+        },
+        "Pucho EduFlow - ABSENCE.json": {
+          "flow": "ABSENCE",
+          "trigger": "app"
+        },
+        "Pucho EduFlow - ACADEMIC_CALL.json": {
+          "flow": "ACADEMIC_CALL",
+          "trigger": "app"
+        },
+        "Pucho EduFlow - FEE_REMINDER.json": {
+          "flow": "FEE_REMINDER",
+          "trigger": "app"
+        },
+        "Pucho EduFlow - PARENT_UPDATE.json": {
+          "flow": "PARENT_UPDATE",
+          "trigger": "app"
+        },
+        "Pucho EduFlow - SEND_WHATSAPP.json": {
+          "flow": "SEND_WHATSAPP",
+          "trigger": "app"
+        },
+        "Pucho EduFlow - FEE_RUN.json": {
+          "flow": "FEE_RUN",
+          "trigger": "other"
+        },
+        "Pucho EduFlow - ACADEMIC_RUN.json": {
+          "flow": "ACADEMIC_RUN",
+          "trigger": "other"
+        },
+        "Pucho EduFlow - PARENT_RUN.json": {
+          "flow": "PARENT_RUN",
+          "trigger": "other"
+        },
+        "Pucho EduFlow - ROLLUP.json": {
+          "flow": "ROLLUP",
+          "trigger": "other"
+        }
+      },
+      "inbound_token_filled": true,
+      "app_flows_read_the_call": [
+        "Pucho EduFlow - ADMISSION_CALL.json",
+        "Pucho EduFlow - STUDENT_MANAGE.json",
+        "Pucho EduFlow - SCORES.json",
+        "Pucho EduFlow - ATTENDANCE.json",
+        "Pucho EduFlow - ABSENCE.json",
+        "Pucho EduFlow - ACADEMIC_CALL.json",
+        "Pucho EduFlow - FEE_REMINDER.json",
+        "Pucho EduFlow - PARENT_UPDATE.json",
+        "Pucho EduFlow - SEND_WHATSAPP.json"
+      ],
+      "app_url_filled": false,
+      "still_set_in_studio": {
+        "Pucho EduFlow - ADMISSION_CALL.json": [
+          "SET_IN_STUDIO_TEMPLATE_ID_STAFF_ALERT",
+          "SET_IN_STUDIO_VOICE_AGENT_ADMISSION",
+          "SET_IN_STUDIO_WHATSAPP_ACCOUNT_ID"
+        ],
+        "Pucho EduFlow - STUDENT_MANAGE.json": [
+          "SET_IN_STUDIO_TEMPLATE_ID_WELCOME",
+          "SET_IN_STUDIO_WHATSAPP_ACCOUNT_ID"
+        ],
+        "Pucho EduFlow - SCORES.json": [],
+        "Pucho EduFlow - ATTENDANCE.json": [
+          "SET_IN_STUDIO_WEBHOOK_ABSENCE"
+        ],
+        "Pucho EduFlow - ABSENCE.json": [
+          "SET_IN_STUDIO_TEMPLATE_ID_ABSENCE_ALERT",
+          "SET_IN_STUDIO_TEMPLATE_ID_STAFF_ALERT",
+          "SET_IN_STUDIO_WHATSAPP_ACCOUNT_ID"
+        ],
+        "Pucho EduFlow - ACADEMIC_CALL.json": [
+          "SET_IN_STUDIO_TEMPLATE_ID_STAFF_ALERT",
+          "SET_IN_STUDIO_VOICE_AGENT_ACADEMIC",
+          "SET_IN_STUDIO_WHATSAPP_ACCOUNT_ID"
+        ],
+        "Pucho EduFlow - FEE_REMINDER.json": [
+          "SET_IN_STUDIO_TEMPLATE_ID_FEE_PAYMENT_LINK",
+          "SET_IN_STUDIO_VOICE_AGENT_FEE",
+          "SET_IN_STUDIO_WHATSAPP_ACCOUNT_ID"
+        ],
+        "Pucho EduFlow - PARENT_UPDATE.json": [
+          "SET_IN_STUDIO_TEMPLATE_ID_STAFF_ALERT",
+          "SET_IN_STUDIO_TEMPLATE_ID_WEEKLY_REPORT",
+          "SET_IN_STUDIO_VOICE_AGENT_PARENT",
+          "SET_IN_STUDIO_WHATSAPP_ACCOUNT_ID"
+        ],
+        "Pucho EduFlow - SEND_WHATSAPP.json": [
+          "SET_IN_STUDIO_TEMPLATE_ID_GENERAL_UPDATE",
+          "SET_IN_STUDIO_WHATSAPP_ACCOUNT_ID"
+        ],
+        "Pucho EduFlow - FEE_RUN.json": [
+          "SET_IN_STUDIO_APP_URL",
+          "SET_IN_STUDIO_WEBHOOK_FEE_REMINDER"
+        ],
+        "Pucho EduFlow - ACADEMIC_RUN.json": [
+          "SET_IN_STUDIO_APP_URL",
+          "SET_IN_STUDIO_WEBHOOK_ACADEMIC_CALL"
+        ],
+        "Pucho EduFlow - PARENT_RUN.json": [
+          "SET_IN_STUDIO_APP_URL",
+          "SET_IN_STUDIO_WEBHOOK_PARENT_UPDATE"
+        ],
+        "Pucho EduFlow - ROLLUP.json": [
+          "SET_IN_STUDIO_APP_URL"
+        ]
+      }
+    }
+  }
+}
