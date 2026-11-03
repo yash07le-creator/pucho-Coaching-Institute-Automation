@@ -17,7 +17,7 @@ Every client requirement and where the OS covers it. `scaffold_os.py` refuses to
 | R12 | The office admin filters students by course, batch and status | page students |
 | R13 | The director opens a student profile with attendance, last test, rank, strong and weak subjects and parent info | page students; flow ROLLUP |
 | R14 | The office admin marks each student of a batch present or absent for a date | page attendance; flow ATTENDANCE; flow ATTENDANCE.save_batch; flow ABSENCE; flow ABSENCE.absent |
-| R15 | A parent gets a formal WhatsApp notice when the student is marked absent — no call (owner, 3 Nov 2026) | page attendance; flow ATTENDANCE; flow ATTENDANCE.save_batch; flow ABSENCE; flow ABSENCE.absent |
+| R15 | A parent gets a formal WhatsApp notice when the student is marked absent — no call (owner, 3 Nov 2026) | page attendance; page attendance › modal absence_notice; flow ATTENDANCE; flow ATTENDANCE.save_batch; flow ABSENCE; flow ABSENCE.absent |
 | R16 | The office admin sees whether each absence notice was sent, delivered or failed | page attendance; flow ABSENCE; flow ABSENCE.absent |
 | R17 | A counsellor is alerted on WhatsApp when an absence needs follow-up | page attendance; page attendance › modal followup_done; page team; flow ABSENCE; flow ABSENCE.absent |
 | R18 | The director sees students below 75% attendance as critical | page students; page attendance; flow ROLLUP |

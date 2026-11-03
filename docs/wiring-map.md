@@ -7,7 +7,7 @@ _Generated 2026-11-03._
 - Leads `/leads` → `ADMISSION_CALL.new_lead` (Add lead), `ADMISSION_CALL.call` (Call again with AI), direct patch (Assign counsellor), direct patch (Change stage), `STUDENT_MANAGE.enrol` (Enrol as student)
 - AI call log `/calls` → no workflow
 - Students `/students` → `STUDENT_MANAGE.enrol` (Enrol student), direct patch (Assign mentor / counsellor), `PARENT_UPDATE.update_call` (AI call to parent), `PARENT_UPDATE.weekly_report` (Send weekly report), `SEND_WHATSAPP.send_update` (WhatsApp the parent)
-- Attendance `/attendance` → direct patch (Follow-up done)
+- Attendance `/attendance` → direct patch (Follow-up done), `ABSENCE.absent` (Send absence notice)
 - Academic `/academic` → `ACADEMIC_CALL.counsel` (AI counselling call), direct patch (Assign mentor / counsellor)
 - Test scores `/scores` → direct insert (Add score), direct patch (Correct marks)
 - Fees `/fees` → direct patch (Record payment), `FEE_REMINDER.send_link` (Send payment link), `FEE_REMINDER.remind` (AI reminder call)

@@ -984,7 +984,7 @@ pages:
     covers: [R14, R15, R16, R17, R18]
     route: /attendance
     label: Attendance
-    subtitle: Mark a batch; parents of absent students get a formal WhatsApp notice
+    subtitle: Mark or correct a batch; parents of absent students get a formal WhatsApp notice
     icon: CalendarCheck
     group: Students
     entity: attendance
@@ -1007,6 +1007,8 @@ pages:
         actions: { row: [followup_done] }   # marking is the sheet above only (owner, 3 Nov 2026) — no one-student form
     modals:
       - { id: followup_done, covers: [R17], kind: status, title: Follow-up done, direct: patch, summary: [Name, Reason], fill: { Followup_Done: "Yes" }, fields: [] }
+      # not in any actions list: declares the write AttendanceSheet makes when a saved Present is corrected to Absent (owner, 3 Nov 2026)
+      - { id: absence_notice, covers: [R15], kind: status, title: Send absence notice, flow: ABSENCE, action: absent, summary: [Name, Date], pass: [Att_ID, Date, Batch, Student_ID, Name, Course, Parent_Name, Parent_Phone, Absences_This_Week, Needs_Followup], submit: Send notice, fields: [] }
 
   - id: academic
     covers: [R20, R21, R22, R23]

@@ -1490,7 +1490,7 @@ export const PAGES = [
     ],
     "route": "/attendance",
     "label": "Attendance",
-    "subtitle": "Mark a batch; parents of absent students get a formal WhatsApp notice",
+    "subtitle": "Mark or correct a batch; parents of absent students get a formal WhatsApp notice",
     "icon": "CalendarCheck",
     "group": "Students",
     "entity": "attendance",
@@ -1636,6 +1636,34 @@ export const PAGES = [
         "fill": {
           "Followup_Done": "Yes"
         },
+        "fields": []
+      },
+      {
+        "id": "absence_notice",
+        "covers": [
+          "R15"
+        ],
+        "kind": "status",
+        "title": "Send absence notice",
+        "flow": "ABSENCE",
+        "action": "absent",
+        "summary": [
+          "Name",
+          "Date"
+        ],
+        "pass": [
+          "Att_ID",
+          "Date",
+          "Batch",
+          "Student_ID",
+          "Name",
+          "Course",
+          "Parent_Name",
+          "Parent_Phone",
+          "Absences_This_Week",
+          "Needs_Followup"
+        ],
+        "submit": "Send notice",
         "fields": []
       }
     ],
