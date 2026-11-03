@@ -75,4 +75,8 @@ Verified: "Batch D — Night", 7:00–9:00 PM typed into the picker, Mon–Fri +
 - Delivered / Failed need the WhatsApp delivery status back from Studio — UNVERIFIED (G5).
 - Kernel gap, adapter `custom/noticeBadges.js`: a table badge column cannot declare a colour per value (the kanban has
   `colors:`, the table has no twin), so "WhatsApp Sent" came out grey and "Present" steel. To report to the skill owner.
+  The first version repainted badges in the server HTML before React hydrated → a hydration-mismatch console error (owner
+  report, 3 Nov 2026). Now: Present is repainted in CSS only (`noticeBadges.css`, via its `data-os-stage`), and "WhatsApp Sent"
+  gets a class only on a node React already owns. A fresh tab shows no console error. Under the Pucho tone Delivered is
+  the DS pill with a green dot and Failed reads red.
 - ui_check NOT re-run after this change (needs a production build while the owner's dev server holds `.next`).
