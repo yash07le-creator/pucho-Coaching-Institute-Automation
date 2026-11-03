@@ -1,0 +1,309 @@
+<title>EduFlow Workflow Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one reading column; a map, three groups of workflow cards, a setup order, a duplicate checker, cost. */
+:root {
+  --bg: #F7F7FB; --surface: #FFFFFF; --ink: #1B1B2E; --ink-2: #4A4B66; --ink-3: #6E6F8A; --line: #E2E2EE;
+  --accent: #4F46E5; --accent-soft: #ECEBFD;
+  --call: #4F46E5; --call-soft: #ECEBFD; --msg: #0F766E; --msg-soft: #E1F3F1; --sched: #A15C07; --sched-soft: #FBEFD9;
+  --warn: #9A3412; --warn-soft: #FDECE3; --ok: #166534; --ok-soft: #E3F4E8;
+  --sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif; --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #13131F; --surface: #1C1C2B; --ink: #ECECF6; --ink-2: #C3C3D8; --ink-3: #9293AE; --line: #2E2E44;
+  --accent: #9C97FF; --accent-soft: #2A2950; --call: #A9A4FF; --call-soft: #2A2950; --msg: #5FD3C4; --msg-soft: #173A37; --sched: #F2B866; --sched-soft: #3B2E17;
+  --warn: #FFA07A; --warn-soft: #3D2419; --ok: #7FD69A; --ok-soft: #1B3524; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #13131F; --surface: #1C1C2B; --ink: #ECECF6; --ink-2: #C3C3D8; --ink-3: #9293AE; --line: #2E2E44;
+  --accent: #9C97FF; --accent-soft: #2A2950; --call: #A9A4FF; --call-soft: #2A2950; --msg: #5FD3C4; --msg-soft: #173A37; --sched: #F2B866; --sched-soft: #3B2E17;
+  --warn: #FFA07A; --warn-soft: #3D2419; --ok: #7FD69A; --ok-soft: #1B3524; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.6 var(--sans); }
+.wrap { max-width: 980px; margin: 0 auto; padding-block: 40px 72px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 48px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; line-height: 1.25; }
+h1 { font-size: clamp(28px, 4.5vw, 40px); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 22px; font-weight: 600; }
+h3 { font-size: 17px; font-weight: 600; }
+p { margin: 0; max-width: 68ch; }
+.eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.lede { color: var(--ink-2); font-size: 17px; }
+section { display: grid; gap: 16px; min-width: 0; }
+.head { display: grid; gap: 10px; }
+code, .mono { font-family: var(--mono); font-size: .92em; }
+code { background: var(--accent-soft); color: var(--ink); padding: 1px 6px; border-radius: 4px; overflow-wrap: anywhere; }
+.answer { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; display: grid; gap: 12px; }
+.answer strong { color: var(--accent); }
+.count { display: flex; flex-wrap: wrap; gap: 10px; }
+.pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 500; }
+.pill b { font: 600 15px var(--mono); }
+.p-call { background: var(--call-soft); color: var(--call); } .p-msg { background: var(--msg-soft); color: var(--msg); } .p-sched { background: var(--sched-soft); color: var(--sched); }
+.diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; overflow-x: auto; }
+.groups { display: grid; gap: 36px; }
+.group { display: grid; gap: 14px; }
+.group-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--tone); border-radius: 8px; padding: 18px 18px 16px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.card.call { --tone: var(--call); } .card.msg { --tone: var(--msg); } .card.sched { --tone: var(--sched); }
+.card-top { display: grid; gap: 4px; }
+.studio { font: 500 13px var(--mono); color: var(--tone); overflow-wrap: anywhere; }
+.what { color: var(--ink-2); }
+dl { margin: 0; display: grid; grid-template-columns: 108px 1fr; gap: 6px 12px; font-size: 14px; }
+dt { color: var(--ink-3); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; padding-top: 3px; }
+dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+dd ul { margin: 0; padding-left: 18px; }
+.steps { font-size: 13.5px; color: var(--ink-2); padding-left: 0; margin: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 6px; }
+.steps li::after { content: "→"; margin-left: 6px; color: var(--ink-3); }
+.steps li:last-child::after { content: ""; }
+.tag { display: inline-block; font: 500 11.5px var(--mono); padding: 1px 6px; border-radius: 4px; background: var(--bg); border: 1px solid var(--line); color: var(--ink-2); margin: 0 4px 4px 0; }
+.note { font-size: 13.5px; color: var(--warn); background: var(--warn-soft); padding: 8px 10px; border-radius: 6px; }
+.order { counter-reset: s; list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.order li { counter-increment: s; display: grid; grid-template-columns: 34px 1fr; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+.order li::before { content: counter(s); font: 600 15px var(--mono); color: var(--accent); background: var(--accent-soft); width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; }
+.order li > div { display: grid; gap: 6px; min-width: 0; }
+.table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); font-weight: 500; }
+td.num, th.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+tfoot td { font-weight: 600; border-top: 2px solid var(--line); }
+.checker { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 12px; }
+textarea { width: 100%; min-height: 150px; font: 13px/1.5 var(--mono); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; resize: vertical; }
+textarea:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+button { font: 500 14px var(--sans); border: 0; border-radius: 8px; padding: 9px 16px; cursor: pointer; background: var(--accent); color: #fff; }
+:root[data-theme="dark"] button { color: #13131F; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) button { color: #13131F; } }
+button.ghost { background: transparent; color: var(--accent); border: 1px solid var(--line); }
+.result { display: grid; gap: 8px; font-size: 14px; }
+.result ul { margin: 0; padding-left: 18px; }
+.r-ok { color: var(--ok); } .r-warn { color: var(--warn); }
+.muted { color: var(--ink-3); font-size: 13.5px; }
+.list { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 72ch; }
+@media (max-width: 520px) { dl { grid-template-columns: 1fr; gap: 2px; } dt { padding-top: 8px; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="head">
+    <span class="eyebrow">Pucho EduFlow · Studio workflows · 3 Nov 2026</span>
+    <h1>EduFlow Workflow Guide</h1>
+    <p class="lede">All 13 workflows imported into Pucho Studio: what each one does, what starts it, what to fill in before it runs, and how to spot extra copies.</p>
+  </header>
+
+  <section id="why">
+    <div class="answer">
+      <h2>Why there are so many</h2>
+      <p>EduFlow has <strong>13 workflows by design</strong>, one per job. A workflow that places AI calls, one that sends WhatsApps and one that runs on a timer each need their own trigger and steps, so they can't be merged without breaking the kit's limit of 14 steps and one AI judgement per path.</p>
+      <div class="count">
+        <span class="pill p-call"><b>4</b> AI call agents</span>
+        <span class="pill p-msg"><b>5</b> messages and saves</span>
+        <span class="pill p-sched"><b>4</b> schedules</span>
+      </div>
+      <p>Every one is named <code>Pucho EduFlow - &lt;NAME&gt;</code>. <strong>More than 13 in Studio means copies</strong>: the folder was imported twice, an older file was imported, or Studio made a "Copy". Keep the newest of each name and delete the others. The checker below sorts your list for you.</p>
+    </div>
+  </section>
+
+  <section id="map">
+    <div class="head"><span class="eyebrow">How they connect</span><h2>Who starts what</h2>
+      <p class="muted">Buttons in the app start 8 workflows. The 4 schedules start on a timer and hand each student or fee to an action workflow. Saving attendance hands each absent student to ABSENCE.</p></div>
+    <div class="diagram">
+<pre class="mermaid">
+flowchart LR
+  APP["EduFlow app buttons"]
+  subgraph Schedules
+    FR["FEE_RUN · daily 10:00"]
+    AR["ACADEMIC_RUN · Mon 11:00"]
+    PR["PARENT_RUN · Fri + Mon 17:00"]
+    RU["ROLLUP · daily 01:30"]
+  end
+  subgraph Agents["AI call agents"]
+    AC["ADMISSION_CALL"]
+    ACA["ACADEMIC_CALL"]
+    FE["FEE_REMINDER"]
+    PU["PARENT_UPDATE"]
+  end
+  subgraph Msg["Messages and saves"]
+    AT["ATTENDANCE"]
+    AB["ABSENCE"]
+    SM["STUDENT_MANAGE"]
+    SW["SEND_WHATSAPP"]
+    SC["SCORES · leave unwired"]
+  end
+  APP --> AC & ACA & FE & PU & AT & AB & SM & SW
+  FR --> FE
+  AR --> ACA
+  PR --> PU
+  AT --> AB
+  RU --> DB[("App database")]
+</pre>
+    </div>
+  </section>
+
+  <div class="groups" id="groups"></div>
+
+  <section id="setup">
+    <div class="head"><span class="eyebrow">Before the first real run</span><h2>Setup, in this order</h2>
+      <p class="muted">Each workflow's <code>CHECKLIST.md</code> in <code>workflows/&lt;NAME&gt;/</code> lists every box. A workflow with an unfilled <code>SET_IN_STUDIO_…</code> value will not run.</p></div>
+    <ol class="order">
+      <li><div><h3>WhatsApp account and templates</h3><p>Get the six templates approved on whatsapp.pucho.ai: absence_alert, staff_alert, fee_payment_link, weekly_report, welcome, general_update. Paste the account id into <code>SET_IN_STUDIO_WHATSAPP_ACCOUNT_ID</code> and each template id into its <code>SET_IN_STUDIO_TEMPLATE_ID_…</code> box. <code>eduflow_staff_alert</code> takes 1 = staff name, 2 = alert text.</p></div></li>
+      <li><div><h3>Voice agents</h3><p>Pick the ai-voice-call agent for each caller: <code>SET_IN_STUDIO_VOICE_AGENT_ADMISSION</code>, <code>_ACADEMIC</code>, <code>_FEE</code> and <code>_PARENT</code>.</p></div></li>
+      <li><div><h3>Publish every workflow and copy its webhook URL</h3><p>Studio edits do nothing until you press Publish. Note each workflow's webhook URL. The same URL with <code>/sync</code> on the end waits for the answer.</p></div></li>
+      <li><div><h3>Hand-off URLs</h3><p>Paste the <strong>plain</strong> webhook URL of the receiving workflow, so the sender never waits on a call:</p>
+        <ul class="list"><li>ATTENDANCE: <code>SET_IN_STUDIO_WEBHOOK_ABSENCE</code></li><li>FEE_RUN: <code>SET_IN_STUDIO_WEBHOOK_FEE_REMINDER</code></li><li>ACADEMIC_RUN: <code>SET_IN_STUDIO_WEBHOOK_ACADEMIC_CALL</code></li><li>PARENT_RUN: <code>SET_IN_STUDIO_WEBHOOK_PARENT_UPDATE</code></li></ul></div></li>
+      <li><div><h3>The four schedules</h3><p>Fill <code>SET_IN_STUDIO_APP_URL</code> once the app has its domain, and <code>SET_IN_STUDIO_INBOUND_TOKEN</code> with the app's inbound token from Settings. The token never goes into git: <code>build_deploy.py --inbound-token</code> fills it into the deploy copies only.</p></div></li>
+      <li><div><h3>Connect the app</h3><p>In EduFlow, open <b>Settings → Flow webhook URLs</b> and set 8 workflows:</p>
+        <ul class="list">
+          <li><code>/sync</code> URL for STUDENT_MANAGE, ATTENDANCE, FEE_REMINDER, PARENT_UPDATE and SEND_WHATSAPP. They have a quick action whose result the page shows.</li>
+          <li>Plain URL for ADMISSION_CALL, ABSENCE and ACADEMIC_CALL. They only take calls that run for minutes.</li>
+          <li>Leave SCORES empty: the app saves scores itself, in one transaction. The schedules are not called by the app.</li>
+        </ul>
+        <p class="muted">The header's "Workflows simulated" chip disappears once every workflow is wired.</p></div></li>
+      <li><div><h3>Test each one</h3><p>Paste the test payload from the workflow's CHECKLIST into Studio's test panel, then run one real record end to end from the app.</p></div></li>
+    </ol>
+  </section>
+
+  <section id="checker">
+    <div class="head"><span class="eyebrow">Too many in Studio?</span><h2>Duplicate checker</h2>
+      <p class="muted">Paste the workflow names you see in Studio, one per line. The checker marks each as expected, a duplicate, or not part of EduFlow.</p></div>
+    <div class="checker">
+      <label for="names" class="muted">Workflow names from Studio</label>
+      <textarea id="names" spellcheck="false">Pucho EduFlow - ABSENCE
+Pucho EduFlow - ABSENCE
+Pucho EduFlow - ADMISSION_CALL
+Pucho EduFlow - PARENT_UPDATE (Copy)
+Pucho EduFlow - PARENT_RUN</textarea>
+      <div class="row"><button id="check" type="button">Check the list</button><button id="clear" type="button" class="ghost">Clear</button><span class="muted">The text in the box is an example. Replace it with your own list.</span></div>
+      <div class="result" id="result" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section id="verify">
+    <div class="head"><span class="eyebrow">Watch on the first real run</span><h2>Not yet confirmed</h2>
+      <p class="muted">These replies were read defensively, so an unexpected shape should not stop a workflow. One real run settles each.</p></div>
+    <ul class="list">
+      <li><b>Voice call settings and its reply</b> (gap G1): the fields the call step sends (phone, name, language, context) and the shape of the call record. The AI reads the whole record, so a differently named transcript field still reaches it.</li>
+      <li><b>WhatsApp reply</b>: an error or a refusal is recorded as Failed on the message and on the attendance WhatsApp Notice.</li>
+      <li><b>"Delivered"</b> on the WhatsApp Notice needs WhatsApp's delivery callback (gap G5). Until then the workflows set Sent or Failed only.</li>
+      <li><b>The loop step</b> used for hand-offs and per-row updates (14 places): the kit still lists its node type as to be confirmed against a real export.</li>
+      <li><b>Not built:</b> ADMISSION_CALL's automatic retry 2 hours after an unanswered call. The Leads page's "Call again with AI" covers it.</li>
+    </ul>
+  </section>
+
+  <section id="cost">
+    <div class="head"><span class="eyebrow">Running cost</span><h2>Credits per month</h2>
+      <p class="muted">Counted on these workflows at the planned volumes. The ±30% range is ₹12,533 – ₹23,276. Loops are counted once per run, so ROLLUP and PARENT_RUN grow with the number of students.</p></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Workflow</th><th>Group</th><th class="num">Runs / month</th><th class="num">Credits / month</th></tr></thead>
+      <tbody id="costrows"></tbody>
+      <tfoot><tr><td colspan="3">Total</td><td class="num">59,682 ≈ ₹17,905</td></tr></tfoot>
+    </table></div>
+  </section>
+</div>
+
+<script>
+const FLOWS = [
+  { g: 'call', name: 'ADMISSION_CALL', what: 'Calls every new lead, grades them and hands HOT leads to a counsellor.',
+    start: ['Leads · Add lead (new_lead)', 'Leads · Call again with AI (call)'],
+    steps: ['Read team and leads', 'AI voice call to the lead', 'Wait 3 min', 'Get the call record', 'AI reads the transcript: grade, score, summary, next action', 'Code: HOT only with score ≥ 80; HOT → follow-up in 48 h and the counsellor with the fewest open HOT leads', 'Save the lead', 'Log the call', 'WhatsApp the counsellor (HOT only)'],
+    fill: ['VOICE_AGENT_ADMISSION', 'WHATSAPP_ACCOUNT_ID', 'TEMPLATE_ID_STAFF_ALERT'], runs: '150', credits: '9,150' },
+  { g: 'call', name: 'ACADEMIC_CALL', what: 'Counsels a slipping student and calls in a mentor or counsellor only when the student needs one.',
+    start: ['Academic · AI counselling call', 'ACADEMIC_RUN, Monday 11:00'],
+    steps: ['Read team', 'AI voice call to the student', 'Wait 5 min', 'Get the call record', 'AI reads: issue type, main issue, needs mentor, needs counsellor', 'Update the student', 'Log the call', 'Alert, only when needed', 'WhatsApp the mentor or counsellor'],
+    fill: ['VOICE_AGENT_ACADEMIC', 'WHATSAPP_ACCOUNT_ID', 'TEMPLATE_ID_STAFF_ALERT'], runs: '147', credits: '8,967' },
+  { g: 'call', name: 'FEE_REMINDER', what: 'Reminds a parent about an overdue fee by call, always follows with the payment link, and escalates day 15 to the director.',
+    start: ['Fees · AI reminder call (remind)', 'Fees / Overview · Send payment link (send_link)', 'FEE_RUN: day 1, 7, 15 overdue, or 3 days before due'],
+    steps: ['AI voice call to the parent', 'Wait 3 min', 'Get the call record', 'AI reads: parent response, promise date', 'WhatsApp the payment link', 'Update the fee: reminder count +1, response, promise', 'Log the call and the message', 'Day 15+ with no promise: CRITICAL alert to the director'],
+    fill: ['VOICE_AGENT_FEE', 'WHATSAPP_ACCOUNT_ID', 'TEMPLATE_ID_FEE_PAYMENT_LINK'], runs: '149', credits: '4,849' },
+  { g: 'call', name: 'PARENT_UPDATE', what: 'The Friday hybrid update: a WhatsApp report to every parent, and a check-in call only for at-risk students.',
+    start: ['PARENT_RUN, Friday 17:00 (report to everyone, call to at-risk)', 'PARENT_RUN, Monday 17:00 (one retry)', 'Students · Send weekly report', 'Students · AI call to parent'],
+    steps: ['weekly_report: fill the template from the record, no AI', 'WhatsApp it', 'Log it', 'update_call: AI voice call', 'Wait 4 min', 'AI reads: sentiment, feedback, concern, escalate?', 'Code: No Answer / Escalated / Completed; Concerned or escalated → Concerns tab', 'Update the student and log the call', 'Escalation: HIGH alert to the director and a WhatsApp', 'Second no-answer on Monday → closed'],
+    fill: ['VOICE_AGENT_PARENT', 'WHATSAPP_ACCOUNT_ID', 'TEMPLATE_ID_WEEKLY_REPORT', 'TEMPLATE_ID_STAFF_ALERT'], runs: '1,641', credits: '21,608' },
+  { g: 'msg', name: 'ATTENDANCE', what: 'Saves a whole batch, then sends a notice only for the absent students.',
+    start: ['Attendance · Save (the batch sheet)'],
+    steps: ['Save the session', 'Save every mark in one call', 'Pick the absent students', 'Hand each one to ABSENCE (never a present student)'],
+    fill: ['WEBHOOK_ABSENCE'], runs: '90', credits: '810' },
+  { g: 'msg', name: 'ABSENCE', what: 'The formal absence WhatsApp to the parent. Never a call.',
+    start: ['ATTENDANCE, once per absent student', 'Attendance · a saved Present corrected to Absent'],
+    steps: ['Read team', 'Fill the notice from the record', 'WhatsApp the parent', 'WhatsApp Notice = Sent or Failed', 'Log the message', 'Repeat absence: HIGH alert and a WhatsApp to the course counsellor'],
+    fill: ['WHATSAPP_ACCOUNT_ID', 'TEMPLATE_ID_ABSENCE_ALERT', 'TEMPLATE_ID_STAFF_ALERT'], runs: '1,144', credits: '12,584' },
+  { g: 'msg', name: 'STUDENT_MANAGE', what: 'Enrols a student: the record, the first fee and a welcome to the parent.',
+    start: ['Leads · Enrol as student', 'Students · Enrol student'],
+    steps: ['Save the student', 'First fee (Upcoming)', 'WhatsApp the welcome', 'Log it', 'From a lead: lead → Enrolled'],
+    fill: ['WHATSAPP_ACCOUNT_ID', 'TEMPLATE_ID_WELCOME'], runs: '30', credits: '330' },
+  { g: 'msg', name: 'SEND_WHATSAPP', what: 'Sends the office’s reviewed message to one parent.',
+    start: ['Students · WhatsApp the parent'],
+    steps: ['Fill the template', 'WhatsApp the parent', 'Log it'],
+    fill: ['WHATSAPP_ACCOUNT_ID', 'TEMPLATE_ID_GENERAL_UPDATE'], runs: '57', credits: '399' },
+  { g: 'msg', name: 'SCORES', what: 'Saves a whole batch’s test scores. Leave it unwired: the app saves scores itself, in one transaction.',
+    start: ['Test scores · Add score grid'],
+    steps: ['Save the test run', 'Save every student’s score'],
+    fill: [], note: 'You can leave it in Studio unused or delete it. Do not set its URL in the app.', runs: '40', credits: '280' },
+  { g: 'sched', name: 'FEE_RUN', what: 'Every morning: recalculates overdue days and starts the right reminder.',
+    start: ['Timer: every day 10:00 IST'],
+    steps: ['Read fees and team', 'Code: days overdue, Due → Overdue', 'Update the fees that changed', 'Day 1, 7, 15 overdue → FEE_REMINDER call; 3 days before due → link only'],
+    fill: ['APP_URL', 'INBOUND_TOKEN', 'WEBHOOK_FEE_REMINDER'], runs: '30', credits: '240' },
+  { g: 'sched', name: 'ACADEMIC_RUN', what: 'Every Monday: picks the students who need a counselling call.',
+    start: ['Timer: Monday 11:00 IST'],
+    steps: ['Read students', 'Code: attendance < 75% or last score < 60%, worst first, max 50', 'Hand each to ACADEMIC_CALL'],
+    fill: ['APP_URL', 'INBOUND_TOKEN', 'WEBHOOK_ACADEMIC_CALL'], runs: '4', credits: '24' },
+  { g: 'sched', name: 'PARENT_RUN', what: 'The Friday 5 PM hybrid run and the Monday 5 PM retry.',
+    start: ['Timer: Friday and Monday 17:00 IST (one schedule, the code checks the day)'],
+    steps: ['Read students and calls', 'Friday: every active parent → weekly report; At Risk / Critical or attendance < 75% or score < 60% → AI call', 'Monday: last Friday’s unanswered parent calls → one retry, marked retried'],
+    fill: ['APP_URL', 'INBOUND_TOKEN', 'WEBHOOK_PARENT_UPDATE'], runs: '9', credits: '81' },
+  { g: 'sched', name: 'ROLLUP', what: 'Every night: refreshes each student’s numbers and raises new alerts.',
+    start: ['Timer: every day 01:30 IST'],
+    steps: ['Read students, attendance, tests, fees, alerts, leads', 'Code: attendance % (30 days), last and average score, rank, trend, strong and weak subjects, status, fee status', 'Update each student', 'New alerts only, none while one is open: attendance < 75%, fee 15+ days, HOT lead past 48 h'],
+    fill: ['APP_URL', 'INBOUND_TOKEN'], runs: '30', credits: '360' },
+];
+const GROUPS = [
+  { g: 'call', title: 'AI call agents', sub: 'Place a voice call, wait, read the transcript once with AI, then code decides the rest.', pill: 'p-call' },
+  { g: 'msg', title: 'Messages and saves', sub: 'No AI: fill a WhatsApp template from the record, or save rows.', pill: 'p-msg' },
+  { g: 'sched', title: 'Schedules', sub: 'Run on a timer, read the app’s data, decide in code, hand each target to an action workflow.', pill: 'p-sched' },
+];
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+document.getElementById('groups').innerHTML = GROUPS.map((G) => `
+  <section class="group" id="${G.g}">
+    <div class="group-title"><h2>${G.title}</h2><span class="pill ${G.pill}"><b>${FLOWS.filter((f) => f.g === G.g).length}</b> workflows</span></div>
+    <p class="muted">${G.sub}</p>
+    <div class="cards">${FLOWS.filter((f) => f.g === G.g).map((f) => `
+      <article class="card ${f.g}" id="${f.name}">
+        <div class="card-top"><h3>${f.name}</h3><span class="studio">Pucho EduFlow - ${f.name}</span></div>
+        <p class="what">${esc(f.what)}</p>
+        <dl>
+          <dt>Started by</dt><dd><ul>${f.start.map((s) => `<li>${esc(s)}</li>`).join('')}</ul></dd>
+          <dt>Steps</dt><dd><ol class="steps">${f.steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol></dd>
+          <dt>Fill in Studio</dt><dd>${f.fill.length ? f.fill.map((x) => `<span class="tag">${x}</span>`).join('') : '<span class="muted">Nothing</span>'}</dd>
+          <dt>Credits</dt><dd class="mono">${f.credits} / month · ${f.runs} runs</dd>
+        </dl>
+        ${f.note ? `<p class="note">${esc(f.note)}</p>` : ''}
+      </article>`).join('')}</div>
+  </section>`).join('');
+const label = { call: 'AI call agent', msg: 'Messages and saves', sched: 'Schedule' };
+document.getElementById('costrows').innerHTML = FLOWS.map((f) => `<tr><td class="mono">${f.name}</td><td>${label[f.g]}</td><td class="num">${f.runs}</td><td class="num">${f.credits}</td></tr>`).join('');
+
+// Duplicate checker: every line is matched to one of the 13 names (case, spacing and a "Copy" suffix ignored).
+const NAMES = FLOWS.map((f) => f.name);
+function check() {
+  const lines = document.getElementById('names').value.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const seen = new Map(); const unknown = [];
+  for (const line of lines) {
+    const key = line.toUpperCase().replace(/\(?\s*COPY\s*\d*\s*\)?/g, '').replace(/\s+/g, ' ').trim();
+    const hit = NAMES.find((n) => key === `PUCHO EDUFLOW - ${n}` || key.endsWith(` - ${n}`) || key === n);
+    if (hit) seen.set(hit, [...(seen.get(hit) || []), line]); else unknown.push(line);
+  }
+  const dups = [...seen].filter(([, v]) => v.length > 1); const missing = NAMES.filter((n) => !seen.has(n));
+  const out = [];
+  out.push(`<p><b>${lines.length}</b> names checked · <span class="r-ok"><b>${seen.size}</b> of 13 EduFlow workflows found</span></p>`);
+  if (dups.length) out.push(`<div class="r-warn"><b>Duplicates: keep the newest one, delete the others</b><ul>${dups.map(([n, v]) => `<li><span class="mono">${n}</span> appears ${v.length} times: ${v.map(esc).join(' · ')}</li>`).join('')}</ul></div>`);
+  if (unknown.length) out.push(`<div class="r-warn"><b>Not part of EduFlow</b> (another project, or an old build)<ul>${unknown.map((u) => `<li>${esc(u)}</li>`).join('')}</ul></div>`);
+  if (missing.length) out.push(`<div><b>Not in your list yet</b><ul>${missing.map((n) => `<li class="mono">Pucho EduFlow - ${n}</li>`).join('')}</ul></div>`);
+  if (!dups.length && !unknown.length && !missing.length) out.push('<p class="r-ok"><b>Exactly the 13 EduFlow workflows, one of each.</b></p>');
+  document.getElementById('result').innerHTML = out.join('');
+}
+document.getElementById('check').addEventListener('click', check);
+document.getElementById('clear').addEventListener('click', () => { document.getElementById('names').value = ''; document.getElementById('result').innerHTML = ''; document.getElementById('names').focus(); });
+check();
+</script>
