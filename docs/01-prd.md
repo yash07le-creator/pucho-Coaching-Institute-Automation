@@ -42,14 +42,14 @@ _Generated 2026-11-03 from os.yaml._
   - `send_link` — model none, ~4s, ~7 credits; payload Fee_ID, Student_Name, Parent_Name, Parent_Phone, Balance_INR, Due_Date, Payment_Link → result 
 - **PARENT_UPDATE** — trigger `webhook.catch_webhook`; writes students, calls, messages, alerts, audit_log
   - `weekly_report` — model none, ~4s, ~7 credits; payload Student_ID, Name, Parent_Name, Parent_Phone, Attendance_Pct, Last_Score, Class_Rank, Performance_Trend → result 
-  - `update_call` — model standard, ~300s, ~49 credits; payload Student_ID, Name, Parent_Name, Parent_Phone, Course, Attendance_Pct, Last_Score, Class_Rank, Performance_Trend, Strong_Subjects, Weak_Subjects → result sentiment, feedback, concern, needs_escalation
+  - `update_call` — model standard, ~300s, ~49 credits; payload Student_ID, Name, Parent_Name, Parent_Phone, Course, Attendance_Pct, Last_Score, Class_Rank, Performance_Trend, Strong_Subjects, Weak_Subjects, Is_Retry → result sentiment, feedback, concern, needs_escalation
 - **SEND_WHATSAPP** — trigger `webhook.catch_webhook`; writes messages, audit_log
   - `send_update` — model none, ~4s, ~7 credits; payload Student_ID, Name, Parent_Name, Message, To → result 
 - **FEE_RUN** — trigger `schedule.cron_expression`; writes fees
   - `run` — model none, ~20s, ~5 credits; payload  → result 
 - **ACADEMIC_RUN** — trigger `schedule.cron_expression`; writes students
   - `run` — model none, ~20s, ~5 credits; payload  → result 
-- **PARENT_RUN** — trigger `schedule.cron_expression`; writes students
+- **PARENT_RUN** — trigger `schedule.cron_expression`; writes students, calls
   - `run` — model none, ~20s, ~5 credits; payload  → result 
 - **ROLLUP** — trigger `schedule.cron_expression`; writes students, alerts
   - `run` — model none, ~25s, ~5 credits; payload  → result 

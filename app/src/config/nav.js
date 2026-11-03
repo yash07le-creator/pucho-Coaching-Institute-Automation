@@ -116,7 +116,7 @@ export const NAV = [
     "desc": "",
     "group": "Communication",
     "kind": "page",
-    "subtitle": "Friday reports and calls — how each parent feels, and who raised a concern"
+    "subtitle": "Friday 5 PM — a WhatsApp report to every parent, an AI call only for at-risk students; concerns escalate to the director"
   },
   {
     "id": "messages",

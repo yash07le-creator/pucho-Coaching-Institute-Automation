@@ -15,7 +15,7 @@
 | T12 | SEND_WHATSAPP.send_update | call with the sample payload | result keys ; row in messages, audit_log |
 | T13 | FEE_RUN.run | call with the sample payload | result keys ; row in fees |
 | T14 | ACADEMIC_RUN.run | call with the sample payload | result keys ; row in students |
-| T15 | PARENT_RUN.run | call with the sample payload | result keys ; row in students |
+| T15 | PARENT_RUN.run | call with the sample payload | result keys ; row in students, calls |
 | T16 | ROLLUP.run | call with the sample payload | result keys ; row in students, alerts |
 | U1 | login | each persona signs in | sees only its pages; sign-out works |
 | U2 | every page | demo data | KPIs, charts, table, search, export, each modal succeeds with a toast |

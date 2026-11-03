@@ -2522,7 +2522,7 @@ export const PAGES = [
     ],
     "route": "/parents",
     "label": "Parent updates",
-    "subtitle": "Friday reports and calls — how each parent feels, and who raised a concern",
+    "subtitle": "Friday 5 PM — a WhatsApp report to every parent, an AI call only for at-risk students; concerns escalate to the director",
     "icon": "HeartHandshake",
     "group": "Communication",
     "entity": "calls",
@@ -2604,6 +2604,11 @@ export const PAGES = [
                     "type": "badge"
                   },
                   {
+                    "key": "Summary",
+                    "header": "Feedback",
+                    "type": "truncate"
+                  },
+                  {
                     "key": "Concern",
                     "type": "truncate"
                   },
@@ -2635,7 +2640,7 @@ export const PAGES = [
           },
           {
             "label": "Concerns",
-            "where": "Agent=Parent and Sentiment=Concerned",
+            "where": "Agent=Parent and Needs_Followup=Yes",
             "blocks": [
               {
                 "type": "table",
@@ -2667,6 +2672,11 @@ export const PAGES = [
                   {
                     "key": "Sentiment",
                     "type": "badge"
+                  },
+                  {
+                    "key": "Summary",
+                    "header": "Feedback",
+                    "type": "truncate"
                   },
                   {
                     "key": "Concern",

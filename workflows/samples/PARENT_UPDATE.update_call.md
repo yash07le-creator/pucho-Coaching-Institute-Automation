@@ -12,7 +12,8 @@
   "Class_Rank": 0,
   "Performance_Trend": "<string>",
   "Strong_Subjects": "<string>",
-  "Weak_Subjects": "<string>"
+  "Weak_Subjects": "<string>",
+  "Is_Retry": "<string>"
 }
 ```
 (samples are .md on purpose — never .json in a workflows folder)
